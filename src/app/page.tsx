@@ -5,7 +5,7 @@ export default function Home() {
     <main className="">
       <HeaderHomePage />
       <div>
-        
+        123456
       </div>
     </main>
   );
