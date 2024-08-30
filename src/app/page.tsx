@@ -1,7 +1,4 @@
-import AboutPage from "@/app/layout/homepage/AboutPage";
 import HeaderHomePage from "@/app/layout/homepage/HeaderHomePage";
-import SliderPage from "@/app/layout/homepage/SliderPage";
-import TreatmentPage from "@/app/layout/homepage/TreatmentPage";
 
 export default function Home() {
   return (
