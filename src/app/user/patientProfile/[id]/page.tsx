@@ -6,8 +6,12 @@ import { toast } from 'react-toastify';
 import { useRouter } from "next/navigation";
 import DateTime from "@/app/components/DateTime";
 
-function Booking() {
+function Booking(props: any) {
   const router = useRouter();
+
+  const { params } = props;
+  const id = params.id;
+
   const [selectedChips, setSelectedChips] = useState<string[]>([]);
   const [selectedDate, setSelectedDate] = useState<DateValue | null>(today(getLocalTimeZone()));
   const [selectedTime, setSelectedTime] = useState<string[] | null>(null);
@@ -65,6 +69,7 @@ function Booking() {
     }
 
     const bookingData = {
+      id,
       services: selectedChips,
       date: selectedDate,
       time: selectedTime,
@@ -84,7 +89,7 @@ function Booking() {
     <div className="p-4">
       {/* Breadcrumbs */}
       <Breadcrumbs className="mb-4">
-        <BreadcrumbItem href="/">Hồ sơ bệnh nhân</BreadcrumbItem>
+        <BreadcrumbItem href="/user/patientProfile">Hồ sơ bệnh nhân</BreadcrumbItem>
         <BreadcrumbItem>Đặt lịch</BreadcrumbItem>
       </Breadcrumbs>
 
@@ -94,7 +99,7 @@ function Booking() {
 
           <div className="flex items-center justify-between">
             <h3 className="text-xl font-semibold">Các dịch vụ đã chọn</h3>
-            
+
             {/* Reset Button */}
             <Button
               className="mr-4"

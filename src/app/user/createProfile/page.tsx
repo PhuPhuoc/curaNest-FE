@@ -31,40 +31,35 @@ const CreateProfile: React.FC = () => {
     };
 
     const handleSubmit = () => {
-        // Kiểm tra Họ và Tên: không được để trống và không chứa số
         const nameRegex = /^[^0-9]*$/;
         if (!name || !nameRegex.test(name)) {
             alert("Họ và Tên không được để trống và không được chứa số.");
             return;
         }
 
-        // Kiểm tra Ngày sinh: không được để trống
         if (!dob) {
             alert("Ngày sinh không được để trống.");
             return;
         }
 
-        // Kiểm tra Địa chỉ: không được để trống
         if (!address) {
             alert("Địa chỉ không được để trống.");
             return;
         }
 
-        // Kiểm tra Số điện thoại: không được để trống, không chứa chữ, và tối đa 10 chữ số
         const phoneRegex = /^\d{1,10}$/;
         if (!phoneNumber || !phoneRegex.test(phoneNumber)) {
             alert("Số điện thoại không được để trống, chỉ chứa số, và tối đa 10 chữ số.");
             return;
         }
 
-        // Kiểm tra CCCD: không được để trống, tối đa 12 chữ số
         const cccdRegex = /^\d{1,12}$/;
         if (!cccd || !cccdRegex.test(cccd)) {
             alert("Số CCCD không được để trống và tối đa 12 chữ số.");
             return;
         }
 
-        const formattedDob = dob ? dob.toString() : ''; // Chuyển đối tượng DateValue thành chuỗi
+        const formattedDob = dob ? dob.toString() : '';
 
         const profile = {
             name,
@@ -75,10 +70,10 @@ const CreateProfile: React.FC = () => {
             email,
             medicalDescription,
             selectedServices,
-            avatar: avatar ? URL.createObjectURL(avatar) : '' // Tạo URL cho avatar nếu có
+            avatar: avatar ? URL.createObjectURL(avatar) : ''
         };
 
-        console.log(profile); // In thông tin ra console
+        console.log(profile);
 
         // Lấy danh sách hồ sơ hiện tại từ localStorage
         const existingProfiles = JSON.parse(localStorage.getItem('profiles') || '[]');
@@ -89,7 +84,7 @@ const CreateProfile: React.FC = () => {
         // Lưu danh sách hồ sơ cập nhật vào localStorage
         localStorage.setItem('profiles', JSON.stringify(existingProfiles));
 
-        router.push('/');
+        router.push('/user/patientProfile');
     };
 
     const handProleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -98,10 +93,15 @@ const CreateProfile: React.FC = () => {
         }
     };
 
+    // Handle Go Back
+    const handleGoBack = () => {
+        router.back();
+    };
+
     return (
         <div className="p-6">
             <Breadcrumbs className="mb-4">
-                <BreadcrumbItem href="/">Hồ sơ bệnh nhân</BreadcrumbItem>
+                <BreadcrumbItem href="/user/patientProfile">Hồ sơ bệnh nhân</BreadcrumbItem>
                 <BreadcrumbItem>Tạo hồ sơ bệnh nhân</BreadcrumbItem>
             </Breadcrumbs>
 
@@ -200,7 +200,7 @@ const CreateProfile: React.FC = () => {
                                 <Chip
                                     key={name}
                                     onClick={() => handleChipClick(name)}
-                                    className={`transition-colors ${selectedServices.includes(name) ? 'bg-gray-300 text-gray-700' : `${color} ${textColor}`} ${hoverColor}`}
+                                    className={`transition-colors ${selectedServices.includes(name) ? `${color} ${textColor}` : 'bg-gray-300 text-gray-700'} ${hoverColor}`}
                                 >
                                     {name}
                                 </Chip>
@@ -210,11 +210,20 @@ const CreateProfile: React.FC = () => {
                 </div>
             </div>
 
-            <div className="mt-6 flex justify-end gap-4">
-                <Button color="danger" onClick={() => router.push('/')}>
+            <div className="mt-6 flex justify-end gap-2">
+                <Button
+                    onClick={handleGoBack}
+                    size="lg"
+                    color='danger'
+                >
                     Quay lại
                 </Button>
-                <Button onClick={handleSubmit}>
+
+                <Button
+                    size="lg"
+                    onClick={handleSubmit}
+                    color='primary'
+                >
                     Tạo
                 </Button>
             </div>

@@ -11,7 +11,7 @@ import {
   Link,
   Button,
 } from "@nextui-org/react";
-import { AcmeLogo } from "@/app/layout/homepage/AcmeLogo";
+import { AcmeLogo } from "./Icon/AcmeLogo";
 import SliderPage from "@/app/layout/homepage/SliderPage";
 import AboutPage from "@/app/layout/homepage/AboutPage";
 import TreatmentPage from "@/app/layout/homepage/TreatmentPage";
@@ -31,7 +31,12 @@ const HeaderHomePage = () => {
           />
           <NavbarBrand>
             <AcmeLogo />
-            <p className="font-bold text-inherit">CURANEST</p>
+            <Link
+              href={"/"}
+              className="font-bold text-inherit text-2xl mr-6"
+            >
+              CURANEST
+            </Link>
           </NavbarBrand>
         </NavbarContent>
 
@@ -42,7 +47,7 @@ const HeaderHomePage = () => {
           <NavbarItem>
             <Link
               color="foreground"
-              href="#slider"
+              href="/"
               className="hover:text-white"
             >
               Home
@@ -83,8 +88,8 @@ const HeaderHomePage = () => {
                   index === 2
                     ? "primary"
                     : index === menuItems.length - 1
-                    ? "danger"
-                    : "foreground"
+                      ? "danger"
+                      : "foreground"
                 }
                 className="w-full"
                 href="#"

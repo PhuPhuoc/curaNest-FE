@@ -1,5 +1,4 @@
 "use client";
-
 import {
   Button,
   Navbar,
@@ -11,8 +10,11 @@ import {
   NavbarMenuToggle,
 } from "@nextui-org/react";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
+import { AcmeLogo } from "../homepage/Icon/AcmeLogo";
 
 const UserNavbar = () => {
+  const router = useRouter();
   const menuItems = [
     { title: "Hồ sơ bệnh nhân", link: "/patientProfile" },
     { title: "Tìm kiếm điều dưỡng", link: "/findingNurse" },
@@ -23,7 +25,7 @@ const UserNavbar = () => {
   const allMenuItems = [...menuItems, { title: "Log out", link: "/login" }];
 
   return (
-    <Navbar className="w-full">
+    <Navbar className="w-full ">
       <NavbarContent className="sm:hidden" justify="start">
         <NavbarMenuToggle />
       </NavbarContent>
@@ -37,24 +39,26 @@ const UserNavbar = () => {
       </NavbarContent>
 
       <NavbarContent
-        className="hidden sm:flex gap-4 font-semibold justify-between flex-1"
+        className="hidden sm:flex gap-2 font-semibold justify-between flex-1"
         justify="center"
       >
         <NavbarBrand>
-          <p className="font-bold text-inherit text-2xl hover:text-sky-400 mr-10">
+         
+          <Link
+            href={"/user/patientProfile"}
+            className="font-bold text-inherit text-2xl hover:text-sky-400 mr-6">
             CURANEST
-          </p>
+          </Link>
         </NavbarBrand>
+
         {menuItems.map((item, index) => (
           <NavbarItem key={`${item}-${index}`}>
-            <Button
+            <Link
               href={`/user/${item.link}`}
-              variant="ghost"
-              className="text-foreground hover:text-white px-4 py-2"
-              as={Link}
+              className="text-foreground px-4 py-2"
             >
               {item.title}
-            </Button>
+            </Link>
           </NavbarItem>
         ))}
       </NavbarContent>
@@ -63,9 +67,9 @@ const UserNavbar = () => {
         <NavbarItem>
           <Button
             as={Link}
-            href="/login"
-            variant="flat"
-            className="hidden sm:block bg-slate-900 text-white font-semibold underline-offset-1 underline decoration-indigo-600 px-4 py-2"
+            href="/"
+            variant="solid"
+            className="hidden sm:block bg-slate-900 text-white font-semibold px-4 py-2"
           >
             Log out
           </Button>
@@ -80,8 +84,8 @@ const UserNavbar = () => {
                 index === allMenuItems.length - 1
                   ? "danger"
                   : index === 2
-                  ? "primary"
-                  : "default"
+                    ? "primary"
+                    : "default"
               }
               className="w-full"
               href={`/user/${item.link}`}

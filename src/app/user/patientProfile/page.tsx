@@ -1,7 +1,7 @@
 "use client";
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
-import { Avatar, Chip, Button } from "@nextui-org/react"; // Import Avatar from NextUI
+import { Avatar, Chip, Button } from "@nextui-org/react";
 
 const serviceColors: Record<string, string> = {
   "Thay băng": "bg-blue-500",
@@ -27,7 +27,7 @@ const PatientProfile: React.FC = () => {
   return (
     <div className="p-6">
       <button
-        onClick={() => router.push("/createProfile")}
+        onClick={() => router.push("/user/createProfile")}
         className="bg-blue-700 text-white px-4 py-2 rounded shadow-md hover:bg-blue-600 transition-colors mb-6"
       >
         Tạo hồ sơ bệnh nhân
@@ -109,9 +109,8 @@ const PatientProfile: React.FC = () => {
                       (service: string, i: number) => (
                         <Chip
                           key={i}
-                          className={`text-white ${
-                            serviceColors[service] || "bg-gray-500"
-                          }`}
+                          className={`text-white ${serviceColors[service] || "bg-gray-500"
+                            }`}
                           size="md"
                         >
                           {service}
@@ -122,7 +121,7 @@ const PatientProfile: React.FC = () => {
 
                   <div className="flex space-x-4">
                     <Button
-                      onClick={() => router.push("/booking")}
+                      onClick={() => router.push(`/user/patientProfile/${profile.id}`)}
                       className="bg-teal-400 text-white px-4 py-2 rounded shadow-md hover:bg-teal-600 transition-colors"
                     >
                       Đặt điều dưỡng
