@@ -5,7 +5,7 @@ export default function Home() {
     <main className="bg-gray-50">
       <HeaderHomePage />
       <div className="p-20 bg-gray-800 text-white">
-        <p className="text-center">Made by @me</p>
+        <p className="text-center">Made by </p>
       </div>
     </main>
   );

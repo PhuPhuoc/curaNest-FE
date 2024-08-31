@@ -4,7 +4,7 @@ import ImageSlider from "../../../../public/slider-img.jpg";
 
 const SliderPage = () => {
   return (
-    <div className="flex flex-col items-center justify-center  p-5 pt-0 shadow-xl bg-white">
+    <div className="flex flex-col items-center justify-center  p-5 pt-0 shadow-xl bg-stone-50">
       <div className="flex flex-col-reverse md:flex-row items-center justify-center max-w-6xl w-full">
         <div className="flex flex-col md:w-1/2 gap-5 text-center md:text-left">
           <p className="font-semibold text-6xl">

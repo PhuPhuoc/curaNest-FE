@@ -23,7 +23,7 @@ const HeaderHomePage = () => {
 
   return (
     <div>
-      <Navbar onMenuOpenChange={setIsMenuOpen} className="bg-sky-400">
+      <Navbar onMenuOpenChange={setIsMenuOpen}>
         <NavbarContent>
           <NavbarMenuToggle
             aria-label={isMenuOpen ? "Close menu" : "Open menu"}
@@ -101,12 +101,15 @@ const HeaderHomePage = () => {
           ))}
         </NavbarMenu>
       </Navbar>
+
       <div id="slider">
         <SliderPage />
       </div>
+
       <div id="about">
         <AboutPage />
       </div>
+      
       <div id="treatment">
         <TreatmentPage />
       </div>
