@@ -109,7 +109,7 @@ const HeaderHomePage = () => {
       <div id="about">
         <AboutPage />
       </div>
-      
+    
       <div id="treatment">
         <TreatmentPage />
       </div>
