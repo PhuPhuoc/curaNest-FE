@@ -1,8 +1,10 @@
 "use client";
 import NavBarNurse from "@/app/components/findingNurse/NavBarNurse";
 import { Card, Button } from "@nextui-org/react";
+import { useRouter } from "next/navigation";
 
 interface Nurse {
+  id: string;
   name: string;
   role: string;
   shift: string;
@@ -10,13 +12,16 @@ interface Nurse {
 }
 
 interface NurseCardProps {
+  id: string;
   name: string;
   role: string;
   shift: string;
   note: string;
 }
 
-const NurseCard: React.FC<NurseCardProps> = ({ name, role, shift, note }) => {
+const NurseCard: React.FC<NurseCardProps> = ({ id, name, role, shift, note }) => {
+  const router = useRouter();
+
   return (
     <Card className="flex items-center p-4 mb-4">
       <div className="flex items-center justify-between w-full">
@@ -30,7 +35,11 @@ const NurseCard: React.FC<NurseCardProps> = ({ name, role, shift, note }) => {
           </div>
         </div>
 
-        <Button className="ml-4">Assign to shift</Button>
+        <Button
+          onClick={() => router.push(`/user/findingNurse/${id}`)}
+          className="ml-4"
+        >Xem chi tiết
+        </Button>
       </div>
     </Card>
   );
@@ -39,15 +48,16 @@ const NurseCard: React.FC<NurseCardProps> = ({ name, role, shift, note }) => {
 const FindingNurse = () => {
   const nurses: Nurse[] = [
     {
+      id: "1",
       name: "Jane Doe",
       role: "Nurse",
       shift: "6-3",
       note: "Not doing this shift",
     },
-    { name: "John Smith", role: "Nurse", shift: "6-3", note: "Available" },
-    { name: "Alice Johnson", role: "Nurse", shift: "6-3", note: "On leave" },
+    { id: "2", name: "John Smith", role: "Nurse", shift: "6-3", note: "Available" },
+    { id: "3", name: "Alice Johnson", role: "Nurse", shift: "6-3", note: "On leave" },
   ];
-  
+
   return (
     <div className="flex h-screen">
       <div className="flex-[20%] bg-gray-100 p-4">
@@ -58,6 +68,7 @@ const FindingNurse = () => {
         {nurses.map((nurse, index) => (
           <NurseCard
             key={index}
+            id={nurse.id}
             name={nurse.name}
             role={nurse.role}
             shift={nurse.shift}

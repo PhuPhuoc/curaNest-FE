@@ -94,7 +94,7 @@ function Booking(props: any) {
       </Breadcrumbs>
 
       <div className="flex flex-col md:flex-row">
-        {/* Khung tổng hợp các Chip đã chọn */}
+        {/* Left side*/}
         <div className="md:w-2/3 p-4 border border-gray-300 rounded">
 
           <div className="flex items-center justify-between">
@@ -110,7 +110,8 @@ function Booking(props: any) {
               Đặt lại
             </Button>
           </div>
-
+          
+          {/* Selected Chip */}
           {selectedChips.length > 0 ? (
             <div className="flex flex-wrap gap-1">
               {selectedChips.map((chip, index) => (
@@ -155,6 +156,9 @@ function Booking(props: any) {
               onClick={handleGoBack}
               size="lg"
             >
+              <svg className="w-4 h-4 text-black dark:text-white" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 14 10">
+                <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 5H1m0 0 4 4M1 5l4-4" />
+              </svg>
               Quay lại
             </Button>
 
@@ -172,7 +176,7 @@ function Booking(props: any) {
         {/* Đường kẻ ngăn giữa hai phần */}
         <div className="w-1 border-l border-gray-300 mx-4"></div>
 
-        {/* Chip để chọn bên phải */}
+        {/* Right Side */}
         <div className="md:w-1/3 p-4 flex flex-col">
           <p className="text-xl font-semibold mb-2">Hãy chọn loại dịch vụ</p>
           <div className="flex flex-wrap">
