@@ -6,7 +6,7 @@ export default function MainLayout({
   children: React.ReactNode;
 }) {
   return (
-    <div className="bg-gray-200">
+    <div className="bg-gray-200 min-h-screen">
       <UserNavbar />
       <div className="">{children}</div>
     </div>
