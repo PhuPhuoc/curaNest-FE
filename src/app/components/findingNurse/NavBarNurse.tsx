@@ -47,6 +47,7 @@ const NavBarNurse = () => {
       <Input
         placeholder="Search..."
         className="mb-4"
+         variant="bordered"
       />
 
       <Listbox

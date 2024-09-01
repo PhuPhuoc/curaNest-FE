@@ -18,8 +18,8 @@ const UserNavbar = () => {
   const menuItems = [
     { title: "Hồ sơ bệnh nhân", link: "/patientProfile" },
     { title: "Tìm kiếm điều dưỡng", link: "/findingNurse" },
-    { title: "Lịch hẹn sắp tới", link: "/userContract" },
-    { title: "Lịch sử giao dịch", link: "/userContract" },
+    { title: "Lịch hẹn sắp tới", link: "/upcomingSchedule" },
+    { title: "Lịch sử giao dịch", link: "/historyTransaction" },
   ];
 
   const allMenuItems = [...menuItems, { title: "Log out", link: "/login" }];
