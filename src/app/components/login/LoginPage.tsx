@@ -121,6 +121,84 @@ const AuthPage = () => {
     }
   };
 
+  const handleSubmitNurse = () => {
+    let isValid = true;
+
+    // Reset all error states
+    setEmailError("");
+    setPasswordError("");
+    setConfirmPasswordError("");
+    setPhoneNumberError("");
+    setLoginError("");
+
+    if (isLogin) {
+      // Validate email
+      if (!email) {
+        setEmailError("Email is required");
+        isValid = false;
+      } else if (!validateEmail(email)) {
+        setEmailError("Please enter a valid email");
+        isValid = false;
+      }
+
+      // Validate password
+      if (!password) {
+        setPasswordError("Password is required");
+        isValid = false;
+      }
+
+      if (isValid) {
+        // Perform login action here
+        // For demonstration, we'll just set a login error
+        setLoginError("Invalid email or password");
+      }
+    } else {
+      // Validate email
+      if (!email) {
+        setEmailError("Email is required");
+        isValid = false;
+      } else if (!validateEmail(email)) {
+        setEmailError("Please enter a valid email");
+        isValid = false;
+      }
+
+      // Validate password
+      if (!password) {
+        setPasswordError("Password is required");
+        isValid = false;
+      }
+
+      // Validate confirm password
+      if (!confirmPassword) {
+        setConfirmPasswordError("Please confirm your password");
+        isValid = false;
+      } else if (password !== confirmPassword) {
+        setConfirmPasswordError("Passwords do not match");
+        isValid = false;
+      }
+
+      // Validate phone number for nurse registration
+      if (userType === "nurse") {
+        if (!phoneNumber) {
+          setPhoneNumberError("Phone number is required");
+          isValid = false;
+        } else if (!validatePhoneNumber(phoneNumber)) {
+          setPhoneNumberError("Please enter a valid 10-digit phone number");
+          isValid = false;
+        }
+      }
+    }
+
+    if (isValid) {
+      console.log("Form is valid");
+      // Perform login or signup action here
+      // If successful, then redirect
+      router.push("/nurse");
+    } else {
+      console.log("Form has errors");
+    }
+  };
+
   const toggleAuthMode = () => {
     setIsLogin(!isLogin);
     setEmail("");
@@ -320,6 +398,14 @@ const AuthPage = () => {
                     className="w-full mt-4"
                   >
                     Login
+                  </Button>
+                  <Button
+                    onClick={() => handleSubmitNurse()}
+                    color="primary"
+                    size="lg"
+                    className="w-full mt-4"
+                  >
+                    Login Nurse
                   </Button>
                 </motion.div>
               ) : showRegistrationForm ? (

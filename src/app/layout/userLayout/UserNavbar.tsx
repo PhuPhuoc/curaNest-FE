@@ -10,11 +10,12 @@ import {
   NavbarMenuToggle,
 } from "@nextui-org/react";
 import Link from "next/link";
-import { useRouter } from "next/navigation";
+import { usePathname } from "next/navigation"; // Thay useRouter bằng usePathname
 import { AcmeLogo } from "../homepage/Icon/AcmeLogo";
 
 const UserNavbar = () => {
-  const router = useRouter();
+  const pathname = usePathname(); // Lấy đường dẫn hiện tại
+
   const menuItems = [
     { title: "Hồ sơ bệnh nhân", link: "/patientProfile" },
     { title: "Tìm kiếm điều dưỡng", link: "/findingNurse" },
@@ -25,7 +26,7 @@ const UserNavbar = () => {
   const allMenuItems = [...menuItems, { title: "Log out", link: "/login" }];
 
   return (
-    <Navbar className="w-full ">
+    <Navbar className="w-full">
       <NavbarContent className="sm:hidden" justify="start">
         <NavbarMenuToggle />
       </NavbarContent>
@@ -43,19 +44,24 @@ const UserNavbar = () => {
         justify="center"
       >
         <NavbarBrand>
-         
           <Link
-            href={"/user/patientProfile"}
-            className="font-bold text-inherit text-2xl hover:text-sky-400 mr-6">
+            href="/user/patientProfile"
+            className="font-bold text-inherit text-2xl hover:text-sky-400 mr-6"
+          >
             CURANEST
           </Link>
         </NavbarBrand>
 
         {menuItems.map((item, index) => (
-          <NavbarItem key={`${item}-${index}`}>
+          <NavbarItem
+            key={`${item}-${index}`}
+            isActive={pathname === `/user${item.link}`}
+          >
             <Link
-              href={`/user/${item.link}`}
-              className="text-foreground px-4 py-2"
+              href={`/user${item.link}`}
+              className={`px-4 py-2 ${
+                pathname === `/user${item.link}` ? "text-blue-500" : "text-foreground"
+              }`}
             >
               {item.title}
             </Link>
@@ -84,11 +90,11 @@ const UserNavbar = () => {
                 index === allMenuItems.length - 1
                   ? "danger"
                   : index === 2
-                    ? "primary"
-                    : "default"
+                  ? "primary"
+                  : "default"
               }
               className="w-full"
-              href={`/user/${item.link}`}
+              href={`/user${item.link}`}
               variant="ghost"
               as={Link}
             >
