@@ -11,7 +11,7 @@ import {
 } from "@nextui-org/react";
 import Link from "next/link";
 import { usePathname } from "next/navigation"; // Thay useRouter bằng usePathname
-import { AcmeLogo } from "../homepage/Icon/AcmeLogo";
+import { AcmeLogo } from "../../Icon/AcmeLogo";
 
 const UserNavbar = () => {
   const pathname = usePathname(); // Lấy đường dẫn hiện tại
@@ -59,9 +59,8 @@ const UserNavbar = () => {
           >
             <Link
               href={`/user${item.link}`}
-              className={`px-4 py-2 ${
-                pathname === `/user${item.link}` ? "text-blue-500" : "text-foreground"
-              }`}
+              className={`px-4 py-2 ${pathname === `/user${item.link}` ? "text-blue-500" : "text-foreground"
+                }`}
             >
               {item.title}
             </Link>
@@ -90,8 +89,8 @@ const UserNavbar = () => {
                 index === allMenuItems.length - 1
                   ? "danger"
                   : index === 2
-                  ? "primary"
-                  : "default"
+                    ? "primary"
+                    : "default"
               }
               className="w-full"
               href={`/user${item.link}`}

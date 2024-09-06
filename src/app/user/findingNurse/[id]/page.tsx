@@ -18,7 +18,7 @@ const DetailNurse = () => {
     };
 
     return (
-        <div className="p-6">
+        <div className="bg-white p-6">
             <div className="flex gap-x-10 mb-8">
                 <div className="w-60 h-60 flex-shrink-0">
                     <img

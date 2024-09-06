@@ -11,7 +11,7 @@ const NurseNavbar = () => {
 
   const menuItems = [
     { title: "Lịch hẹn với bệnh nhân", link: "/patientSchedule" },
-    { title: "Lịch làm việc", link: "/findingNurse" },
+    { title: "Lịch làm việc", link: "/workingSchedule" },
     { title: "Lịch sử giao dịch", link: "/historyTransaction" },
   ];
 

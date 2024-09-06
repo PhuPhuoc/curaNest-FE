@@ -4,7 +4,7 @@ import { Chip, Breadcrumbs, BreadcrumbItem, Button, DateValue } from "@nextui-or
 import { getLocalTimeZone, today } from "@internationalized/date";
 import { toast } from 'react-toastify';
 import { useRouter } from "next/navigation";
-import DateTime from "@/app/components/DateTime";
+import DateTime from "@/app/components/bookingNurse/DateTime";
 
 function Booking(props: any) {
   const router = useRouter();

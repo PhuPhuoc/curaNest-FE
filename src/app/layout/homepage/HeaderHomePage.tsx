@@ -11,7 +11,7 @@ import {
   Link,
   Button,
 } from "@nextui-org/react";
-import { AcmeLogo } from "./Icon/AcmeLogo";
+import { AcmeLogo } from "../../Icon/AcmeLogo";
 import SliderPage from "@/app/layout/homepage/SliderPage";
 import AboutPage from "@/app/layout/homepage/AboutPage";
 import TreatmentPage from "@/app/layout/homepage/TreatmentPage";
@@ -109,7 +109,7 @@ const HeaderHomePage = () => {
       <div id="about">
         <AboutPage />
       </div>
-    
+
       <div id="treatment">
         <TreatmentPage />
       </div>
