@@ -33,7 +33,7 @@ const UserNavbar = () => {
 
       <NavbarContent className="sm:hidden pr-3" justify="center">
         <NavbarBrand>
-          <p className="font-bold text-inherit hover:text-sky-400 text-2xl">
+          <p className="font-bold text-inherit hover:text-lime-500 text-2xl">
             CURANEST
           </p>
         </NavbarBrand>
@@ -46,7 +46,7 @@ const UserNavbar = () => {
         <NavbarBrand>
           <Link
             href="/user/patientProfile"
-            className="font-bold text-inherit text-2xl hover:text-sky-400 mr-6"
+            className="font-bold text-inherit text-2xl hover:text-lime-500 mr-6"
           >
             CURANEST
           </Link>
@@ -59,7 +59,7 @@ const UserNavbar = () => {
           >
             <Link
               href={`/user${item.link}`}
-              className={`px-4 py-2 ${pathname === `/user${item.link}` ? "text-blue-500" : "text-foreground"
+              className={`px-4 py-2 ${pathname === `/user${item.link}` ? "text-lime-500" : "text-foreground"
                 }`}
             >
               {item.title}
@@ -76,7 +76,7 @@ const UserNavbar = () => {
             variant="solid"
             className="hidden sm:block bg-slate-900 text-white font-semibold px-4 py-2"
           >
-            Log out
+            Đăng xuất
           </Button>
         </NavbarItem>
       </NavbarContent>

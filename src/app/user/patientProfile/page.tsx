@@ -28,7 +28,7 @@ const PatientProfile: React.FC = () => {
     <div className="p-6">
       <Button
         onClick={() => router.push("/user/createProfile")}
-        className="bg-blue-700 text-white px-4 py-2 rounded shadow-md hover:bg-blue-600 transition-colors mb-6"
+        className="bg-lime-500 text-white font-bold px-4 py-2 rounded shadow-md hover:bg-blue-600 transition-colors mb-6"
       >
         Tạo hồ sơ bệnh nhân
       </Button>

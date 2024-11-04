@@ -47,7 +47,7 @@ const NurseNavbar = () => {
             href="/login"
             className="block w-full bg-red-600 hover:bg-red-700 text-white font-semibold px-4 py-2 text-center rounded"
           >
-            Log out
+            Đăng xuất
           </Link>
         </div>
       </div>

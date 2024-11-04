@@ -222,7 +222,7 @@ const AuthPage = () => {
       className="space-y-4"
     >
       <h2 className="text-2xl font-bold text-center text-gray-800 mb-6">
-        Choose Account Type
+        Chọn loại tài khoản
       </h2>
       <Button
         color="primary"
@@ -230,7 +230,7 @@ const AuthPage = () => {
         className="w-full"
         onClick={() => handleUserTypeSelection("user")}
       >
-        User
+        Người dùng
       </Button>
       <Button
         color="secondary"
@@ -238,7 +238,7 @@ const AuthPage = () => {
         className="w-full"
         onClick={() => handleUserTypeSelection("nurse")}
       >
-        Nurse
+        Điều dưỡng
       </Button>
     </motion.div>
   );
@@ -252,13 +252,13 @@ const AuthPage = () => {
       className="space-y-6"
     >
       <h2 className="text-3xl font-bold text-center text-gray-800 mb-6">
-        Create {userType === "nurse" ? "Nurse" : "User"} Account
+        Tạo {userType === "nurse" ? "Nurse" : "User"} tài khoản
       </h2>
       <Input
         isClearable
         label="Email"
         variant="bordered"
-        placeholder="Enter your email"
+        placeholder="Nhập email"
         size="lg"
         value={email}
         onChange={(e) => setEmail(e.target.value)}
@@ -270,7 +270,7 @@ const AuthPage = () => {
         type={isVisible ? "text" : "password"}
         label="Password"
         variant="bordered"
-        placeholder="Enter your password"
+        placeholder="Nhập password"
         size="lg"
         value={password}
         onChange={(e) => setPassword(e.target.value)}
@@ -351,13 +351,14 @@ const AuthPage = () => {
                   exit={{ opacity: 0, x: 20 }}
                   transition={{ duration: 0.5 }}
                 >
-                  <h2 className="text-3xl font-bold text-center text-gray-800 mb-6">
-                    Welcome Back!
+                  <h2 className="text-2xl font-bold text-center text-gray-800 mb-6">
+                    Chào mừng bạn đến với{" "}
+                    <span className="text-lime-500">CURANEST</span>
                   </h2>
                   <Input
                     label="Email"
                     variant="bordered"
-                    placeholder="Enter your email"
+                    placeholder="Nhập email"
                     size="lg"
                     value={email}
                     onChange={(e) => setEmail(e.target.value)}
@@ -370,7 +371,7 @@ const AuthPage = () => {
                     type={isVisible ? "text" : "password"}
                     label="Password"
                     variant="bordered"
-                    placeholder="Enter your password"
+                    placeholder="Nhập password"
                     size="lg"
                     value={password}
                     onChange={(e) => setPassword(e.target.value)}
@@ -391,22 +392,24 @@ const AuthPage = () => {
                       </button>
                     }
                   />
-                  <Button
-                    type="submit"
-                    color="primary"
-                    size="lg"
-                    className="w-full mt-4"
-                  >
-                    Login
-                  </Button>
-                  <Button
-                    onClick={() => handleSubmitNurse()}
-                    color="primary"
-                    size="lg"
-                    className="w-full mt-4"
-                  >
-                    Login Nurse
-                  </Button>
+                  <div className="flex space-x-4 mt-4">
+                    <Button
+                      type="submit"
+                      color="primary"
+                      size="lg"
+                      className="w-full"
+                    >
+                      Đăng nhập cho người dùng
+                    </Button>
+                    <Button
+                      onClick={() => handleSubmitNurse()}
+                      color="primary"
+                      size="lg"
+                      className="w-full"
+                    >
+                      Đăng nhập cho điều dưỡng
+                    </Button>
+                  </div>
                 </motion.div>
               ) : showRegistrationForm ? (
                 <motion.div
@@ -418,12 +421,12 @@ const AuthPage = () => {
                   className="space-y-6"
                 >
                   <h2 className="text-3xl font-bold text-center text-gray-800 mb-6">
-                    Create {userType === "nurse" ? "Nurse" : "User"} Account
+                    Tạo {userType === "nurse" ? "Nurse" : "User"} tài khoản
                   </h2>
                   <Input
                     label="Email"
                     variant="bordered"
-                    placeholder="Enter your email"
+                    placeholder="Nhập email"
                     size="lg"
                     value={email}
                     onChange={(e) => setEmail(e.target.value)}
@@ -435,7 +438,7 @@ const AuthPage = () => {
                     type={isVisible ? "text" : "password"}
                     label="Password"
                     variant="bordered"
-                    placeholder="Enter your password"
+                    placeholder="Nhập password"
                     size="lg"
                     value={password}
                     onChange={(e) => setPassword(e.target.value)}
@@ -460,7 +463,7 @@ const AuthPage = () => {
                     type={isVisible ? "text" : "password"}
                     label="Confirm Password"
                     variant="bordered"
-                    placeholder="Confirm your password"
+                    placeholder="Xác nhận password"
                     size="lg"
                     value={confirmPassword}
                     onChange={(e) => setConfirmPassword(e.target.value)}
@@ -473,7 +476,7 @@ const AuthPage = () => {
                       type="tel"
                       label="Phone Number"
                       variant="bordered"
-                      placeholder="Enter your phone number"
+                      placeholder="Nhập số điện thoại"
                       size="lg"
                       value={phoneNumber}
                       onChange={(e) => setPhoneNumber(e.target.value)}
@@ -488,7 +491,7 @@ const AuthPage = () => {
                     size="lg"
                     className="w-full"
                   >
-                    Sign Up
+                    Đăng ký
                   </Button>
                 </motion.div>
               ) : (
@@ -497,13 +500,13 @@ const AuthPage = () => {
             </AnimatePresence>
           </form>
           <p className="text-center text-sm text-gray-600">
-            {isLogin ? "Don't have an account?" : "Already have an account?"}{" "}
+            {isLogin ? "Bạn chưa có tài khoản?" : "Đã có tài khoản?"}{" "}
             <button
               type="button"
               onClick={toggleAuthMode}
               className="text-blue-600 hover:underline font-semibold"
             >
-              {isLogin ? "Sign up" : "Login"}
+              {isLogin ? "Đăng ký" : "Đăng nhập"}
             </button>
           </p>
         </motion.div>

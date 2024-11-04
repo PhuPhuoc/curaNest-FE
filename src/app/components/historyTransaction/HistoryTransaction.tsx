@@ -101,33 +101,33 @@ const HistoryTransaction = () => {
                   />
                   <div className="flex-grow grid grid-cols-2 md:grid-cols-4 gap-x-4 gap-y-2 w-full text-center sm:text-left">
                     <div className="col-span-2 sm:col-span-1">
-                      <p className="font-semibold">Patient Name</p>
-                      <p className="text-sm">{appointment.patientName}</p>
+                    <p className="font-semibold">Tên bệnh nhân</p>
+                    <p className="text-sm">{appointment.patientName}</p>
                     </div>
                     <div>
-                      <p className="font-semibold">Phone</p>
+                      <p className="font-semibold">Số điện thoại</p>
                       <p className="text-sm">{appointment.phone}</p>
                     </div>
                     <div>
-                      <p className="font-semibold">Appointment</p>
+                      <p className="font-semibold">Dịch vụ</p>
                       <p className="text-sm">{appointment.title}</p>
                     </div>
                     <div>
-                      <p className="font-semibold">Doctor</p>
+                      <p className="font-semibold">Điều dưỡng</p>
                       <p className="text-sm">{appointment.doctor}</p>
                     </div>
                     <div>
-                      <p className="font-semibold">Date</p>
+                      <p className="font-semibold">Ngày hẹn</p>
                       <p className="text-sm">
                         {new Date(appointment.date).toLocaleDateString()}
                       </p>
                     </div>
                     <div>
-                      <p className="font-semibold">Time</p>
+                      <p className="font-semibold">Thời gian</p>
                       <p className="text-sm">{appointment.time}</p>
                     </div>
                     <div>
-                      <p className="font-semibold">Status</p>
+                      <p className="font-semibold">Trạng thái</p>
                       <Badge
                         color={
                           appointment.status === "Confirmed"
@@ -149,7 +149,7 @@ const HistoryTransaction = () => {
                       className="transition-all duration-300 ease-in-out hover:scale-105 hover:shadow-md text-slate-500"
                       onPress={() => handleOpenModal(appointment)}
                     >
-                      Feedbacks
+                      Phản hồi
                     </Button>
                   </div>
                 </div>

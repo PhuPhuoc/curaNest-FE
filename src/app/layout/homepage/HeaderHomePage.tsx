@@ -14,7 +14,7 @@ import {
 import { AcmeLogo } from "../../Icon/AcmeLogo";
 import SliderPage from "@/app/layout/homepage/SliderPage";
 import AboutPage from "@/app/layout/homepage/AboutPage";
-import TreatmentPage from "@/app/layout/homepage/TreatmentPage";
+import TreatmentPage from "@/app/layout/homepage/ServicePage";
 
 const HeaderHomePage = () => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
@@ -48,23 +48,23 @@ const HeaderHomePage = () => {
             <Link
               color="foreground"
               href="/"
-              className="hover:text-white"
+              className="hover:text-gray"
             >
-              Home
+              Trang chủ
             </Link>
           </NavbarItem>
           <NavbarItem>
-            <Link href="#about" color="foreground" className="hover:text-white">
-              About
+            <Link href="#about" color="foreground" className="hover:text-gray">
+              Giới thiệu
             </Link>
           </NavbarItem>
           <NavbarItem>
             <Link
               color="foreground"
               href="#treatment"
-              className="hover:text-white"
+              className="hover:text-gray"
             >
-              Treatment
+              Dịch vụ
             </Link>
           </NavbarItem>
         </NavbarContent>
@@ -76,7 +76,7 @@ const HeaderHomePage = () => {
               variant="flat"
               className="bg-slate-900 text-white font-semibold underline-offset-1 underline decoration-indigo-600"
             >
-              Login
+              Đăng nhập
             </Button>
           </NavbarItem>
         </NavbarContent>

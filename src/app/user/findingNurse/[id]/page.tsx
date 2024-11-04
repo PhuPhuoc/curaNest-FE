@@ -22,7 +22,7 @@ const DetailNurse = () => {
             <div className="flex gap-x-10 mb-8">
                 <div className="w-60 h-60 flex-shrink-0">
                     <img
-                        src="/path-to-nurse-image.jpg"
+                        src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRHzEK9JLpP_RJ06f2rytGp9OqsMUwH_k-vKw&s"
                         alt="Nurse Image"
                         className="w-full h-full object-cover rounded-lg border border-gray-300"
                     />

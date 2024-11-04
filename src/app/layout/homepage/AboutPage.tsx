@@ -14,13 +14,15 @@ const AboutPage = () => {
         </div>
         <div className="flex flex-col w-full md:w-1/2 gap-5 text-center md:text-left">
           <p className="font-semibold text-4xl ">
-            ABOUT <span className="text-lime-500">CURANEST</span>
+            GIỚI THIỆU VỀ <span className="text-lime-500">CURANEST</span>
           </p>
           <p className="max-w-[500px] mx-auto md:mx-0 text-gray-500 mt-2 text-lg">
-            When looking at its layout, the point of using Lorem Ipsum is that
-            it has a more-or-less normal distribution of letters, as opposed to
-            When looking at its layout, the point of using Lorem Ipsum is that
-            it has a more-or-less normal distribution of letters, as opposed to
+            Curanest là nền tảng kết nối gia đình có người già hoặc người bệnh
+            với đội ngũ điều dưỡng chuyên nghiệp, mang lại dịch vụ chăm sóc tại
+            nhà tiện lợi và đáng tin cậy. Với Curanest, người dùng có thể dễ
+            dàng đặt lịch chăm sóc thông qua ứng dụng, giúp tiết kiệm thời gian
+            và đảm bảo sự an tâm khi người thân được chăm sóc chu đáo ngay tại
+            nhà.
           </p>
         </div>
       </div>

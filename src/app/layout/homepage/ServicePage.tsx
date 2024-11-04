@@ -9,30 +9,26 @@ const TreatmentPage = () => {
   const treatments = [
     {
       id: 1,
-      title: "Nephrologist Care",
-      description:
-        "Alteration in some form, by injected humour, or randomised words which don't look even slightly sure there isn't anything.",
+      title: "Đưa đón đi khám bệnh",
+      description: "Người dùng sẽ book điều dưỡng đến nhà để đưa người thân của mình đi khám ở bệnh viện nơi mà điều dưỡng đang làm việc (hoặc bệnh viện khác tùy theo yêu cầu của gia đình bệnh nhân)",
       imageSrc: Image1,
     },
     {
       id: 2,
-      title: "Eye Care",
-      description:
-        "Alteration in some form, by injected humour, or randomised words which don't look even slightly sure there isn't anything.",
+      title: "Chăm sóc tại nhà",
+      description:"Người dùng book điều dưỡng về nhà để chăm sóc cho bệnh nhân theo giờ.",
       imageSrc: Image2,
     },
     {
       id: 3,
-      title: "Pediatrician Clinic",
-      description:
-        "Alteration in some form, by injected humour, or randomised words which don't look even slightly sure there isn't anything.",
+      title: "Chăm sóc tại bệnh viện",
+      description:"Người dùng book điều dưỡng trực tại bệnh viện để chăm sóc hoặc có thể làm bảo mẫu",
       imageSrc: Image3,
     },
     {
       id: 4,
-      title: "Parental Care",
-      description:
-        "Alteration in some form, by injected humour, or randomised words which don't look even slightly sure there isn't anything.",
+      title: "Hỗ trợ phục hồi chức năng",
+      description: "Người dùng book điều dưỡng để giúp bệnh nhân thực hiện các bài tập phục hồi chức năng tại nhà sau phẫu thuật hoặc chấn thương.",
       imageSrc: Image4,
     },
   ];
@@ -40,7 +36,7 @@ const TreatmentPage = () => {
   return (
     <div className="p-10">
       <p className="flex justify-center items-center m-10 text-4xl font-semibold">
-        CURANEST <span className="text-lime-500 ml-2">TREATMENT</span>
+        CURANEST <span className="text-lime-500 ml-2">DỊCH VỤ</span>
       </p>
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mx-5">
         {treatments.map((treatment) => (

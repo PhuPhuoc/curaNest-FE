@@ -11,11 +11,12 @@ const SliderPage = () => {
             CURANEST <span className="text-lime-500">BOOKING</span>
           </p>
           <p className="max-w-[500px] mx-auto md:mx-0 text-gray-500 mt-2 text-lg">
-            when looking at its layout. The point of using Lorem Ipsum is that
-            it has a more-or-less normal distribution of letters, as opposed to
+            Curanest là nền tảng đặt lịch điều dưỡng tại nhà, kết nối gia đình
+            có người già hoặc người bệnh với dịch vụ chăm sóc chuyên nghiệp,
+            tiện lợi và đáng tin cậy.
           </p>
           <Button className="w-1/2 md:w-[30%] mx-auto md:mx-0 bg-lime-500 text-white py-2 rounded-lg font-semibold">
-            GET STARTED
+            BẮT ĐẦU
           </Button>
         </div>
         <div className="relative w-full md:w-1/2 mt-5 md:mt-0 overflow-hidden">
