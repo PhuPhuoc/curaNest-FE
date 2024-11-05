@@ -1,0 +1,11 @@
+services:
+  fecuranest:
+    # image: pardes29/curanest-exe-fe:v1
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: fecuranest
+    ports:
+      - "3000:3000"
+    environment:
+      NODE_ENV: production
