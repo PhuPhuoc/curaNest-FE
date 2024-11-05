@@ -21,7 +21,6 @@ const AuthPage = () => {
   const [passwordError, setPasswordError] = useState("");
   const [confirmPasswordError, setConfirmPasswordError] = useState("");
   const [phoneNumberError, setPhoneNumberError] = useState("");
-  const [userType, setUserType] = useState("");
   const [showRegistrationForm, setShowRegistrationForm] = useState(false);
   const router = useRouter();
   const [loginError, setLoginError] = useState("");
@@ -37,16 +36,10 @@ const AuthPage = () => {
     return phoneRegex.test(phone);
   };
 
-  const handleUserTypeSelection = (type: string) => {
-    setUserType(type);
-    setShowRegistrationForm(true);
-  };
-
   const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     let isValid = true;
 
-    // Reset all error states
     setEmailError("");
     setPasswordError("");
     setConfirmPasswordError("");
@@ -54,7 +47,6 @@ const AuthPage = () => {
     setLoginError("");
 
     if (isLogin) {
-      // Validate email
       if (!email) {
         setEmailError("Email is required");
         isValid = false;
@@ -63,19 +55,15 @@ const AuthPage = () => {
         isValid = false;
       }
 
-      // Validate password
       if (!password) {
         setPasswordError("Password is required");
         isValid = false;
       }
 
       if (isValid) {
-        // Perform login action here
-        // For demonstration, we'll just set a login error
         setLoginError("Invalid email or password");
       }
     } else {
-      // Validate email
       if (!email) {
         setEmailError("Email is required");
         isValid = false;
@@ -84,13 +72,11 @@ const AuthPage = () => {
         isValid = false;
       }
 
-      // Validate password
       if (!password) {
         setPasswordError("Password is required");
         isValid = false;
       }
 
-      // Validate confirm password
       if (!confirmPassword) {
         setConfirmPasswordError("Please confirm your password");
         isValid = false;
@@ -98,23 +84,10 @@ const AuthPage = () => {
         setConfirmPasswordError("Passwords do not match");
         isValid = false;
       }
-
-      // Validate phone number for nurse registration
-      if (userType === "nurse") {
-        if (!phoneNumber) {
-          setPhoneNumberError("Phone number is required");
-          isValid = false;
-        } else if (!validatePhoneNumber(phoneNumber)) {
-          setPhoneNumberError("Please enter a valid 10-digit phone number");
-          isValid = false;
-        }
-      }
     }
 
     if (isValid) {
       console.log("Form is valid");
-      // Perform login or signup action here
-      // If successful, then redirect
       router.push("/user");
     } else {
       console.log("Form has errors");
@@ -132,7 +105,6 @@ const AuthPage = () => {
     setLoginError("");
 
     if (isLogin) {
-      // Validate email
       if (!email) {
         setEmailError("Email is required");
         isValid = false;
@@ -141,7 +113,6 @@ const AuthPage = () => {
         isValid = false;
       }
 
-      // Validate password
       if (!password) {
         setPasswordError("Password is required");
         isValid = false;
@@ -176,23 +147,10 @@ const AuthPage = () => {
         setConfirmPasswordError("Passwords do not match");
         isValid = false;
       }
-
-      // Validate phone number for nurse registration
-      if (userType === "nurse") {
-        if (!phoneNumber) {
-          setPhoneNumberError("Phone number is required");
-          isValid = false;
-        } else if (!validatePhoneNumber(phoneNumber)) {
-          setPhoneNumberError("Please enter a valid 10-digit phone number");
-          isValid = false;
-        }
-      }
     }
 
     if (isValid) {
       console.log("Form is valid");
-      // Perform login or signup action here
-      // If successful, then redirect
       router.push("/nurse");
     } else {
       console.log("Form has errors");
@@ -209,39 +167,8 @@ const AuthPage = () => {
     setPasswordError("");
     setConfirmPasswordError("");
     setPhoneNumberError("");
-    setUserType("");
     setShowRegistrationForm(false);
   };
-
-  const renderUserTypeSelection = () => (
-    <motion.div
-      initial={{ opacity: 0, y: 20 }}
-      animate={{ opacity: 1, y: 0 }}
-      exit={{ opacity: 0, y: -20 }}
-      transition={{ duration: 0.5 }}
-      className="space-y-4"
-    >
-      <h2 className="text-2xl font-bold text-center text-gray-800 mb-6">
-        Choose Account Type
-      </h2>
-      <Button
-        color="primary"
-        size="lg"
-        className="w-full"
-        onClick={() => handleUserTypeSelection("user")}
-      >
-        User
-      </Button>
-      <Button
-        color="secondary"
-        size="lg"
-        className="w-full"
-        onClick={() => handleUserTypeSelection("nurse")}
-      >
-        Nurse
-      </Button>
-    </motion.div>
-  );
 
   const renderRegistrationForm = () => (
     <motion.div
@@ -252,7 +179,7 @@ const AuthPage = () => {
       className="space-y-6"
     >
       <h2 className="text-3xl font-bold text-center text-gray-800 mb-6">
-        Create {userType === "nurse" ? "Nurse" : "User"} Account
+        Create User Account
       </h2>
       <Input
         isClearable
@@ -303,20 +230,6 @@ const AuthPage = () => {
         isInvalid={!!confirmPasswordError}
         errorMessage={confirmPasswordError}
       />
-      {userType === "nurse" && (
-        <Input
-          type="tel"
-          label="Phone Number"
-          variant="bordered"
-          placeholder="Enter your phone number"
-          size="lg"
-          value={phoneNumber}
-          onChange={(e) => setPhoneNumber(e.target.value)}
-          color={phoneNumberError ? "danger" : "default"}
-          isInvalid={!!phoneNumberError}
-          errorMessage={phoneNumberError}
-        />
-      )}
       <Button type="submit" color="primary" size="lg" className="w-full">
         Sign Up
       </Button>
@@ -408,7 +321,7 @@ const AuthPage = () => {
                     Login Nurse
                   </Button>
                 </motion.div>
-              ) : showRegistrationForm ? (
+              ) : (
                 <motion.div
                   key="register"
                   initial={{ opacity: 0, x: 20 }}
@@ -418,7 +331,7 @@ const AuthPage = () => {
                   className="space-y-6"
                 >
                   <h2 className="text-3xl font-bold text-center text-gray-800 mb-6">
-                    Create {userType === "nurse" ? "Nurse" : "User"} Account
+                    Create User Account
                   </h2>
                   <Input
                     label="Email"
@@ -468,20 +381,6 @@ const AuthPage = () => {
                     errorMessage={confirmPasswordError}
                     isInvalid={!!confirmPasswordError}
                   />
-                  {userType === "nurse" && (
-                    <Input
-                      type="tel"
-                      label="Phone Number"
-                      variant="bordered"
-                      placeholder="Enter your phone number"
-                      size="lg"
-                      value={phoneNumber}
-                      onChange={(e) => setPhoneNumber(e.target.value)}
-                      color={phoneNumberError ? "danger" : "default"}
-                      errorMessage={phoneNumberError}
-                      isInvalid={!!phoneNumberError}
-                    />
-                  )}
                   <Button
                     type="submit"
                     color="primary"
@@ -491,8 +390,6 @@ const AuthPage = () => {
                     Sign Up
                   </Button>
                 </motion.div>
-              ) : (
-                renderUserTypeSelection()
               )}
             </AnimatePresence>
           </form>

@@ -14,7 +14,7 @@ import { usePathname } from "next/navigation"; // Thay useRouter bằng usePathn
 import { AcmeLogo } from "../../Icon/AcmeLogo";
 
 const UserNavbar = () => {
-  const pathname = usePathname(); // Lấy đường dẫn hiện tại
+  const pathname = usePathname();
 
   const menuItems = [
     { title: "Hồ sơ bệnh nhân", link: "/patientProfile" },
@@ -59,8 +59,11 @@ const UserNavbar = () => {
           >
             <Link
               href={`/user${item.link}`}
-              className={`px-4 py-2 ${pathname === `/user${item.link}` ? "text-blue-500" : "text-foreground"
-                }`}
+              className={`px-4 py-2 ${
+                pathname === `/user${item.link}`
+                  ? "text-blue-500"
+                  : "text-foreground"
+              }`}
             >
               {item.title}
             </Link>
@@ -89,8 +92,8 @@ const UserNavbar = () => {
                 index === allMenuItems.length - 1
                   ? "danger"
                   : index === 2
-                    ? "primary"
-                    : "default"
+                  ? "primary"
+                  : "default"
               }
               className="w-full"
               href={`/user${item.link}`}
