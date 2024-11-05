@@ -1,172 +1,235 @@
 "use client";
-import { Card, CardBody, Button } from "@nextui-org/react";
-import ArrowRight from "@/app/Icon/ArrowRight";
-import ArrowLeft from "@/app/Icon/ArrowLeft";
+
+import { Card, CardBody } from "@nextui-org/react";
 import { useState } from "react";
 
-interface Appointment {
-  id: string;
-  title: string;
-  time: string;
-}
+type Appointment = {
+  id: number;
+  date: string;
+  startTime: string;
+  endTime: string;
+  description: string;
+};
 
-interface DayInfo {
-  date: Date;
-  appointments: Appointment[];
-}
+const formatDate = (date: Date) => {
+  return date.toISOString().split("T")[0];
+};
 
-const PatientSchedule: React.FC = () => {
-  const [currentWeek, setCurrentWeek] = useState<Date>(new Date());
-  const [selectedDate, setSelectedDate] = useState<Date | null>(new Date());
+const getMonday = (date: Date) => {
+  const day = date.getDay();
+  const diff = date.getDate() - day + (day === 0 ? -6 : 1);
+  return new Date(date.setDate(diff));
+};
 
-  // Dummy data for appointments
-  const dummyAppointments: DayInfo[] = [
+const PatientSchedule = () => {
+  const [currentWeekStart, setCurrentWeekStart] = useState<Date>(
+    getMonday(new Date())
+  );
+
+  const appointments: Appointment[] = [
     {
-      date: new Date(2024, 8, 1),
-      appointments: [{ id: "1", title: "Check-up", time: "09:00 AM" }],
+      id: 1,
+      date: "2024-11-04",
+      startTime: "09:00",
+      endTime: "11:00",
+      description: "Khám định kỳ",
     },
     {
-      date: new Date(2024, 8, 2),
-      appointments: [
-        { id: "2", title: "Dental cleaning", time: "10:00 AM" },
-        { id: "3", title: "X-ray", time: "11:30 AM" },
-      ],
+      id: 2,
+      date: "2024-11-05",
+      startTime: "10:00",
+      endTime: "12:00",
+      description: "Kiểm tra sức khỏe",
     },
     {
-      date: new Date(2024, 8, 3),
-      appointments: [
-        { id: "4", title: "Vaccination", time: "02:00 PM" },
-        { id: "5", title: "Follow-up", time: "03:30 PM" },
-        { id: "6", title: "Blood test", time: "04:45 PM" },
-      ],
-    },
-    {
-      date: new Date(2024, 8, 4),
-      appointments: [
-        { id: "7", title: "Physical therapy", time: "09:00 AM" },
-        { id: "8", title: "Consultation", time: "11:00 AM" },
-        { id: "9", title: "Eye exam", time: "02:00 PM" },
-        { id: "10", title: "Allergy test", time: "04:00 PM" },
-      ],
+      id: 3,
+      date: "2024-11-06",
+      startTime: "14:00",
+      endTime: "15:30",
+      description: "Tham vấn tâm lý",
     },
   ];
 
-  const getDaysOfWeek = (date: Date): Date[] => {
-    const week: Date[] = [];
-    for (let i = 0; i < 7; i++) {
-      const day = new Date(date);
-      day.setDate(date.getDate() - date.getDay() + i);
-      week.push(day);
-    }
-    return week;
+  const times = [
+    "08:00",
+    "09:00",
+    "10:00",
+    "11:00",
+    "12:00",
+    "13:00",
+    "14:00",
+    "15:00",
+    "16:00",
+    "17:00",
+    "18:00",
+    "19:00",
+    "20:00",
+    "21:00",
+  ];
+
+  const daysOfWeek = Array.from({ length: 7 }, (_, i) => {
+    const day = new Date(currentWeekStart);
+    day.setDate(currentWeekStart.getDate() + i);
+    return {
+      label: day.toLocaleDateString("vi-VN", {
+        weekday: "long",
+        day: "2-digit",
+        month: "2-digit",
+      }),
+      date: formatDate(day),
+    };
+  });
+
+  const calculateSpan = (startTime: string, endTime: string) => {
+    const start = new Date(`1970-01-01T${startTime}:00`);
+    const end = new Date(`1970-01-01T${endTime}:00`);
+    return (end.getTime() - start.getTime()) / (1000 * 60 * 60);
   };
 
-  const formatDate = (date: Date): string => {
-    return date.toLocaleDateString("en-US", {
-      weekday: "short",
-      month: "numeric",
-      day: "numeric",
+  const goToNextWeek = () => {
+    setCurrentWeekStart((prev) => {
+      const nextWeek = new Date(prev);
+      nextWeek.setDate(prev.getDate() + 7);
+      return getMonday(nextWeek);
     });
   };
 
-  const navigateWeek = (direction: number): void => {
-    const newDate = new Date(currentWeek);
-    newDate.setDate(newDate.getDate() + direction * 7);
-    setCurrentWeek(newDate);
-  };
-
-  const week: Date[] = getDaysOfWeek(currentWeek);
-
-  const getButtonColor = (appointmentCount: number) => {
-    if (appointmentCount === 1) return "primary";
-    if (appointmentCount === 2) return "secondary";
-    if (appointmentCount === 3) return "success";
-    if (appointmentCount >= 4) return "danger";
-    return "default";
-  };
-
-  const handleDateClick = (date: Date) => {
-    setSelectedDate(date);
-  };
-
-  const getAppointmentsForDate = (date: Date): Appointment[] => {
-    const dayInfo = dummyAppointments.find(
-      (di) => di.date.toDateString() === date.toDateString()
-    );
-    return dayInfo ? dayInfo.appointments : [];
+  const goToPreviousWeek = () => {
+    setCurrentWeekStart((prev) => {
+      const prevWeek = new Date(prev);
+      prevWeek.setDate(prev.getDate() - 7);
+      return getMonday(prevWeek);
+    });
   };
 
   return (
-    <div className="w-full max-w-6xl mx-auto p-4">
-      <div className="bg-gray-100 p-4 rounded-lg border border-gray-300 mb-4">
-        <div className="flex items-center justify-between">
-          <div className="flex flex-col items-center">
-            <Button isIconOnly variant="light" onClick={() => navigateWeek(-1)}>
-              <ArrowLeft />
-            </Button>
-            <span className="text-xs mt-1 font-semibold">Tuần trước</span>
-          </div>
-          <div className="flex space-x-2">
-            {week.map((day, index) => {
-              const appointments = getAppointmentsForDate(day);
-              const buttonColor = getButtonColor(appointments.length);
-              return (
-                <Button
-                  key={index}
-                  isIconOnly
-                  color={buttonColor}
-                  variant={
-                    day.toDateString() === selectedDate?.toDateString()
-                      ? "solid"
-                      : "ghost"
-                  }
-                  onClick={() => handleDateClick(day)}
-                  className="w-12 h-12 flex flex-col items-center justify-center p-0"
-                >
-                  <span className="text-sm font-bold">{day.getDate()}</span>
-                  <span className="text-xs">
-                    {day.toLocaleDateString("en-US", { weekday: "short" })}
-                  </span>
-                </Button>
-              );
-            })}
-          </div>
-          <div className="flex flex-col items-center">
-            <Button isIconOnly variant="light" onClick={() => navigateWeek(1)}>
-              <ArrowRight />
-            </Button>
-            <span className="text-xs mt-1 font-semibold ">Tuần sau</span>
-          </div>
+    <div className="p-6 max-w-9xl mx-auto bg-white rounded-lg shadow-md">
+      <h3 className="text-3xl font-bold mb-6 text-center text-gray-800">
+        Lịch hẹn của bệnh nhân
+      </h3>
+
+      <div className="flex justify-between mb-4">
+        <button
+          onClick={goToPreviousWeek}
+          className="p-2 bg-blue-500 text-white rounded shadow hover:bg-blue-600 transition"
+        >
+          Tuần trước
+        </button>
+        <div className="flex flex-col items-center">
+          <span className="text-xl font-semibold">
+            {formatDate(currentWeekStart)}
+          </span>
+          <span className="text-lg text-gray-600">
+            {daysOfWeek[0].label} - {daysOfWeek[6].label}
+          </span>
         </div>
+        <button
+          onClick={goToNextWeek}
+          className="p-2 bg-blue-500 text-white rounded shadow hover:bg-blue-600 transition"
+        >
+          Tuần tiếp
+        </button>
       </div>
-      <div className="space-y-4">
-        {selectedDate && (
-          <h3 className="text-lg font-semibold mb-2">
-            {formatDate(selectedDate)}
-          </h3>
-        )}
-        {selectedDate && getAppointmentsForDate(selectedDate).length > 0 ? (
-          getAppointmentsForDate(selectedDate).map((appointment) => (
-            <Card key={appointment.id} className="mb-2">
-              <CardBody>
-                <p className="text-sm">
-                  <span className="font-semibold">{appointment.time}</span> -{" "}
-                  {appointment.title}
-                </p>
-              </CardBody>
-            </Card>
-          ))
-        ) : selectedDate ? (
-          <Card>
-            <CardBody>
-              <p className="text-sm text-gray-600">No appointments scheduled</p>
-            </CardBody>
-          </Card>
-        ) : (
-          <p className="text-center text-gray-500">
-            Select a date to view appointments
-          </p>
-        )}
+
+      <div className="overflow-x-auto bg-gray-50 p-4 rounded-lg shadow-lg">
+        <table className="table-auto w-full border border-gray-300 border-collapse rounded-lg">
+          <thead>
+            <tr className="bg-blue-100">
+              <th className="p-3 text-center font-semibold text-gray-600 border border-gray-300 rounded-tl-lg">
+                Giờ
+              </th>
+              {daysOfWeek.map((day) => (
+                <th
+                  key={day.date}
+                  className="border border-gray-300"
+                  style={{ width: "150px" }}
+                >
+                  <div className="flex flex-col items-center">
+                    <span className="text-center font-semibold text-gray-600">
+                      {day.label.split(",")[0]}
+                    </span>
+                    <span className="text-center text-gray-500">
+                      {day.label.split(",")[1]}
+                    </span>
+                  </div>
+                </th>
+              ))}
+            </tr>
+          </thead>
+          <tbody>
+            {times.map((time) => (
+              <tr key={time} className="bg-white transition">
+                <td className="p-8 font-semibold text-gray-600 text-center border-t border-b border-gray-300">
+                  {time}
+                </td>
+                {daysOfWeek.map((day) => {
+                  const appointment = appointments.find(
+                    (appt) => appt.date === day.date && appt.startTime === time
+                  );
+
+                  if (appointment) {
+                    const span = calculateSpan(
+                      appointment.startTime,
+                      appointment.endTime
+                    );
+                    return (
+                      <td
+                        key={day.date}
+                        rowSpan={span}
+                        className="border-t border-b border-gray-300 relative p-4"
+                      >
+                        <Card
+                          style={{
+                            width: "100%",
+                            height: "100%",
+                            display: "flex",
+                            flexDirection: "column",
+                            justifyContent: "center",
+                            borderRadius: "0.5rem",
+                            boxShadow: "0 2px 4px rgba(0, 0, 0, 0.1)",
+                          }}
+                        >
+                          <CardBody
+                            style={{
+                              textAlign: "center",
+                              maxWidth: "120px",
+                              whiteSpace: "normal",
+                              wordWrap: "break-word",
+                            }}
+                          >
+                            <strong>{appointment.description}</strong>
+                            <p>
+                              {appointment.startTime} - {appointment.endTime}
+                            </p>
+                          </CardBody>
+                        </Card>
+                      </td>
+                    );
+                  }
+                  if (
+                    appointments.some(
+                      (appt) =>
+                        appt.date === day.date &&
+                        new Date(`1970-01-01T${time}:00`) >=
+                          new Date(`1970-01-01T${appt.startTime}:00`) &&
+                        new Date(`1970-01-01T${time}:00`) <
+                          new Date(`1970-01-01T${appt.endTime}:00`)
+                    )
+                  ) {
+                    return null;
+                  }
+
+                  return (
+                    <td
+                      key={day.date}
+                      className="p-3 rounded-lg border-t border-b border-gray-300"
+                    ></td>
+                  );
+                })}
+              </tr>
+            ))}
+          </tbody>
+        </table>
       </div>
     </div>
   );

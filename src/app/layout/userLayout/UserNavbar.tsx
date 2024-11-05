@@ -14,7 +14,7 @@ import { usePathname } from "next/navigation"; // Thay useRouter bằng usePathn
 import { AcmeLogo } from "../../Icon/AcmeLogo";
 
 const UserNavbar = () => {
-  const pathname = usePathname(); // Lấy đường dẫn hiện tại
+  const pathname = usePathname();
 
   const menuItems = [
     { title: "Hồ sơ bệnh nhân", link: "/patientProfile" },
@@ -89,8 +89,8 @@ const UserNavbar = () => {
                 index === allMenuItems.length - 1
                   ? "danger"
                   : index === 2
-                    ? "primary"
-                    : "default"
+                  ? "primary"
+                  : "default"
               }
               className="w-full"
               href={`/user${item.link}`}
