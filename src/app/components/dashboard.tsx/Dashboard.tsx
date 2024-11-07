@@ -16,6 +16,7 @@ import {
   Button,
   Card,
   CardBody,
+  Chip,
   Modal,
   ModalBody,
   ModalContent,
@@ -198,57 +199,27 @@ const Dashboard = () => {
 
   return (
     <div>
-      <div
-        style={{
-          display: "flex",
-          flexDirection: "row",
-          marginBottom: 20,
-          gap: 10,
-        }}
-      >
-        <Card
-          style={{
-            width: "100%",
-            maxWidth: "600px",
-            padding: 10,
-            fontSize: 16,
-          }}
-        >
-          <Text style={{ fontSize: 16, fontWeight: "700", color: "#ccc" }}>
+      <div className="flex flex-col mb-8 gap-2 md:flex-row mt-4 md:mt-0">
+        <Card className="w-full max-w-[600px] p-2 text-base items-center ">
+          <Text className="text-lg font-semibold text-gray-400">
             Doanh thu tháng 11
           </Text>
-          <Text style={{ fontSize: 26, fontWeight: "bold" }}>200,000 VND</Text>
+          <Text className="text-3xl font-bold">200,000 VND</Text>
         </Card>
-        <Card
-          style={{
-            width: "100%",
-            maxWidth: "600px",
-            padding: 10,
-            fontSize: 16,
-          }}
-        >
-          <Text style={{ fontSize: 16, fontWeight: "700", color: "#ccc" }}>
+        <Card className="w-full max-w-[600px] p-2 text-base  items-center">
+          <Text className="text-lg font-semibold text-gray-400">
             Tổng số còn lại trong ví
           </Text>
-          <Text style={{ fontSize: 26, fontWeight: "bold" }}>100,000 VND</Text>
+          <Text className="text-3xl font-bold">100,000 VND</Text>
         </Card>
       </div>
-      <div
-        style={{
-          display: "flex",
-          flexDirection: "row",
-          justifyContent: "space-between",
-          alignItems: "center",
-          padding: "10px",
-        }}
-      >
+
+      <div className="flex flex-col justify-between gap-8 items-center md:flex-row w-full mx-0 md:mx-4">
         <div
-          className="shadow-2xl shadow-[#D9D9D9] scale-105 "
+          className="shadow-2xl shadow-[#D9D9D9] scale-105 w-[95%] md:w-[60%] p-[10px]"
           style={{
-            width: "60%",
             height: "500px",
             background: "#FFF",
-            padding: 10,
             borderRadius: 20,
           }}
         >
@@ -280,22 +251,40 @@ const Dashboard = () => {
                   }}
                   onClick={() => handleOpenModal(appointment)}
                 >
-                  <Text style={{ fontWeight: 700, fontSize: 20 }}>
-                    {appointment.startTime} - {appointment.endTime}
-                  </Text>
-                  <Text style={{ fontWeight: 600 }}>
-                    {appointment.description}
-                  </Text>
+                  <div
+                    style={{
+                      display: "flex",
+                      justifyContent: "start",
+                      alignItems: "center",
+                    }}
+                  >
+                    <div>
+                      <Avatar
+                        src="https://thumbs.dreamstime.com/b/cat-gun-pointed-s-face-ai-cat-gun-pointed-s-face-ai-generated-307980031.jpg"
+                        className="w-10 h-10 rounded-full shadow-lg mr-4"
+                      />
+                    </div>
+                    <div style={{ display: "flex", flexDirection: "column" }}>
+                      <Text style={{ fontWeight: 700, fontSize: 20 }}>
+                        {appointment.startTime} - {appointment.endTime}
+                      </Text>
+                      <Text style={{ fontWeight: 600 }}>
+                        {appointment.patientName}
+                      </Text>
+                    </div>
+                  </div>
                 </CardBody>
               </Card>
             ))}
           </ScrollShadow>
         </div>
+
         <div
           style={{
             display: "flex",
             flexDirection: "column",
             alignItems: "center",
+            marginRight:26
           }}
         >
           <Card
