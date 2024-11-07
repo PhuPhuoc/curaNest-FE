@@ -2,6 +2,7 @@
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { Input, Button, Chip, Breadcrumbs, BreadcrumbItem, DateInput, DateValue, Textarea } from '@nextui-org/react';
+import { v4 as uuidv4 } from 'uuid'; // Import uuid
 
 const services = [
     { name: 'Thay băng', color: 'bg-blue-500', hoverColor: 'hover:bg-blue-600', textColor: 'text-white' },
@@ -62,6 +63,8 @@ const CreateProfile: React.FC = () => {
         const formattedDob = dob ? dob.toString() : '';
 
         const profile = {
+            id: uuidv4(), 
+        
             name,
             dob: formattedDob,
             address,

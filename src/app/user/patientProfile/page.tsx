@@ -18,17 +18,17 @@ const PatientProfile: React.FC = () => {
     setProfiles(storedProfiles);
   }, []);
 
-  const handleDelete = (index: number) => {
-    const updatedProfiles = profiles.filter((_, i) => i !== index);
+  const handleDelete = (id: number) => {
+    const updatedProfiles = profiles.filter(profile => profile.id !== id);
     setProfiles(updatedProfiles);
     localStorage.setItem("profiles", JSON.stringify(updatedProfiles));
   };
-
+  
   return (
     <div className="p-6">
       <Button
         onClick={() => router.push("/user/createProfile")}
-        className="bg-lime-500 text-white font-bold px-4 py-2 rounded shadow-md hover:bg-blue-600 transition-colors mb-6"
+        className="bg-lime-500 text-white font-bold px-4 py-2 rounded shadow-md transition-colors mb-6"
       >
         Tạo hồ sơ bệnh nhân
       </Button>
@@ -36,7 +36,7 @@ const PatientProfile: React.FC = () => {
       <div className="grid gap-6 grid-cols-1">
         {profiles.map((profile, index) => (
           <div
-            key={index}
+            key={profile.id}
             className="bg-white border rounded-lg shadow-md overflow-hidden flex flex-col p-4 w-full"
           >
             <div className="flex items-start">
@@ -121,14 +121,14 @@ const PatientProfile: React.FC = () => {
 
                   <div className="flex space-x-4">
                     <Button
-                      onClick={() => router.push(`/user/patientProfile/${index + 1}`)}
+                      onClick={() => router.push(`/user/patientProfile/${profile.id}`)}
                       className="bg-teal-400 text-white px-4 py-2 rounded shadow-md hover:bg-teal-600 transition-colors"
                     >
                       Đặt điều dưỡng
                     </Button>
 
                     <Button
-                      onClick={() => handleDelete(index)}
+                      onClick={() => handleDelete(profile.id)}
                       className="bg-red-500 text-white px-4 py-2 rounded shadow-md hover:bg-red-600 transition-colors"
                     >
                       Xóa

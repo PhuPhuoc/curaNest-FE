@@ -1,9 +1,23 @@
 'use client'
-import React from 'react';
+import React, { useState } from 'react';
 import Timetable from '@/app/components/findingNurse/TimeTable';
 import Review from '@/app/components/findingNurse/Review';
+import Profile from '@/app/components/findingNurse/Profile';
 
-const DetailNurse = () => {
+interface Profile {
+    name: string;
+    dob: string;
+    address: string;
+    medicalDescription: string;
+    selectedServices: string[];
+    avatar?: string;
+}
+
+const DetailNurse = (props: any) => {
+    const { params } = props;
+    const id = params.id;
+    const [selectedProfile, setSelectedProfile] = useState<Profile | null>(null);
+
     const nurseDetails = {
         name: 'Nguyễn Thị A',
         education: 'Cử nhân Điều dưỡng - Đại học Y Hà Nội',
@@ -15,6 +29,11 @@ const DetailNurse = () => {
 
     const handleTimetableSubmit = (selectedSlots: string[]) => {
         console.log('Selected time slots:', selectedSlots);
+    };
+
+    const handleProfileSelect = (profile: Profile) => {
+        setSelectedProfile(profile);
+        console.log("Selected profile:", profile);
     };
 
     return (
@@ -42,8 +61,11 @@ const DetailNurse = () => {
                 </div>
             </div>
 
+            {/* PatientProfile Component */}
+            <Profile  />
+
             {/* Timetable Component */}
-            <Timetable onSubmit={handleTimetableSubmit} />
+            {/* <Timetable  /> */}
 
             {/* Review Component */}
             <Review />
