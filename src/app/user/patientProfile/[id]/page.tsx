@@ -80,14 +80,12 @@ function Booking(props: any) {
     toast.success("Đặt lịch thành công!");
   };
 
-  // Handle Go Back
   const handleGoBack = () => {
     router.back();
   };
 
   return (
     <div className="p-4">
-      {/* Breadcrumbs */}
       <Breadcrumbs className="mb-4">
         <BreadcrumbItem href="/user/patientProfile">Hồ sơ bệnh nhân</BreadcrumbItem>
         <BreadcrumbItem>Đặt lịch</BreadcrumbItem>
@@ -100,7 +98,6 @@ function Booking(props: any) {
           <div className="flex items-center justify-between">
             <h3 className="text-xl font-semibold">Các dịch vụ đã chọn</h3>
 
-            {/* Reset Button */}
             <Button
               className="mr-4"
               onClick={handleReset}
@@ -111,7 +108,6 @@ function Booking(props: any) {
             </Button>
           </div>
           
-          {/* Selected Chip */}
           {selectedChips.length > 0 ? (
             <div className="flex flex-wrap gap-1">
               {selectedChips.map((chip, index) => (
@@ -173,7 +169,6 @@ function Booking(props: any) {
           </div>
         </div>
 
-        {/* Đường kẻ ngăn giữa hai phần */}
         <div className="w-1 border-l border-gray-300 mx-4"></div>
 
         {/* Right Side */}
@@ -181,7 +176,7 @@ function Booking(props: any) {
           <p className="text-xl font-semibold mb-2">Hãy chọn loại dịch vụ</p>
           <div className="flex flex-wrap">
             {chips
-              .filter((chip) => !selectedChips.includes(chip)) // Ẩn Chip đã chọn
+              .filter((chip) => !selectedChips.includes(chip)) 
               .map((chip, index) => (
                 <Chip
                   key={index}
