@@ -10,13 +10,14 @@ import {
   NavbarMenuToggle,
 } from "@nextui-org/react";
 import Link from "next/link";
-import { usePathname } from "next/navigation"; // Thay useRouter bằng usePathname
+import { usePathname } from "next/navigation"; 
 import { AcmeLogo } from "../../Icon/AcmeLogo";
 
 const UserNavbar = () => {
   const pathname = usePathname();
 
   const menuItems = [
+    { title: "Thống kê kê", link: "/dashboard" },
     { title: "Hồ sơ bệnh nhân", link: "/patientProfile" },
     { title: "Tìm kiếm điều dưỡng", link: "/findingNurse" },
     { title: "Lịch hẹn sắp tới", link: "/upcomingSchedule" },
@@ -59,8 +60,11 @@ const UserNavbar = () => {
           >
             <Link
               href={`/user${item.link}`}
-              className={`px-4 py-2 ${pathname === `/user${item.link}` ? "text-lime-500" : "text-foreground"
-                }`}
+              className={`px-4 py-2 ${
+                pathname === `/user${item.link}`
+                  ? "text-lime-500"
+                  : "text-foreground"
+              }`}
             >
               {item.title}
             </Link>

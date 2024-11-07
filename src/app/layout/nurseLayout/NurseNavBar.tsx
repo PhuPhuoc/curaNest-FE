@@ -10,6 +10,7 @@ const NurseNavbar = () => {
   const [isOpen, setIsOpen] = useState(false);
 
   const menuItems = [
+    { title: "Thống kê", link: "/dashboard" },
     { title: "Lịch hẹn với bệnh nhân", link: "/patientSchedule" },
     { title: "Lịch làm việc", link: "/workingSchedule" },
     { title: "Lịch sử giao dịch", link: "/historyTransaction" },
@@ -19,7 +20,7 @@ const NurseNavbar = () => {
     <>
       <div className="h-screen w-64 bg-gray-800 p-4 text-white fixed hidden lg:flex flex-col">
         <div className="mb-8">
-          <Link href="/user/patientProfile">
+          <Link href="">
             <p className="font-bold text-inherit text-2xl hover:text-sky-400">
               CURANEST
             </p>

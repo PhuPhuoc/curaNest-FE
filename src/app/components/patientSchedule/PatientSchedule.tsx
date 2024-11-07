@@ -1,6 +1,7 @@
 "use client";
 
-import { Card, CardBody } from "@nextui-org/react";
+import AppointmentModal from "@/app/components/modal/AppointmentModal";
+import { Card, CardBody, useDisclosure } from "@nextui-org/react";
 import { useState } from "react";
 
 type Appointment = {
@@ -9,6 +10,12 @@ type Appointment = {
   startTime: string;
   endTime: string;
   description: string;
+  patientName: string;
+  address: string;
+  birthdate: string;
+  phoneNumber: string;
+  notes: string;
+  avatar: string;
 };
 
 const formatDate = (date: Date) => {
@@ -26,29 +33,123 @@ const PatientSchedule = () => {
     getMonday(new Date())
   );
 
+  const [selectedSchedule, setSelectedSchedule] = useState<Appointment | null>(
+    null
+  );
+  const { isOpen, onOpen, onOpenChange } = useDisclosure();
+
+  const handleOpenModal = (appointment: Appointment) => {
+    setSelectedSchedule(appointment);
+    onOpen();
+  };
+
   const appointments: Appointment[] = [
     {
       id: 1,
-      date: "2024-11-04",
-      startTime: "09:00",
-      endTime: "11:00",
+      date: new Date().toISOString().split("T")[0], // Today's date in YYYY-MM-DD format
+      startTime: "08:00",
+      endTime: "09:00",
       description: "Khám định kỳ",
+      patientName: "Nguyen Van A",
+      address: "123 Le Loi, Hanoi",
+      birthdate: "1990-01-01",
+      phoneNumber: "0123456789",
+      notes: "Patient has a history of high blood pressure.",
+      avatar: "https://example.com/avatar1.jpg",
     },
     {
       id: 2,
-      date: "2024-11-05",
-      startTime: "10:00",
-      endTime: "12:00",
-      description: "Kiểm tra sức khỏe",
+      date: new Date().toISOString().split("T")[0], // Today's date
+      startTime: "09:00",
+      endTime: "10:00",
+      description: "Khám tổng quát",
+      patientName: "Nguyen Van B",
+      address: "456 Hai Ba Trung, Hanoi",
+      birthdate: "1990-01-01",
+      phoneNumber: "0123456789",
+      notes: "Patient has a history of high blood pressure.",
+      avatar: "https://example.com/avatar1.jpg",
     },
     {
       id: 3,
-      date: "2024-11-06",
+      date: new Date().toISOString().split("T")[0],
+      startTime: "10:00",
+      endTime: "11:00",
+      description: "Khám sức khỏe",
+      patientName: "Nguyen Van C",
+      address: "789 Pham Ngoc Thach, Hanoi",
+      birthdate: "1990-01-01",
+      phoneNumber: "0123456789",
+      notes: "Patient has a history of high blood pressure.",
+      avatar: "https://example.com/avatar1.jpg",
+    },
+    {
+      id: 4,
+      date: new Date().toISOString().split("T")[0], // Today's date
+      startTime: "11:00",
+      endTime: "12:00",
+      description: "Khám mắt",
+      patientName: "Nguyen Van D",
+      address: "101 Tran Hung Dao, Hanoi",
+      birthdate: "1990-01-01",
+      phoneNumber: "0123456789",
+      notes: "Patient has a history of high blood pressure.",
+      avatar: "https://example.com/avatar1.jpg",
+    },
+    {
+      id: 5,
+      date: new Date().toISOString().split("T")[0], // Today's date
+      startTime: "13:00",
+      endTime: "14:00",
+      description: "Khám tai mũi họng",
+      patientName: "Nguyen Van E",
+      address: "202 Nguyen Du, Hanoi",
+      birthdate: "1990-01-01",
+      phoneNumber: "0123456789",
+      notes: "Patient has a history of high blood pressure.",
+      avatar: "https://example.com/avatar1.jpg",
+    },
+    {
+      id: 6,
+      date: new Date().toISOString().split("T")[0], // Today's date
       startTime: "14:00",
-      endTime: "15:30",
-      description: "Tham vấn tâm lý",
+      endTime: "15:00",
+      description: "Khám răng miệng",
+      patientName: "Nguyen Van F",
+      address: "303 Le Duan, Hanoi",
+      birthdate: "1990-01-01",
+      phoneNumber: "0123456789",
+      notes: "Patient has a history of high blood pressure.",
+      avatar: "https://example.com/avatar1.jpg",
+    },
+    {
+      id: 7,
+      date: new Date().toISOString().split("T")[0], // Today's date
+      startTime: "15:00",
+      endTime: "16:00",
+      description: "Khám xương khớp",
+      patientName: "Nguyen Van G",
+      address: "404 Ba Trieu, Hanoi",
+      birthdate: "1990-01-01",
+      phoneNumber: "0123456789",
+      notes: "Patient has a history of high blood pressure.",
+      avatar: "https://example.com/avatar1.jpg",
+    },
+    {
+      id: 8,
+      date: new Date().toISOString().split("T")[0], // Today's date
+      startTime: "16:00",
+      endTime: "17:00",
+      description: "Khám phụ khoa",
+      patientName: "Nguyen Van H",
+      address: "505 Hoang Hoa Tham, Hanoi",
+      birthdate: "1990-01-01",
+      phoneNumber: "0123456789",
+      notes: "Patient has a history of high blood pressure.",
+      avatar: "https://example.com/avatar1.jpg",
     },
   ];
+
 
   const times = [
     "08:00",
@@ -176,31 +277,47 @@ const PatientSchedule = () => {
                       <td
                         key={day.date}
                         rowSpan={span}
-                        className="border-t border-b border-gray-300 relative p-4"
+                        className="border-t border-b border-gray-300 relative p-2"
+                        style={{ height: `${span * 48}px` }}
                       >
                         <Card
                           style={{
                             width: "100%",
                             height: "100%",
                             display: "flex",
-                            flexDirection: "column",
+                            alignItems: "center",
                             justifyContent: "center",
-                            borderRadius: "0.5rem",
-                            boxShadow: "0 2px 4px rgba(0, 0, 0, 0.1)",
+                            flexDirection: "column",
+                            borderRadius: "0.75rem",
+                            backgroundColor: "#f0f4ff",
+                            boxShadow: "0 4px 8px rgba(0, 0, 0, 0.15)",
+                            cursor: "pointer",
                           }}
                         >
                           <CardBody
                             style={{
+                              display: "flex",
+                              flexDirection: "column",
+                              alignItems: "center",
+                              justifyContent: "center",
                               textAlign: "center",
-                              maxWidth: "120px",
-                              whiteSpace: "normal",
-                              wordWrap: "break-word",
+                              width: "100%",
+                              color: "#1a3b5d",
+                              fontWeight: "bold",
                             }}
+                            onClick={() => handleOpenModal(appointment)}
                           >
-                            <strong>{appointment.description}</strong>
-                            <p>
+                            <p
+                              style={{
+                                marginBottom: "0.25rem",
+                                fontSize: "0.9rem",
+                              }}
+                            >
                               {appointment.startTime} - {appointment.endTime}
                             </p>
+                            <strong style={{ fontSize: "1rem", margin: "0" }}>
+                              {appointment.description}
+                            </strong>
                           </CardBody>
                         </Card>
                       </td>
@@ -231,6 +348,11 @@ const PatientSchedule = () => {
           </tbody>
         </table>
       </div>
+      <AppointmentModal
+        isOpen={isOpen}
+        onOpenChange={onOpenChange}
+        selectedSchedule={selectedSchedule}
+      />
     </div>
   );
 };
