@@ -83,6 +83,7 @@ const NurseTable: React.FC = () => {
     certifications: "",
     skills: [],
   });
+  console.log("🚀 ~ editFormData:", editFormData)
 
   const handleEditModalOpen = (nurse: NurseData) => {
     setEditFormData({
@@ -121,7 +122,7 @@ const NurseTable: React.FC = () => {
   const handleTimetableSubmit = (selectedSlots: string[]) => {
     console.log("Selected time slots:", selectedSlots);
   };
-  
+
   const handleRowDoubleClick = (nurse: NurseData) => {
     const additionalInfo = {
       education: "Bachelor of Nursing",
@@ -729,6 +730,7 @@ const NurseTable: React.FC = () => {
                 selectionMode="multiple"
                 className="max-w-full"
                 value={editFormData.skills}
+                defaultSelectedKeys={editFormData.skills}
                 onChange={(e) =>
                   handleEditFormChange("skills", e.target.value.split(","))
                 }
