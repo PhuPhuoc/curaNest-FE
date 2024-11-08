@@ -474,7 +474,7 @@ const NurseTable: React.FC = () => {
           {items.map((item) => (
             <TableRow
               key={item.id}
-              onDoubleClick={() => handleRowDoubleClick(item)}
+              
             >
               <TableCell>{item.id}</TableCell>
               <TableCell>
@@ -482,13 +482,18 @@ const NurseTable: React.FC = () => {
               </TableCell>
               <TableCell>{item.name}</TableCell>
               <TableCell>{item.citizenID}</TableCell>
-              <TableCell>
+              <TableCell >
                 <Button
                   color="warning"
-                  style={{ color: "#FFF" }}
+                  style={{ color: "#FFF",marginRight:10 }}
                   onClick={() => handleEditModalOpen(item)}
                 >
                   Sửa thông tin
+                </Button>
+                <Button
+                  onClick={() => handleRowDoubleClick(item)}
+                >
+                  Xem chi tiết
                 </Button>
               </TableCell>
             </TableRow>
@@ -610,7 +615,7 @@ const NurseTable: React.FC = () => {
           isOpen={infoModalOpen}
           onClose={closeInfoModal}
           size="5xl"
-          className="top-72"
+          className="top-24"
         >
           <ModalContent>
             <ModalHeader>{selectedNurse.name}</ModalHeader>
