@@ -200,13 +200,13 @@ const Dashboard = () => {
   return (
     <div>
       <div className="flex flex-col mb-8 gap-2 md:flex-row mt-4 md:mt-0">
-        <Card className="w-full max-w-[600px] p-2 text-base items-center ">
+        <Card className="w-full max-w-[600px] mt-5 p-2 text-base items-center ">
           <Text className="text-lg font-semibold text-gray-400">
             Doanh thu tháng 11
           </Text>
           <Text className="text-3xl font-bold">200,000 VND</Text>
         </Card>
-        <Card className="w-full max-w-[600px] p-2 text-base  items-center">
+        <Card className="w-full max-w-[600px] mt-5 p-2 text-base  items-center">
           <Text className="text-lg font-semibold text-gray-400">
             Tổng số còn lại trong ví
           </Text>

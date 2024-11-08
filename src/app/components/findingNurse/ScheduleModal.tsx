@@ -2,6 +2,7 @@ import React, { useEffect, useState } from "react";
 import { Modal } from "antd";
 import { Button, Chip } from "@nextui-org/react";
 import Profile from "./Profile";
+import { toast, ToastContainer } from "react-toastify";
 
 interface ScheduleModalProps {
   visible: boolean;
@@ -102,7 +103,7 @@ const ScheduleModal: React.FC<ScheduleModalProps> = ({
 
   const handleTimeSelect = (time: string, day: string) => {
     if (isPastDate(day)) {
-      alert("Vui lòng chọn khung giờ của ngày hiện tại hoặc tương lai!");
+      toast.warn("Vui lòng chọn khung giờ của ngày hiện tại hoặc tương lai!");
       return;
     }
 
@@ -119,12 +120,11 @@ const ScheduleModal: React.FC<ScheduleModalProps> = ({
       console.log("Tổng giá:", totalPrice.toLocaleString(), "VNĐ");
       console.log("Các dịch vụ đã chọn:", selectedChips.join(", "));
 
-      // Thực hiện đặt lịch
-      alert(`Đặt lịch thành công cho các giờ: ${selectedTime.join(", ")}`);
+      toast.success(`Đặt lịch thành công cho các giờ: ${selectedTime.join(", ")}`);
       onClose();
       resetStates();
     } else {
-      alert("Vui lòng chọn ít nhất một giờ.");
+      toast.error("Vui lòng chọn ít nhất một giờ.");
     }
   };
 
@@ -175,12 +175,13 @@ const ScheduleModal: React.FC<ScheduleModalProps> = ({
           type="submit"
           color="primary"
           onClick={handleConfirm}
-          disabled={!selectedTime.length}
+          // disabled={!selectedTime.length}
         >
           Xác nhận
         </Button>,
       ]}
     >
+
       <div className="p-4">
         <div className="flex flex-col md:flex-row">
           {/* Left side*/}
