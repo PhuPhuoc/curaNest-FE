@@ -57,7 +57,7 @@ const DetailNurse = (props: any) => {
                             <li key={index} className='mb-1'>{cert}</li>
                         ))}
                     </ul>
-                    <p className="text-lg"><strong>Tiểu sử:</strong> {nurseDetails.bio}</p>
+                    <p className="text-lg"><strong>Châm ngôn sống:</strong> {nurseDetails.bio}</p>
                 </div>
             </div>
 

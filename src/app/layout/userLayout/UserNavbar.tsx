@@ -17,7 +17,7 @@ const UserNavbar = () => {
   const pathname = usePathname();
 
   const menuItems = [
-    { title: "Thống kê kê", link: "/dashboard" },
+    // { title: "Thống kê kê", link: "/dashboard" },
     { title: "Hồ sơ bệnh nhân", link: "/patientProfile" },
     { title: "Tìm kiếm điều dưỡng", link: "/findingNurse" },
     { title: "Lịch hẹn sắp tới", link: "/upcomingSchedule" },
