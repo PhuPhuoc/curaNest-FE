@@ -15,13 +15,11 @@ const AuthPage = () => {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
-  const [phoneNumber, setPhoneNumber] = useState("");
   const [isVisible, setIsVisible] = useState(false);
   const [emailError, setEmailError] = useState("");
   const [passwordError, setPasswordError] = useState("");
   const [confirmPasswordError, setConfirmPasswordError] = useState("");
-  const [phoneNumberError, setPhoneNumberError] = useState("");
-  const [showRegistrationForm, setShowRegistrationForm] = useState(false);
+
   const router = useRouter();
   const [loginError, setLoginError] = useState("");
   const toggleVisibility = () => setIsVisible(!isVisible);
@@ -31,11 +29,6 @@ const AuthPage = () => {
     return emailRegex.test(email);
   };
 
-  const validatePhoneNumber = (phone: string) => {
-    const phoneRegex = /^\d{10}$/;
-    return phoneRegex.test(phone);
-  };
-
   const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     let isValid = true;
@@ -43,7 +36,6 @@ const AuthPage = () => {
     setEmailError("");
     setPasswordError("");
     setConfirmPasswordError("");
-    setPhoneNumberError("");
     setLoginError("");
 
     if (isLogin) {
@@ -94,14 +86,12 @@ const AuthPage = () => {
     }
   };
 
-  const handleSubmitNurse = () => {
+  const handleSubmitNurse = (type: string) => {
     let isValid = true;
 
-    // Reset all error states
     setEmailError("");
     setPasswordError("");
     setConfirmPasswordError("");
-    setPhoneNumberError("");
     setLoginError("");
 
     if (isLogin) {
@@ -151,7 +141,11 @@ const AuthPage = () => {
 
     if (isValid) {
       console.log("Form is valid");
-      router.push("/nurse");
+      if (type === "nurse") {
+        router.push("/nurse");
+      } else {
+        router.push("/admin");
+      }
     } else {
       console.log("Form has errors");
     }
@@ -162,79 +156,76 @@ const AuthPage = () => {
     setEmail("");
     setPassword("");
     setConfirmPassword("");
-    setPhoneNumber("");
     setEmailError("");
     setPasswordError("");
     setConfirmPasswordError("");
-    setPhoneNumberError("");
-    setShowRegistrationForm(false);
   };
 
-  const renderRegistrationForm = () => (
-    <motion.div
-      initial={{ opacity: 0, x: 20 }}
-      animate={{ opacity: 1, x: 0 }}
-      exit={{ opacity: 0, x: -20 }}
-      transition={{ duration: 0.5 }}
-      className="space-y-6"
-    >
-      <h2 className="text-3xl font-bold text-center text-gray-800 mb-6">
-        Tạo tài khoản
-      </h2>
-      <Input
-        isClearable
-        label="Email"
-        variant="bordered"
-        placeholder="Nhập email"
-        size="lg"
-        value={email}
-        onChange={(e) => setEmail(e.target.value)}
-        color={emailError ? "danger" : "default"}
-        isInvalid={!!emailError}
-        errorMessage={emailError}
-      />
-      <Input
-        type={isVisible ? "text" : "password"}
-        label="Password"
-        variant="bordered"
-        placeholder="Nhập password"
-        size="lg"
-        value={password}
-        onChange={(e) => setPassword(e.target.value)}
-        color={passwordError ? "danger" : "default"}
-        isInvalid={!!passwordError}
-        errorMessage={passwordError}
-        endContent={
-          <button
-            className="focus:outline-none"
-            type="button"
-            onClick={toggleVisibility}
-          >
-            {isVisible ? (
-              <EyeSlashFilledIcon className="text-2xl text-default-400 pointer-events-none" />
-            ) : (
-              <EyeFilledIcon className="text-2xl text-default-400 pointer-events-none" />
-            )}
-          </button>
-        }
-      />
-      <Input
-        type={isVisible ? "text" : "password"}
-        label="Confirm Password"
-        variant="bordered"
-        placeholder="Confirm your password"
-        size="lg"
-        value={confirmPassword}
-        onChange={(e) => setConfirmPassword(e.target.value)}
-        color={confirmPasswordError ? "danger" : "default"}
-        isInvalid={!!confirmPasswordError}
-        errorMessage={confirmPasswordError}
-      />
-      <Button type="submit" color="primary" size="lg" className="w-full">
-        Sign Up
-      </Button>
-    </motion.div>
-  );
+  // const renderRegistrationForm = () => (
+  //   <motion.div
+  //     initial={{ opacity: 0, x: 20 }}
+  //     animate={{ opacity: 1, x: 0 }}
+  //     exit={{ opacity: 0, x: -20 }}
+  //     transition={{ duration: 0.5 }}
+  //     className="space-y-6"
+  //   >
+  //     <h2 className="text-3xl font-bold text-center text-gray-800 mb-6">
+  //       Tạo tài khoản
+  //     </h2>
+  //     <Input
+  //       isClearable
+  //       label="Email"
+  //       variant="bordered"
+  //       placeholder="Nhập email"
+  //       size="lg"
+  //       value={email}
+  //       onChange={(e) => setEmail(e.target.value)}
+  //       color={emailError ? "danger" : "default"}
+  //       isInvalid={!!emailError}
+  //       errorMessage={emailError}
+  //     />
+  //     <Input
+  //       type={isVisible ? "text" : "password"}
+  //       label="Password"
+  //       variant="bordered"
+  //       placeholder="Nhập password"
+  //       size="lg"
+  //       value={password}
+  //       onChange={(e) => setPassword(e.target.value)}
+  //       color={passwordError ? "danger" : "default"}
+  //       isInvalid={!!passwordError}
+  //       errorMessage={passwordError}
+  //       endContent={
+  //         <button
+  //           className="focus:outline-none"
+  //           type="button"
+  //           onClick={toggleVisibility}
+  //         >
+  //           {isVisible ? (
+  //             <EyeSlashFilledIcon className="text-2xl text-default-400 pointer-events-none" />
+  //           ) : (
+  //             <EyeFilledIcon className="text-2xl text-default-400 pointer-events-none" />
+  //           )}
+  //         </button>
+  //       }
+  //     />
+  //     <Input
+  //       type={isVisible ? "text" : "password"}
+  //       label="Confirm Password"
+  //       variant="bordered"
+  //       placeholder="Confirm your password"
+  //       size="lg"
+  //       value={confirmPassword}
+  //       onChange={(e) => setConfirmPassword(e.target.value)}
+  //       color={confirmPasswordError ? "danger" : "default"}
+  //       isInvalid={!!confirmPasswordError}
+  //       errorMessage={confirmPasswordError}
+  //     />
+  //     <Button type="submit" color="primary" size="lg" className="w-full">
+  //       Sign Up
+  //     </Button>
+  //   </motion.div>
+  // );
 
   return (
     <div className="min-h-screen flex items-center justify-center relative bg-gradient-to-b from-blue-500 to-blue-200">
@@ -265,7 +256,7 @@ const AuthPage = () => {
                   transition={{ duration: 0.5 }}
                 >
                   <h2 className="text-2xl font-bold text-center text-gray-800 mb-6">
-                    Chào mừng bạn đến với{" "}
+                    Chào mừng bạn đến với
                     <span className="text-lime-500">CURANEST</span>
                   </h2>
                   <Input
@@ -315,12 +306,20 @@ const AuthPage = () => {
                       Đăng nhập cho người dùng
                     </Button>
                     <Button
-                      onClick={() => handleSubmitNurse()}
+                      onClick={() => handleSubmitNurse("nurse")}
                       color="primary"
                       size="lg"
                       className="w-full"
                     >
                       Đăng nhập cho điều dưỡng
+                    </Button>
+                    <Button
+                      onClick={() => handleSubmitNurse("admin")}
+                      color="primary"
+                      size="lg"
+                      className="w-full"
+                    >
+                      Đăng nhập cho admin
                     </Button>
                   </div>
                 </motion.div>
