@@ -644,7 +644,7 @@ const NurseTable: React.FC = () => {
                   </p>
                 </div>
               </div>
-              <Timetable onSubmit={handleTimetableSubmit} />
+              {/* <Timetable onSubmit={handleTimetableSubmit} /> */}
               <Review />
             </ModalBody>
             <ModalFooter>
