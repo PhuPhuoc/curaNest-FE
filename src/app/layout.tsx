@@ -21,7 +21,7 @@ export default function RootLayout({
     <html lang="en">
       <body className={inter.className}>
         <Providers>{children}</Providers>
-        <ToastContainer className="text-base" position="top-right" />
+        <ToastContainer className="text-base mr-10" position="top-right" />
       </body>
     </html>
   );
