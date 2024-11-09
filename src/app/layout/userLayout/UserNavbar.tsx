@@ -12,8 +12,6 @@ import {
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import ProfileUser from "@/app/user/profileUser";
-import { AcmeLogo } from "../../Icon/AcmeLogo";
-import { useAppContext } from "@/app/app-provider";
 
 const UserNavbar = () => {
   const pathname = usePathname();
