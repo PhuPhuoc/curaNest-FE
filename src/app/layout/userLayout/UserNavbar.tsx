@@ -12,9 +12,12 @@ import {
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import ProfileUser from "@/app/user/profileUser";
+import { AcmeLogo } from "../../Icon/AcmeLogo";
+import { useAppContext } from "@/app/app-provider";
 
 const UserNavbar = () => {
   const pathname = usePathname();
+  const { setUser } = useAppContext();
 
   const menuItems = [
     { title: "Đăng ký khách hàng", link: "/customerRegister" },
@@ -25,6 +28,13 @@ const UserNavbar = () => {
   ];
 
   const allMenuItems = [...menuItems, { title: "Log out", link: "/login" }];
+
+  function handleLogout() {
+    setUser(null);
+    localStorage.removeItem("user");
+    document.cookie =
+      "userRole=; path=/; expires=Thu, 01 Jan 1970 00:00:00 GMT";
+  }
 
   return (
     <Navbar className="w-full">
@@ -46,7 +56,7 @@ const UserNavbar = () => {
       >
         <NavbarBrand>
           <Link
-            href="/user/patientProfile"
+            href="/"
             className="font-bold text-inherit text-2xl hover:text-lime-500 mr-6"
           >
             CURANEST
@@ -77,6 +87,7 @@ const UserNavbar = () => {
           {/* <Button
             as={Link}
             href="/"
+            onClick={handleLogout}
             variant="solid"
             className="hidden sm:block bg-slate-900 text-white font-semibold px-4 py-2"
           >

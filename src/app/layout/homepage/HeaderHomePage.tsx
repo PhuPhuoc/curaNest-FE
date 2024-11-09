@@ -15,12 +15,35 @@ import { AcmeLogo } from "../../Icon/AcmeLogo";
 import SliderPage from "@/app/layout/homepage/SliderPage";
 import AboutPage from "@/app/layout/homepage/AboutPage";
 import TreatmentPage from "@/app/layout/homepage/ServicePage";
+import { useAppContext } from "@/app/app-provider";
+import { useRouter } from "next/navigation";
 
 const HeaderHomePage = () => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
-
+  const { user } = useAppContext();
   const menuItems = ["Home", "About", "Treatment", "Login"];
+  const router = useRouter();
 
+  const handleLoginClick = () => {
+    if (user?.role) {
+      switch (user.role) {
+        case "admin":
+          router.push("/admin");
+          break;
+        case "nurse":
+          router.push("/nurse");
+          break;
+        case "user":
+          router.push("/user");
+          break;
+        default:
+          router.push("/login");
+          break;
+      }
+    } else {
+      router.push("/login");
+    }
+  };
   return (
     <div>
       <Navbar onMenuOpenChange={setIsMenuOpen}>
@@ -31,10 +54,7 @@ const HeaderHomePage = () => {
           />
           <NavbarBrand>
             <AcmeLogo />
-            <Link
-              href={"/"}
-              className="font-bold text-inherit text-2xl mr-6"
-            >
+            <Link href={"/"} className="font-bold text-inherit text-2xl mr-6">
               CURANEST
             </Link>
           </NavbarBrand>
@@ -45,11 +65,7 @@ const HeaderHomePage = () => {
           justify="center"
         >
           <NavbarItem>
-            <Link
-              color="foreground"
-              href="/"
-              className="hover:text-gray"
-            >
+            <Link color="foreground" href="/" className="hover:text-gray">
               Trang chủ
             </Link>
           </NavbarItem>
@@ -72,7 +88,7 @@ const HeaderHomePage = () => {
           <NavbarItem>
             <Button
               as={Link}
-              href="/login"
+              onClick={handleLoginClick}
               variant="flat"
               className="bg-slate-900 text-white font-semibold underline-offset-1 underline decoration-indigo-600"
             >
@@ -88,8 +104,8 @@ const HeaderHomePage = () => {
                   index === 2
                     ? "primary"
                     : index === menuItems.length - 1
-                      ? "danger"
-                      : "foreground"
+                    ? "danger"
+                    : "foreground"
                 }
                 className="w-full"
                 href="#"

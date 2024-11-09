@@ -28,7 +28,7 @@ export default function NurseLayout({
         </header>
 
         <main
-          className="flex-1 p-8 mt-10 max-w-[1400px]"
+          className="flex-1 p-8 mt-10"
           style={{ minHeight: "calc(100vh - 170px)" }}
         >
           {children}
