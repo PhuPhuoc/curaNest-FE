@@ -1,11 +1,24 @@
 import React from "react";
-import {Dropdown, DropdownTrigger, DropdownMenu, DropdownItem, User} from "@nextui-org/react";
-
+import {
+  Dropdown,
+  DropdownTrigger,
+  DropdownMenu,
+  DropdownItem,
+  User,
+} from "@nextui-org/react";
+import { useAppContext } from "@/app/app-provider";
 
 const ProfileUser = () => {
+  const { setUser } = useAppContext();
+  function handleLogout() {
+    setUser(null);
+    localStorage.removeItem("user");
+    document.cookie =
+      "userRole=; path=/; expires=Thu, 01 Jan 1970 00:00:00 GMT";
+  }
   return (
     <>
-     <Dropdown placement="bottom-start">
+      <Dropdown placement="bottom-start">
         <DropdownTrigger>
           <User
             as="button"
@@ -20,13 +33,15 @@ const ProfileUser = () => {
         </DropdownTrigger>
 
         <DropdownMenu aria-label="User Actions" variant="flat">
-          
-          <DropdownItem key="change_password">
-           Đổi mật khẩu
-          </DropdownItem>
-         
-          <DropdownItem href="/" key="logout" color="danger">
-           Đăng xuất
+          <DropdownItem key="change_password">Đổi mật khẩu</DropdownItem>
+
+          <DropdownItem
+            href="/login"
+            onClick={handleLogout}
+            key="logout"
+            color="danger"
+          >
+            Đăng xuất
           </DropdownItem>
         </DropdownMenu>
       </Dropdown>

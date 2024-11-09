@@ -3,6 +3,8 @@ import React, { useState } from "react";
 import { Avatar, Col, Divider, Drawer, List, Row } from "antd";
 import Link from "next/link";
 import { Button, Chip } from "@nextui-org/react";
+import { useAppContext } from "@/app/app-provider";
+import { useRouter } from "next/navigation";
 
 interface DescriptionItemProps {
   title: string;
@@ -44,6 +46,16 @@ const services = [
 ];
 
 const ProfileNurse: React.FC<ProfileDrawerProps> = ({ open, onClose }) => {
+  const { setUser } = useAppContext();
+  const router = useRouter();
+  function handleLogout() {
+    setUser(null);
+    localStorage.removeItem("user");
+    document.cookie =
+      "userRole=; path=/; expires=Thu, 01 Jan 1970 00:00:00 GMT";
+    router.push("/login");
+  }
+
   return (
     <>
       <Drawer
@@ -145,7 +157,12 @@ const ProfileNurse: React.FC<ProfileDrawerProps> = ({ open, onClose }) => {
         </div>
 
         <div className="flex justify-center mt-5">
-          <Button href="/login" color="danger" size="md" className="font-bold">
+          <Button
+            onClick={handleLogout}
+            color="danger"
+            size="md"
+            className="font-bold"
+          >
             Đăng xuất
           </Button>
         </div>

@@ -17,7 +17,6 @@ import { useAppContext } from "@/app/app-provider";
 
 const UserNavbar = () => {
   const pathname = usePathname();
-  const { setUser } = useAppContext();
 
   const menuItems = [
     { title: "Đăng ký khách hàng", link: "/customerRegister" },
@@ -28,13 +27,6 @@ const UserNavbar = () => {
   ];
 
   const allMenuItems = [...menuItems, { title: "Log out", link: "/login" }];
-
-  function handleLogout() {
-    setUser(null);
-    localStorage.removeItem("user");
-    document.cookie =
-      "userRole=; path=/; expires=Thu, 01 Jan 1970 00:00:00 GMT";
-  }
 
   return (
     <Navbar className="w-full">
