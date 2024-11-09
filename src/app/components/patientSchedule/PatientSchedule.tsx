@@ -46,16 +46,15 @@ const PatientSchedule = () => {
 
   const handleOpenModal = (appointment: Appointment) => {
     setSelectedSchedule(appointment);
-    onOpen(); // Open the modal
+    onOpen();
   };
 
   const appointments: Appointment[] = [
-    // Example appointments
     {
       id: 1,
       date: "2024-11-07",
       startTime: "09:00",
-      endTime: "10:00",
+      endTime: "11:00",
       description: "Routine check-up",
       patientName: "John Doe",
       address: "123 Street Name",
@@ -68,7 +67,46 @@ const PatientSchedule = () => {
       id: 2,
       date: "2024-11-08",
       startTime: "09:00",
-      endTime: "11:00",
+      endTime: "12:00",
+      description: "Routine check-up",
+      patientName: "John Doe",
+      address: "123 Street Name",
+      birthdate: "1990-01-01",
+      phoneNumber: "123-456-7890",
+      notes: "No specific notes",
+      avatar: "https://example.com/avatar.jpg",
+    },
+    {
+      id: 3,
+      date: "2024-11-09",
+      startTime: "09:00",
+      endTime: "12:00",
+      description: "Routine check-up",
+      patientName: "John Doe",
+      address: "123 Street Name",
+      birthdate: "1990-01-01",
+      phoneNumber: "123-456-7890",
+      notes: "No specific notes",
+      avatar: "https://example.com/avatar.jpg",
+    },
+    {
+      id: 4,
+      date: "2024-11-10",
+      startTime: "09:00",
+      endTime: "12:00",
+      description: "Routine check-up",
+      patientName: "John Doe",
+      address: "123 Street Name",
+      birthdate: "1990-01-01",
+      phoneNumber: "123-456-7890",
+      notes: "No specific notes",
+      avatar: "https://example.com/avatar.jpg",
+    },
+    {
+      id: 5,
+      date: "2024-11-06",
+      startTime: "13:00",
+      endTime: "15:00",
       description: "Routine check-up",
       patientName: "John Doe",
       address: "123 Street Name",
@@ -112,7 +150,19 @@ const PatientSchedule = () => {
   const calculateSpan = (startTime: string, endTime: string) => {
     const start = new Date(`1970-01-01T${startTime}:00`);
     const end = new Date(`1970-01-01T${endTime}:00`);
-    return (end.getTime() - start.getTime()) / (1000 * 60 * 60);
+    const spanInMinutes = (end.getTime() - start.getTime()) / (1000 * 60); // Difference in minutes
+    return Math.floor(spanInMinutes / 60); // Round down to nearest whole hour
+  };
+
+  const shouldRenderCell = (day: string, time: string) => {
+    const appointment = appointments.find(
+      (appt) =>
+        appt.date === day && appt.startTime <= time && appt.endTime > time
+    );
+
+    if (!appointment) return true;
+
+    return appointment.startTime === time;
   };
 
   const goToNextWeek = () => {
@@ -132,7 +182,7 @@ const PatientSchedule = () => {
   };
 
   return (
-    <div className="p-6 max-w-9xl mx-auto bg-white rounded-lg shadow-md">
+    <div className="p-6 w-full mx-auto bg-white rounded-lg shadow-md">
       <h3 className="text-3xl font-bold mb-6 text-center text-gray-800">
         Lịch hẹn của bệnh nhân
       </h3>
@@ -140,7 +190,7 @@ const PatientSchedule = () => {
       <div className="flex justify-between mb-4">
         <Button
           onClick={goToPreviousWeek}
-          className="p-2 bg-blue-500 text-white shadow hover:bg-blue-600 transition"
+          className="  text-xl p-6 bg-blue-500 text-white shadow hover:bg-blue-600 transition"
         >
           Tuần trước
         </Button>
@@ -154,25 +204,24 @@ const PatientSchedule = () => {
         </div>
         <Button
           onClick={goToNextWeek}
-          className="p-2 bg-blue-500 text-white shadow hover:bg-blue-600 transition"
+          className="  text-xl p-6 bg-blue-500 text-white shadow hover:bg-blue-600 transition"
         >
-          Tuần tiếp
+          Tuần sau
         </Button>
       </div>
 
-      <div className="overflow-x-auto bg-gray-50 p-4 rounded-lg shadow-lg">
+      <div className=" bg-gray-50 p-4 rounded-lg shadow-lg">
         <div className="hidden md:block">
-          <table className="table-auto w-full border border-gray-300 border-collapse rounded-lg">
+          <table className="w-full border border-gray-300 border-collapse rounded-lg bg-white">
             <thead>
-              <tr className="bg-blue-100">
-                <th className="p-3 text-center font-semibold text-gray-600 border border-gray-300 rounded-tl-lg">
+              <tr className="bg-blue-100  text-xl">
+                <th className="w-[200px] p-3 text-center font-semibold text-gray-600 border border-gray-300 rounded-tl-lg">
                   Giờ
                 </th>
                 {daysOfWeek.map((day) => (
                   <th
                     key={day.date}
-                    className="border border-gray-300"
-                    style={{ width: "150px" }}
+                    className="w-[200px] border border-gray-300"
                   >
                     <div className="flex flex-row items-center justify-center">
                       <span className="text-center font-semibold text-gray-600">
@@ -188,11 +237,19 @@ const PatientSchedule = () => {
             </thead>
             <tbody>
               {times.map((time) => (
-                <tr key={time} className="bg-white transition">
-                  <td className="p-8 font-semibold text-gray-600 text-center border-t border-b border-gray-300">
+                <tr
+                  key={time}
+                  className="bg-white transition "
+                  style={{ height: 150 }}
+                >
+                  <td className="  text-xl p-8 font-semibold text-gray-600 text-center border-t border-b border-gray-300">
                     {time}
                   </td>
                   {daysOfWeek.map((day) => {
+                    if (!shouldRenderCell(day.date, time)) {
+                      return null;
+                    }
+
                     const appointment = appointments.find(
                       (appt) =>
                         appt.date === day.date && appt.startTime === time
@@ -205,24 +262,21 @@ const PatientSchedule = () => {
                       );
                       return (
                         <td
-                          key={day.date}
+                          key={`${day.date}-${time}`}
                           rowSpan={span}
                           className="border-t border-b border-gray-300 relative p-2"
-                          style={{ height: `${span * 48}px` }}
+                          style={{ height: `${span * 150}px` }}
                         >
                           <Card
                             style={{
-                              width: "100%",
+                              width: "auto",
                               height: "100%",
-                              display: "flex",
-                              alignItems: "center",
-                              justifyContent: "center",
-                              flexDirection: "column",
                               borderRadius: "0.75rem",
                               backgroundColor: "#f0f4ff",
                               boxShadow: "0 4px 8px rgba(0, 0, 0, 0.15)",
                               cursor: "pointer",
                             }}
+                            className="mx-auto"
                           >
                             <CardBody
                               onClick={() => handleOpenModal(appointment)}
@@ -232,25 +286,25 @@ const PatientSchedule = () => {
                                 alignItems: "center",
                                 justifyContent: "center",
                                 textAlign: "center",
-                                width: "100%",
                                 color: "#1a3b5d",
                                 fontWeight: "bold",
+                                gap: 10,
                               }}
                             >
                               <Avatar
                                 src="https://thumbs.dreamstime.com/b/cat-gun-pointed-s-face-ai-cat-gun-pointed-s-face-ai-generated-307980031.jpg"
-                                className="w-10 h-10 rounded-md shadow-lg mx-auto my-2"
+                                className="w-20 h-20 rounded-md shadow-lg mx-auto my-2"
                               />
                               <p
                                 style={{
                                   marginBottom: "0.25rem",
-                                  fontSize: "0.9rem",
+                                  fontSize: "1.2rem",
                                 }}
                               >
                                 {appointment.startTime} - {appointment.endTime}
                               </p>
                               <strong
-                                style={{ fontSize: "0.8rem", margin: "0" }}
+                                style={{ fontSize: "1.2rem", margin: "0" }}
                               >
                                 {appointment.patientName}
                               </strong>
@@ -261,7 +315,7 @@ const PatientSchedule = () => {
                     }
                     return (
                       <td
-                        key={day.date}
+                        key={`${day.date}-${time}`}
                         className="p-3 rounded-lg border-t border-b border-gray-300"
                       ></td>
                     );

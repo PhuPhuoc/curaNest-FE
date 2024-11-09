@@ -1,7 +1,6 @@
 "use client";
 
 import Review from "@/app/components/findingNurse/Review";
-import Timetable from "@/app/components/findingNurse/TimeTable";
 import Lightning from "@/app/Icon/Lightning";
 import Plus from "@/app/Icon/Plus";
 import {
@@ -24,16 +23,18 @@ import {
   Select,
   SelectItem,
   ModalFooter,
-  Tooltip,
+  PopoverTrigger,
+  PopoverContent,
+  Popover,
 } from "@nextui-org/react";
-import { FloatButton } from "antd";
+import { useRouter } from "next/navigation";
 import { useMemo, useRef, useState } from "react";
 interface FormData {
   name: string;
   citizenID: string;
 }
 
-interface NurseData {
+export interface NurseData {
   id: number;
   avatar: string;
   name: string;
@@ -53,11 +54,10 @@ interface CreateNurseData {
   skills: string[];
 }
 
-const NurseTable: React.FC = () => {
+const NurseTable = () => {
   const fileInputRef = useRef<HTMLInputElement>(null);
   const [previewAvatar, setPreviewAvatar] = useState<string | null>(null);
-  const [selectedNurse, setSelectedNurse] = useState<NurseData | null>(null);
-  const [infoModalOpen, setInfoModalOpen] = useState(false);
+  const router = useRouter();
   const [editModalOpen, setEditModalOpen] = useState(false);
   const [formData, setFormData] = useState<FormData>({
     name: "",
@@ -83,7 +83,6 @@ const NurseTable: React.FC = () => {
     certifications: "",
     skills: [],
   });
-  console.log("🚀 ~ editFormData:", editFormData)
 
   const handleEditModalOpen = (nurse: NurseData) => {
     setEditFormData({
@@ -119,10 +118,6 @@ const NurseTable: React.FC = () => {
     }));
   };
 
-  const handleTimetableSubmit = (selectedSlots: string[]) => {
-    console.log("Selected time slots:", selectedSlots);
-  };
-
   const handleRowDoubleClick = (nurse: NurseData) => {
     const additionalInfo = {
       education: "Bachelor of Nursing",
@@ -130,14 +125,9 @@ const NurseTable: React.FC = () => {
       certifications: "CPR, BLS",
       skills: ["elderly-care", "emergency-care"],
     };
-
-    setSelectedNurse({ ...nurse, ...additionalInfo });
-    setInfoModalOpen(true);
-  };
-
-  const closeInfoModal = () => {
-    setInfoModalOpen(false);
-    setSelectedNurse(null);
+    const data = { ...nurse, ...additionalInfo };
+    console.log("🚀 ~ handleRowDoubleClick ~ data:", data);
+    router.push(`./nurse-management/${data.id}`);
   };
 
   const skillOptions = [
@@ -300,7 +290,7 @@ const NurseTable: React.FC = () => {
   );
 
   const [page, setPage] = useState(1);
-  const rowsPerPage = 6;
+  const rowsPerPage = 10;
 
   const pages = Math.ceil(dummyData.length / rowsPerPage);
 
@@ -395,60 +385,91 @@ const NurseTable: React.FC = () => {
 
   return (
     <div>
-      <FloatButton
-        tooltip={<div>Tạo điều dưỡng</div>}
-        type="primary"
-        icon={<Plus />}
-        style={{ fontSize: 50 }}
-        onClick={handleCreateModalOpen}
-      />
-
-      <Accordion
-        defaultExpandedKeys={"1"}
-        variant="shadow"
-        style={{ background: "#FFF", borderRadius: 25, marginBottom: 10 }}
-      >
-        <AccordionItem key="1" title="Tìm kiếm" style={{ padding: 6 }}>
-          <div style={{ display: "flex", gap: 10 }}>
-            <Input
-              label="Tên"
-              placeholder="Vui lòng nhập tên"
-              fullWidth
-              variant="bordered"
-              name="name"
-              value={formData.name}
-              onChange={handleChange}
-            />
-            <Input
-              label="Mã căn cước công dân"
-              placeholder="Vui lòng nhập mã căn cước công dân"
-              fullWidth
-              variant="bordered"
-              name="citizenID"
-              value={formData.citizenID}
-              onChange={handleChange}
-            />
-            <div style={{ display: "flex", gap: "1rem", marginTop: "1rem" }}>
-              <Button
-                onPress={handleConfirm}
-                startContent={<Lightning />}
-                style={{ color: "#FFF", background: "gold" }}
-              >
-                Tìm kiếm
-              </Button>
-              <Button color="danger" onPress={handleClear}>
-                Xóa tìm kiếm
-              </Button>
-            </div>
-          </div>
-        </AccordionItem>
-      </Accordion>
-
       <Table
+        selectionMode="single"
         aria-label="Table"
+        color={"secondary"}
+        topContent={
+          <div className="flex w-full justify-start">
+            <Button
+              onClick={handleCreateModalOpen}
+              className="bg-indigo-700 text-white font-bold mr-4 text-lg p-6"
+              startContent={<Plus />}
+            >
+              Thêm mới điều dưỡng
+            </Button>
+            <Popover placement="bottom-start" showArrow={true}>
+              <PopoverTrigger>
+                <Button className="bg-green-600 text-white font-bold text-lg p-6">
+                  Lọc điều dưỡng
+                </Button>
+              </PopoverTrigger>
+              <PopoverContent className="p-6">
+                <div style={{ display: "flex", gap: 10 }}>
+                  <Input
+                    label="Tên điều dưỡng "
+                    placeholder="Vui lòng nhập tên"
+                    fullWidth
+                    variant="bordered"
+                    name="name"
+                    value={formData.name}
+                    onChange={handleChange}
+                    style={{ fontSize: 20 }}
+                    classNames={{ label: "text-[20px]  font-bold mb-2" }}
+                  />
+                  <Input
+                    label="Mã căn cước công dân"
+                    placeholder="Vui lòng nhập mã căn cước công dân"
+                    fullWidth
+                    variant="bordered"
+                    name="citizenID"
+                    value={formData.citizenID}
+                    onChange={handleChange}
+                    style={{ fontSize: 20 }}
+                    classNames={{ label: "text-[20px] font-bold mb-2" }}
+                  />
+                  <div
+                    style={{
+                      display: "flex",
+                      gap: "1rem",
+                      justifyContent: "center",
+                      alignItems: "center",
+                    }}
+                  >
+                    <Button
+                      size="lg"
+                      onPress={handleConfirm}
+                      startContent={<Lightning />}
+                      style={{
+                        color: "#FFF",
+                        background: "gold",
+                        fontSize: 20,
+                      }}
+                    >
+                      Tìm kiếm
+                    </Button>
+                    <Button
+                      color="danger"
+                      onPress={handleClear}
+                      size="lg"
+                      style={{
+                        color: "#FFF",
+                        fontSize: 20,
+                        background: "#ccc",
+                      }}
+                    >
+                      Xóa tìm kiếm
+                    </Button>
+                  </div>
+                </div>
+              </PopoverContent>
+            </Popover>
+          </div>
+        }
         bottomContent={
           <div className="flex w-full justify-center">
             <Pagination
+              size="lg"
               isCompact
               showControls
               showShadow
@@ -460,40 +481,47 @@ const NurseTable: React.FC = () => {
           </div>
         }
         classNames={{
-          wrapper: "min-h-[222px]",
+          wrapper: "min-h-[400px]",
         }}
       >
         <TableHeader>
-          <TableColumn>ID</TableColumn>
-          <TableColumn>Ảnh điều dưỡng</TableColumn>
-          <TableColumn>Tên điều dưỡng</TableColumn>
-          <TableColumn>Mã căn cước công dân</TableColumn>
-          <TableColumn>Hành động</TableColumn>
+          <TableColumn className="text-lg">ID</TableColumn>
+          <TableColumn className="text-lg">Ảnh điều dưỡng</TableColumn>
+          <TableColumn className="text-lg">Tên điều dưỡng</TableColumn>
+          <TableColumn className="text-lg">Mã căn cước công dân</TableColumn>
+          <TableColumn className="text-lg">Hành động</TableColumn>
         </TableHeader>
         <TableBody emptyContent={"Không có thông tin điều dưỡng"}>
           {items.map((item) => (
             <TableRow
               key={item.id}
-              
+              onDoubleClick={() => handleRowDoubleClick(item)}
+              style={{ cursor: "pointer" }}
             >
-              <TableCell>{item.id}</TableCell>
+              <TableCell style={{ fontSize: 18 }}>{item.id}</TableCell>
               <TableCell>
-                <Avatar src={item.avatar} />
+                <Avatar
+                  isBordered
+                  src={item.avatar}
+                  className="w-20 h-20"
+                  radius="md"
+                />
               </TableCell>
-              <TableCell>{item.name}</TableCell>
-              <TableCell>{item.citizenID}</TableCell>
-              <TableCell >
+              <TableCell style={{ fontSize: 18 }}>{item.name}</TableCell>
+              <TableCell style={{ fontSize: 18 }}>{item.citizenID}</TableCell>
+              <TableCell>
                 <Button
                   color="warning"
-                  style={{ color: "#FFF",marginRight:10 }}
+                  style={{
+                    color: "#FFF",
+                    marginRight: 10,
+                    fontSize: 18,
+                    fontWeight: 700,
+                    padding: "1.5rem",
+                  }}
                   onClick={() => handleEditModalOpen(item)}
                 >
                   Sửa thông tin
-                </Button>
-                <Button
-                  onClick={() => handleRowDoubleClick(item)}
-                >
-                  Xem chi tiết
                 </Button>
               </TableCell>
             </TableRow>
@@ -529,7 +557,12 @@ const NurseTable: React.FC = () => {
                   accept="image/*"
                   onChange={handleAvatarChange}
                 />
-                <Button size="sm" variant="light" onClick={handleAvatarClick}>
+                <Button
+                  size="sm"
+                  variant="light"
+                  onClick={handleAvatarClick}
+                  style={{ fontSize: 20 }}
+                >
                   Chọn ảnh đại diện
                 </Button>
               </div>
@@ -539,6 +572,8 @@ const NurseTable: React.FC = () => {
                 variant="bordered"
                 value={createFormData.name}
                 onChange={(e) => handleCreateFormChange("name", e.target.value)}
+                style={{ fontSize: 18 }}
+                classNames={{ label: "text-[16px] font-bold mb-2" }}
               />
               <Input
                 label="Trình độ học vấn"
@@ -548,6 +583,8 @@ const NurseTable: React.FC = () => {
                 onChange={(e) =>
                   handleCreateFormChange("education", e.target.value)
                 }
+                classNames={{ label: "text-[16px] font-bold mb-2" }}
+                style={{ fontSize: 18 }}
               />
               <Input
                 label="Kinh nghiệm làm việc (năm)"
@@ -555,9 +592,13 @@ const NurseTable: React.FC = () => {
                 variant="bordered"
                 type="number"
                 value={createFormData.experience.toString()}
+                classNames={{ label: "text-[16px] font-bold mb-2" }}
+                style={{ fontSize: 18 }}
                 endContent={
                   <div className="pointer-events-none flex items-center">
-                    <span className="text-default-400 text-small">năm</span>
+                    <span className="text-default-400 text-small font-bold">
+                      năm
+                    </span>
                   </div>
                 }
                 onChange={(e) =>
@@ -573,6 +614,8 @@ const NurseTable: React.FC = () => {
                 placeholder="Nhập các chứng chỉ"
                 variant="bordered"
                 value={createFormData.certifications}
+                classNames={{ label: "text-[16px]  font-bold mb-2" }}
+                style={{ fontSize: 18 }}
                 onChange={(e) =>
                   handleCreateFormChange("certifications", e.target.value)
                 }
@@ -581,6 +624,8 @@ const NurseTable: React.FC = () => {
                 label="Kỹ năng"
                 placeholder="Chọn kỹ năng"
                 selectionMode="multiple"
+                classNames={{ label: "text-[16px]  font-bold mb-2" }}
+                style={{ fontSize: 18 }}
                 className="max-w-full"
                 value={createFormData.skills}
                 onChange={(e) =>
@@ -600,70 +645,23 @@ const NurseTable: React.FC = () => {
               color="danger"
               variant="light"
               onPress={handleCreateModalClose}
+              className="text-md font-bold"
             >
               Hủy
             </Button>
-            <Button color="primary" onPress={handleCreateSubmit}>
-              Tạo mới
+            <Button
+              className="bg-indigo-700 text-white text-md font-bold"
+              onPress={handleCreateSubmit}
+            >
+              Tạo điều dưỡng
             </Button>
           </ModalFooter>
         </ModalContent>
       </Modal>
 
-      {selectedNurse && (
-        <Modal
-          isOpen={infoModalOpen}
-          onClose={closeInfoModal}
-          size="5xl"
-          className="top-24"
-        >
-          <ModalContent>
-            <ModalHeader>{selectedNurse.name}</ModalHeader>
-            <ModalBody>
-              <div className="flex flex-row items-center justify-evenly mb-6">
-                <div>
-                  <Avatar
-                    src={selectedNurse.avatar}
-                    className="w-72 h-72"
-                    radius="md"
-                  />
-                </div>
-                <div className=" flex flex-col" style={{ gap: 40 }}>
-                  <p>
-                    <strong>Họ và tên:</strong> {selectedNurse.name}
-                  </p>
-                  <p>
-                    <strong>Mã CCCD:</strong> {selectedNurse.citizenID}
-                  </p>
-                  <p>
-                    <strong>Học vẫn:</strong> {selectedNurse.education}
-                  </p>
-                  <p>
-                    <strong>Kinh nghiệm:</strong> {selectedNurse.experience} năm
-                  </p>
-                  <p>
-                    <strong>Chứng chỉ:</strong> {selectedNurse.certifications}
-                  </p>
-                  <p>
-                    <strong>Kĩ năng:</strong> {selectedNurse.skills.join(", ")}
-                  </p>
-                </div>
-              </div>
-              {/* <Timetable onSubmit={handleTimetableSubmit} /> */}
-              <Review />
-            </ModalBody>
-            <ModalFooter>
-              <Button color="primary" onPress={closeInfoModal}>
-                Close
-              </Button>
-            </ModalFooter>
-          </ModalContent>
-        </Modal>
-      )}
-
       <Modal isOpen={editModalOpen} onClose={handleEditModalClose} size="2xl">
         <ModalContent>
-          <ModalHeader className="flex flex-col gap-1">
+          <ModalHeader className="flex flex-col gap-1 ">
             Chỉnh sửa thông tin điều dưỡng
           </ModalHeader>
           <ModalBody>
@@ -672,7 +670,7 @@ const NurseTable: React.FC = () => {
                 <Avatar
                   isBordered
                   radius="lg"
-                  color="primary"
+                  color="warning"
                   showFallback
                   src={editFormData?.avatar || "../../../public/Login.png"}
                   className="w-40 h-40 cursor-pointer "
@@ -685,7 +683,12 @@ const NurseTable: React.FC = () => {
                   accept="image/*"
                   onChange={handleAvatarChange}
                 />
-                <Button size="sm" variant="light" onClick={handleAvatarClick}>
+                <Button
+                  size="sm"
+                  variant="light"
+                  onClick={handleAvatarClick}
+                  className="text-xl"
+                >
                   Chọn ảnh đại diện
                 </Button>
               </div>
@@ -695,12 +698,16 @@ const NurseTable: React.FC = () => {
                 variant="bordered"
                 value={editFormData.name}
                 onChange={(e) => handleEditFormChange("name", e.target.value)}
+                style={{ fontSize: 18 }}
+                classNames={{ label: "text-[16px] font-bold mb-2" }}
               />
               <Input
                 label="Trình độ học vấn"
                 placeholder="Nhập trình độ học vấn"
                 variant="bordered"
                 value={editFormData.education}
+                style={{ fontSize: 18 }}
+                classNames={{ label: "text-[16px] font-bold mb-2" }}
                 onChange={(e) =>
                   handleEditFormChange("education", e.target.value)
                 }
@@ -711,9 +718,13 @@ const NurseTable: React.FC = () => {
                 variant="bordered"
                 type="number"
                 value={editFormData.experience.toString()}
+                style={{ fontSize: 18 }}
+                classNames={{ label: "text-[16px] font-bold mb-2" }}
                 endContent={
                   <div className="pointer-events-none flex items-center">
-                    <span className="text-default-400 text-small">năm</span>
+                    <span className="text-default-400 text-small font-bold">
+                      năm
+                    </span>
                   </div>
                 }
                 onChange={(e) =>
@@ -725,6 +736,8 @@ const NurseTable: React.FC = () => {
                 placeholder="Nhập các chứng chỉ"
                 variant="bordered"
                 value={editFormData.certifications}
+                style={{ fontSize: 18 }}
+                classNames={{ label: "text-[16px] font-bold mb-2" }}
                 onChange={(e) =>
                   handleEditFormChange("certifications", e.target.value)
                 }
@@ -736,12 +749,18 @@ const NurseTable: React.FC = () => {
                 className="max-w-full"
                 value={editFormData.skills}
                 defaultSelectedKeys={editFormData.skills}
+                style={{ fontSize: 18 }}
+                classNames={{ label: "text-[16px] font-bold mb-2" }}
                 onChange={(e) =>
                   handleEditFormChange("skills", e.target.value.split(","))
                 }
               >
                 {skillOptions.map((skill) => (
-                  <SelectItem key={skill.value} value={skill.value}>
+                  <SelectItem
+                    key={skill.value}
+                    value={skill.value}
+                    color="secondary"
+                  >
                     {skill.label}
                   </SelectItem>
                 ))}
@@ -753,10 +772,15 @@ const NurseTable: React.FC = () => {
               color="danger"
               variant="light"
               onPress={handleEditModalClose}
+              className="font-bold text-md"
             >
               Hủy
             </Button>
-            <Button color="primary" onPress={handleEditSubmit}>
+            <Button
+              color="warning"
+              className="text-white font-bold text-md"
+              onPress={handleEditSubmit}
+            >
               Lưu
             </Button>
           </ModalFooter>

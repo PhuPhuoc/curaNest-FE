@@ -200,13 +200,13 @@ const Dashboard = () => {
   return (
     <div>
       <div className="flex flex-col mb-8 gap-2 md:flex-row mt-4 md:mt-0">
-        <Card className="w-full max-w-[600px] p-2 text-base items-center ">
+        <Card className="w-full p-2 text-base items-center ">
           <Text className="text-lg font-semibold text-gray-400">
             Doanh thu tháng 11
           </Text>
           <Text className="text-3xl font-bold">200,000 VND</Text>
         </Card>
-        <Card className="w-full max-w-[600px] p-2 text-base  items-center">
+        <Card className="w-full p-2 text-base  items-center">
           <Text className="text-lg font-semibold text-gray-400">
             Tổng số còn lại trong ví
           </Text>
@@ -214,25 +214,25 @@ const Dashboard = () => {
         </Card>
       </div>
 
-      <div className="flex flex-col justify-between gap-8 items-center md:flex-row w-full mx-0 md:mx-4">
+      <div className="flex flex-col justify-between gap-8 items-center md:flex-row w-full mx-0 md:mx-8">
         <div
-          className="shadow-2xl shadow-[#D9D9D9] scale-105 w-[95%] md:w-[60%] p-[10px]"
+          className="shadow-2xl shadow-[#D9D9D9] scale-105 w-[95%] md:w-[65%] p-[30px] overflow-y-hidden "
           style={{
-            height: "500px",
+            height: "700px",
             background: "#FFF",
             borderRadius: 20,
           }}
         >
           <Text
             style={{
-              fontSize: 20,
+              fontSize: 24,
               fontWeight: 700,
               color: "#ccc",
             }}
           >
             Lịch hẹn ngày hôm nay {new Date().toISOString().split("T")[0]}
           </Text>
-          <ScrollShadow className="w-full h-[450px] p-4">
+          <ScrollShadow className="w-full h-[630px] p-4">
             {appointments.map((appointment) => (
               <Card
                 key={appointment.id}
@@ -241,7 +241,7 @@ const Dashboard = () => {
                   borderWidth: 2,
                   borderColor: "#000",
                 }}
-                className="shadow-xl hover:scale-105"
+                className="shadow-xl hover:scale-105 mx-4"
               >
                 <CardBody
                   style={{
@@ -261,7 +261,7 @@ const Dashboard = () => {
                     <div>
                       <Avatar
                         src="https://thumbs.dreamstime.com/b/cat-gun-pointed-s-face-ai-cat-gun-pointed-s-face-ai-generated-307980031.jpg"
-                        className="w-10 h-10 rounded-full shadow-lg mr-4"
+                        className="w-20 h-20 rounded-full shadow-lg mr-4"
                       />
                     </div>
                     <div style={{ display: "flex", flexDirection: "column" }}>
@@ -284,13 +284,14 @@ const Dashboard = () => {
             display: "flex",
             flexDirection: "column",
             alignItems: "center",
-            marginRight:26
+            marginRight: 26,
           }}
         >
           <Card
             style={{
-              marginBottom: "20px",
-              width: "400px",
+              marginBottom: "60px",
+              width: "530px",
+              height:"auto",
               maxWidth: "700px",
               padding: 10,
             }}
@@ -302,7 +303,8 @@ const Dashboard = () => {
           </Card>
           <Card
             style={{
-              width: "400px",
+              width: "530px",
+              height:"auto",
               maxWidth: "600px",
               padding: 10,
               fontWeight: "bold",

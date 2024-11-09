@@ -11,7 +11,7 @@ const AdminNavbar = () => {
 
   const menuItems = [
     { title: "Thống kê", link: "/dashboard" },
-    { title: "Quản lí điều dưỡng", link: "/nurseManagement" },
+    { title: "Quản lí điều dưỡng", link: "/nurse-management" },
   ];
 
   return (
