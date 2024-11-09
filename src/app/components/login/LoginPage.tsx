@@ -80,7 +80,7 @@ const AuthPage = () => {
 
     if (isValid) {
       console.log("Form is valid");
-      router.push("/user");
+      router.push("/user/patientProfile");
     } else {
       console.log("Form has errors");
     }
