@@ -4,10 +4,19 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { Button } from "@nextui-org/react";
 import MenuIcon from "@/app/Icon/MenuIcon";
+import { useAppContext } from "@/app/app-provider";
 
 const AdminNavbar = () => {
   const pathname = usePathname();
-  const [isOpen, setIsOpen] = useState(false);
+  const [isOpen, setIsOpen] = useState(false);  
+  const { setUser } = useAppContext();
+
+  function handleLogout() {
+    setUser(null);
+    localStorage.removeItem("user");
+    document.cookie =
+      "userRole=; path=/; expires=Thu, 01 Jan 1970 00:00:00 GMT";
+  }
 
   const menuItems = [
     { title: "Thống kê", link: "/dashboard" },
@@ -44,6 +53,7 @@ const AdminNavbar = () => {
         <div className="mt-auto">
           <Link
             href="/login"
+            onClick={handleLogout}
             className="block w-full bg-red-600 hover:bg-red-700 text-white font-semibold px-4 py-2 text-center rounded"
           >
             Đăng xuất
