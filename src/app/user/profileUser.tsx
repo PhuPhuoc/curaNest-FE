@@ -1,7 +1,5 @@
-// components/ProfileDrawer.tsx
-import React, { useState } from "react";
-import {Dropdown, DropdownTrigger, DropdownMenu, DropdownItem, Avatar, User} from "@nextui-org/react";
-
+import React from "react";
+import {Dropdown, DropdownTrigger, DropdownMenu, DropdownItem, User} from "@nextui-org/react";
 
 
 const ProfileUser = () => {

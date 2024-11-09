@@ -11,9 +11,6 @@ import {
 } from "@nextui-org/react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { UserOutlined } from "@ant-design/icons";
-import { useState } from "react";
-import ProfileNurse from "@/app/nurse/profileNurse";
 import ProfileUser from "@/app/user/profileUser";
 
 const UserNavbar = () => {
