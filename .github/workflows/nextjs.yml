@@ -13,19 +13,6 @@ jobs:
       - name: Check out repository
         uses: actions/checkout@v3
 
-      - name: Install Node.js
-        uses: actions/setup-node@v3
-        with:
-          node-version: '20'
-
-      - name: Install dependencies
-        run: |
-          npm install
-
-      - name: Build Next.js application
-        run: |
-          npm run build
-
       - name: Build Docker image
         run: |
           docker build -t pardes29/curanest-exe-fe:v1 .
