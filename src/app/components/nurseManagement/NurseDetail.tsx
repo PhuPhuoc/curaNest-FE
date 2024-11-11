@@ -1,4 +1,6 @@
 "use client";
+import nurseApiRequest from "@/apiRequests/nurse/nurse";
+import { DetailNurse } from "@/types/nurse";
 import {
   Avatar,
   Button,
@@ -9,7 +11,7 @@ import {
   ScrollShadow,
 } from "@nextui-org/react";
 import { useRouter } from "next/navigation";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 
 const getMonday = (date: Date) => {
   const day = date.getDay();
@@ -32,21 +34,26 @@ type Schedule = {
   };
 };
 
-const NurseDetail = () => {
+const NurseDetail = ({ id }: { id: string }) => {
   const router = useRouter();
-  const selectedNurse = {
-    id: 1,
-    avatar: "https://i.pravatar.cc/150?u=1",
-    full_name: "Alice Johnson",
-    phone_number: "0123456789",
-    citizen_id: "123456789",
-    curent_workplace: "Bệnh viện Phạm Ngọc Thạch",
-    education_level: "Cử nhân Điều dưỡng - ĐH Y Hà Nội",
-    work_experience: 5,
-    certificate: "Chứng chỉ Hồi sức cấp cứu, Chứng chỉ Gây mê hồi sức",
-    slogan: "Vì sức khỏe người bệnh",
-    expertise: ["elderly-care", "emergency-care", "intensive-care"],
-  };
+  const [loading, setLoading] = useState(false);
+  const [nurseList, setNurseList] = useState<DetailNurse>();
+
+  async function fetchDetailNurse() {
+    setLoading(true);
+    try {
+      const response = await nurseApiRequest.detailNurse(id, "admin");
+      setNurseList(response.payload.data);
+      setLoading(false);
+    } catch (error) {
+      console.error("Error fetching techniques:", error);
+      setLoading(false);
+    }
+  }
+
+  useEffect(() => {
+    fetchDetailNurse();
+  }, []);
 
   const [currentWeekStart, setCurrentWeekStart] = useState<Date>(
     getMonday(new Date())
@@ -151,7 +158,7 @@ const NurseDetail = () => {
           <div className="flex flex-col lg:flex-row gap-8">
             <div className="flex flex-col items-center lg:items-start gap-4">
               <Avatar
-                src={selectedNurse.avatar}
+                src={nurseList?.avatar}
                 className="w-40 h-40"
                 isBordered
                 color="primary"
@@ -159,10 +166,10 @@ const NurseDetail = () => {
               />
               <div className="text-center lg:text-left">
                 <h2 className="text-2xl font-bold text-default-900">
-                  {selectedNurse.full_name}
+                  {nurseList?.full_name}
                 </h2>
                 <p className="text-default-500 italic mt-1">
-                  &quot;{selectedNurse.slogan}&quot;
+                  &quot;{nurseList?.slogan}&quot;
                 </p>
               </div>
             </div>
@@ -171,44 +178,43 @@ const NurseDetail = () => {
 
             <div className="flex-1 space-y-6">
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                <InfoItem label="Mã CCCD" value={selectedNurse.citizen_id} />
+                <InfoItem label="Email" value={nurseList?.email} />
+                <InfoItem label="Mã CCCD" value={nurseList?.citizen_id} />
                 <InfoItem
                   label="Số điện thoại"
-                  value={selectedNurse.phone_number}
+                  value={nurseList?.phone_number}
                 />
                 <InfoItem
                   label="Nơi làm việc"
-                  value={selectedNurse.curent_workplace}
+                  value={nurseList?.current_workplace}
                 />
-                <InfoItem
-                  label="Học vấn"
-                  value={selectedNurse.education_level}
-                />
+                <InfoItem label="Học vấn" value={nurseList?.education_level} />
                 <InfoItem
                   label="Kinh nghiệm"
-                  value={`${selectedNurse.work_experience} năm`}
+                  value={`${nurseList?.work_experience} năm`}
                 />
-                <InfoItem label="Chứng chỉ" value={selectedNurse.certificate} />
+                <InfoItem label="Kỹ năng chuyên môn" value={nurseList?.expertise} />
+                <InfoItem label="Chứng chỉ" value={nurseList?.certificate} />
               </div>
 
               <Divider className="my-4" />
 
               <div>
                 <div className="flex items-center gap-2 mb-4">
-                  <p className="text-default-500">Kỹ năng chuyên môn</p>
+                  <p className="text-default-500">Dịch vụ</p>
                 </div>
                 <ScrollShadow className="max-h-24">
                   <div className="flex flex-wrap gap-2">
-                    {selectedNurse.expertise.map((skill, index) => (
+                    {nurseList?.techniques.map((skill, index) => (
                       <Chip
-                      size="lg"
+                        size="lg"
                         key={index}
                         color="secondary"
                         variant="flat"
                         radius="sm"
                         className="text-lg font-bold"
                       >
-                        {skill}
+                        {skill.name}
                       </Chip>
                     ))}
                   </div>

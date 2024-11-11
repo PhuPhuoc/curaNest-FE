@@ -5,7 +5,7 @@ const Page = ({ params }: { params: { id: string } }) => {
 
   return (
     <div>
-      <NurseDetail />
+      <NurseDetail id={params.id} />
     </div>
   );
 };

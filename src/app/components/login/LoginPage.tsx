@@ -108,6 +108,9 @@ const AuthPage = () => {
             case "user":
               router.push("/user");
               break;
+            case "customer":
+              router.push("/user");
+              break;
             default:
               router.push("/");
           }

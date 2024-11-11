@@ -8,7 +8,7 @@ import { useAppContext } from "@/app/app-provider";
 
 const AdminNavbar = () => {
   const pathname = usePathname();
-  const [isOpen, setIsOpen] = useState(false);  
+  const [isOpen, setIsOpen] = useState(false);
   const { setUser } = useAppContext();
 
   function handleLogout() {
@@ -21,6 +21,7 @@ const AdminNavbar = () => {
   const menuItems = [
     { title: "Thống kê", link: "/dashboard" },
     { title: "Quản lí điều dưỡng", link: "/nurse-management" },
+    { title: "Quản lí dịch vụ", link: "/service-fee" },
   ];
 
   return (

@@ -1,10 +1,12 @@
 "use client";
 
-import Review from "@/app/components/findingNurse/Review";
+import nurseApiRequest from "@/apiRequests/nurse/nurse";
+import techniqueApiRequest from "@/apiRequests/technique/technique";
 import Lightning from "@/app/Icon/Lightning";
 import Plus from "@/app/Icon/Plus";
+import { Nurse } from "@/types/nurse";
+import { Technique } from "@/types/technique";
 import {
-  Accordion,
   Button,
   Input,
   Table,
@@ -14,7 +16,6 @@ import {
   TableBody,
   TableRow,
   TableCell,
-  AccordionItem,
   Pagination,
   Modal,
   ModalContent,
@@ -28,7 +29,7 @@ import {
   Popover,
 } from "@nextui-org/react";
 import { useRouter } from "next/navigation";
-import { useMemo, useRef, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 interface FormData {
   name: string;
   citizenID: string;
@@ -36,22 +37,37 @@ interface FormData {
 
 export interface NurseData {
   id: number;
-  avatar: string;
+  avatar: string | null;
+  certificate: string;
+  citizen_id: string;
+  current_workplace: string;
+  education_level: string;
+  email: string;
+  expertise: string;
+  full_name: string;
   name: string;
-  citizenID: string;
-  education: string;
-  experience: number;
-  certifications: string;
-  skills: string[];
+  password: string;
+  phone_number: string;
+  slogan: string;
+  techniques: string[];
+  work_experience: string;
 }
 
 interface CreateNurseData {
   avatar: string | null;
+  certificate: string;
+  citizen_id: string;
+  current_workplace: string;
+  education_level: string;
+  email: string;
+  expertise: string;
+  full_name: string;
   name: string;
-  education: string;
-  experience: number;
-  certifications: string;
-  skills: string[];
+  password: string;
+  phone_number: string;
+  slogan: string;
+  techniques: string[];
+  work_experience: string;
 }
 
 const NurseTable = () => {
@@ -64,34 +80,89 @@ const NurseTable = () => {
     citizenID: "",
   });
 
-  const [createModalOpen, setCreateModalOpen] = useState(false);
+  const [loading, setLoading] = useState(false);
+  const [nurseList, setNurseList] = useState<Nurse[]>([]);
+  const [techniques, setTechniques] = useState<Technique[]>([]);
 
+  async function fetchTechniques() {
+    setLoading(true);
+    try {
+      const response = await techniqueApiRequest.getTechnique();
+      setTechniques(response.payload.data);
+      setLoading(false);
+    } catch (error) {
+      console.error("Error fetching techniques:", error);
+      setLoading(false);
+    }
+  }
+
+  async function fetchNurseList() {
+    setLoading(true);
+    try {
+      const response = await nurseApiRequest.listNurse();
+      setNurseList(response.payload.data);
+      setLoading(false);
+    } catch (error) {
+      console.error("Error fetching NurseList:", error);
+      setLoading(false);
+    }
+  }
+
+  useEffect(() => {
+    fetchNurseList();
+  }, []);
+
+  const [createModalOpen, setCreateModalOpen] = useState(false);
   const [createFormData, setCreateFormData] = useState<CreateNurseData>({
     avatar: null,
+    certificate: "",
+    citizen_id: "",
+    current_workplace: "",
+    education_level: "",
+    email: "",
+    expertise: "",
+    full_name: "",
     name: "",
-    education: "",
-    experience: 1,
-    certifications: "",
-    skills: [],
+    password: "",
+    phone_number: "",
+    slogan: "",
+    techniques: [],
+    work_experience: "",
   });
 
   const [editFormData, setEditFormData] = useState<CreateNurseData>({
     avatar: null,
+    certificate: "",
+    citizen_id: "",
+    current_workplace: "",
+    education_level: "",
+    email: "",
+    expertise: "",
+    full_name: "",
     name: "",
-    education: "",
-    experience: 1,
-    certifications: "",
-    skills: [],
+    password: "",
+    phone_number: "",
+    slogan: "",
+    techniques: [],
+    work_experience: "",
   });
 
   const handleEditModalOpen = (nurse: NurseData) => {
     setEditFormData({
       avatar: nurse.avatar,
+      certificate: nurse.certificate,
+      citizen_id: nurse.citizen_id,
+      current_workplace: nurse.current_workplace,
+      education_level: nurse.education_level,
+      email: nurse.email,
+      expertise: nurse.expertise,
+      full_name: nurse.full_name,
       name: nurse.name,
-      education: nurse.education,
-      experience: nurse.experience,
-      certifications: nurse.certifications,
-      skills: nurse.skills,
+      password: nurse.password,
+      phone_number: nurse.phone_number,
+      slogan: nurse.slogan,
+      techniques: nurse.techniques,
+      work_experience: nurse.work_experience,
     });
     setEditModalOpen(true);
   };
@@ -111,209 +182,49 @@ const NurseTable = () => {
   ) => {
     setEditFormData((prev) => ({
       ...prev,
-      [field]:
-        typeof value === "string" && field === "experience"
-          ? parseFloat(value)
-          : value,
+      [field]: typeof value === "string" ? parseFloat(value) : value,
     }));
   };
 
-  const handleRowDoubleClick = (nurse: NurseData) => {
-    const additionalInfo = {
-      education: "Bachelor of Nursing",
-      experience: 3,
-      certifications: "CPR, BLS",
-      skills: ["elderly-care", "emergency-care"],
-    };
-    const data = { ...nurse, ...additionalInfo };
-    console.log("🚀 ~ handleRowDoubleClick ~ data:", data);
-    router.push(`./nurse-management/${data.id}`);
+  const handleRowDoubleClick = (nurse: Nurse) => {
+    router.push(`./nurse-management/${nurse.user_id}`);
   };
-
-  const skillOptions = [
-    { label: "Chăm sóc người già", value: "elderly-care" },
-    { label: "Chăm sóc trẻ em", value: "pediatric-care" },
-    { label: "Phục hồi chức năng", value: "rehabilitation" },
-    { label: "Cấp cứu", value: "emergency-care" },
-    { label: "Chăm sóc đặc biệt", value: "intensive-care" },
-    { label: "Tiêm truyền", value: "injection-infusion" },
-  ];
-
-  const dummyData: NurseData[] = useMemo(
-    () => [
-      {
-        id: 1,
-        avatar: "https://i.pravatar.cc/150?u=1",
-        name: "Alice Johnson",
-        citizenID: "123456789",
-        education: "Cử nhân Điều dưỡng - ĐH Y Hà Nội",
-        experience: 5,
-        certifications: "Chứng chỉ Hồi sức cấp cứu, Chứng chỉ Gây mê hồi sức",
-        skills: ["elderly-care", "emergency-care", "intensive-care"],
-      },
-      {
-        id: 2,
-        avatar: "https://i.pravatar.cc/150?u=2",
-        name: "Bob Smith",
-        citizenID: "987654321",
-        education: "Thạc sĩ Điều dưỡng - ĐH Y Dược TP.HCM",
-        experience: 8,
-        certifications:
-          "Chứng chỉ Chăm sóc đặc biệt, Chứng chỉ Phục hồi chức năng",
-        skills: ["pediatric-care", "rehabilitation", "injection-infusion"],
-      },
-      {
-        id: 3,
-        avatar: "https://i.pravatar.cc/150?u=3",
-        name: "Charlie Brown",
-        citizenID: "456789123",
-        education: "Cử nhân Điều dưỡng - ĐH Y Dược Huế",
-        experience: 3,
-        certifications: "Chứng chỉ Chăm sóc người già, Chứng chỉ Tiêm truyền",
-        skills: ["elderly-care", "injection-infusion"],
-      },
-      {
-        id: 4,
-        avatar: "https://i.pravatar.cc/150?u=4",
-        name: "Diana Prince",
-        citizenID: "321654987",
-        education: "Cao đẳng Điều dưỡng - CĐ Y Hà Nội",
-        experience: 2,
-        certifications: "Chứng chỉ Chăm sóc trẻ em",
-        skills: ["pediatric-care", "injection-infusion"],
-      },
-      {
-        id: 5,
-        avatar: "https://i.pravatar.cc/150?u=5",
-        name: "Ethan Hunt",
-        citizenID: "789123456",
-        education: "Thạc sĩ Điều dưỡng - ĐH Y Hà Nội",
-        experience: 10,
-        certifications:
-          "Chứng chỉ Hồi sức cấp cứu, Chứng chỉ Chăm sóc đặc biệt",
-        skills: ["emergency-care", "intensive-care", "injection-infusion"],
-      },
-      {
-        id: 6,
-        avatar: "https://i.pravatar.cc/150?u=6",
-        name: "Fiona Glenanne",
-        citizenID: "654321987",
-        education: "Cử nhân Điều dưỡng - ĐH Y Dược Cần Thơ",
-        experience: 4,
-        certifications: "Chứng chỉ Phục hồi chức năng",
-        skills: ["rehabilitation", "elderly-care"],
-      },
-      {
-        id: 7,
-        avatar: "https://i.pravatar.cc/150?u=7",
-        name: "George Mason",
-        citizenID: "987123654",
-        education: "Cao đẳng Điều dưỡng - CĐ Y Đà Nẵng",
-        experience: 3,
-        certifications: "Chứng chỉ Tiêm truyền, Chứng chỉ Chăm sóc người già",
-        skills: ["elderly-care", "injection-infusion"],
-      },
-      {
-        id: 8,
-        avatar: "https://i.pravatar.cc/150?u=8",
-        name: "Hannah Baker",
-        citizenID: "123987654",
-        education: "Cử nhân Điều dưỡng - ĐH Y Thái Bình",
-        experience: 6,
-        certifications: "Chứng chỉ Chăm sóc trẻ em, Chứng chỉ Hồi sức cấp cứu",
-        skills: ["pediatric-care", "emergency-care"],
-      },
-      {
-        id: 9,
-        avatar: "https://i.pravatar.cc/150?u=9",
-        name: "Ivan Drago",
-        citizenID: "456123789",
-        education: "Thạc sĩ Điều dưỡng - ĐH Y Dược TP.HCM",
-        experience: 12,
-        certifications: "Chứng chỉ Chăm sóc đặc biệt, Chứng chỉ Gây mê hồi sức",
-        skills: ["intensive-care", "emergency-care", "injection-infusion"],
-      },
-      {
-        id: 10,
-        avatar: "https://i.pravatar.cc/150?u=10",
-        name: "Julia Meade",
-        citizenID: "789456123",
-        education: "Cử nhân Điều dưỡng - ĐH Y Dược Huế",
-        experience: 7,
-        certifications:
-          "Chứng chỉ Phục hồi chức năng, Chứng chỉ Chăm sóc người già",
-        skills: ["rehabilitation", "elderly-care"],
-      },
-      {
-        id: 11,
-        avatar: "https://i.pravatar.cc/150?u=11",
-        name: "Kevin Malone",
-        citizenID: "321987654",
-        education: "Cao đẳng Điều dưỡng - CĐ Y Hà Nội",
-        experience: 2,
-        certifications: "Chứng chỉ Tiêm truyền",
-        skills: ["injection-infusion"],
-      },
-      {
-        id: 12,
-        avatar: "https://i.pravatar.cc/150?u=12",
-        name: "Laura Palmer",
-        citizenID: "654789321",
-        education: "Cử nhân Điều dưỡng - ĐH Y Hà Nội",
-        experience: 5,
-        certifications: "Chứng chỉ Chăm sóc trẻ em, Chứng chỉ Tiêm truyền",
-        skills: ["pediatric-care", "injection-infusion"],
-      },
-      {
-        id: 13,
-        avatar: "https://i.pravatar.cc/150?u=13",
-        name: "Michael Scott",
-        citizenID: "789321654",
-        education: "Thạc sĩ Điều dưỡng - ĐH Y Dược TP.HCM",
-        experience: 15,
-        certifications:
-          "Chứng chỉ Hồi sức cấp cứu, Chứng chỉ Chăm sóc đặc biệt",
-        skills: ["emergency-care", "intensive-care"],
-      },
-      {
-        id: 14,
-        avatar: "https://i.pravatar.cc/150?u=14",
-        name: "Nina Myers",
-        citizenID: "321456987",
-        education: "Cử nhân Điều dưỡng - ĐH Y Dược Cần Thơ",
-        experience: 4,
-        certifications: "Chứng chỉ Phục hồi chức năng, Chứng chỉ Tiêm truyền",
-        skills: ["rehabilitation", "injection-infusion"],
-      },
-    ],
-    []
-  );
 
   const [page, setPage] = useState(1);
   const rowsPerPage = 10;
 
-  const pages = Math.ceil(dummyData.length / rowsPerPage);
+  const pages = Math.ceil(nurseList.length / rowsPerPage);
 
   const items = useMemo(() => {
     const start = (page - 1) * rowsPerPage;
     const end = start + rowsPerPage;
 
-    return dummyData.slice(start, end);
-  }, [page, dummyData]);
+    return nurseList.slice(start, end);
+  }, [page, nurseList]);
 
   const handleCreateModalOpen = () => {
     setCreateModalOpen(true);
+    fetchTechniques();
   };
 
   const handleCreateModalClose = () => {
     setCreateModalOpen(false);
+    fetchNurseList();
     setCreateFormData({
       avatar: null,
+      certificate: "",
+      citizen_id: "",
+      current_workplace: "",
+      education_level: "",
+      email: "",
+      expertise: "",
+      full_name: "",
       name: "",
-      education: "",
-      experience: 1,
-      certifications: "",
-      skills: [],
+      password: "",
+      phone_number: "",
+      slogan: "",
+      techniques: [],
+      work_experience: "",
     });
     setPreviewAvatar(null);
   };
@@ -329,10 +240,7 @@ const NurseTable = () => {
   ) => {
     setCreateFormData((prev) => ({
       ...prev,
-      [field]:
-        typeof value === "string" && field === "experience"
-          ? parseFloat(value)
-          : value,
+      [field]: value,
     }));
   };
 
@@ -488,17 +396,17 @@ const NurseTable = () => {
           <TableColumn className="text-lg">ID</TableColumn>
           <TableColumn className="text-lg">Ảnh điều dưỡng</TableColumn>
           <TableColumn className="text-lg">Tên điều dưỡng</TableColumn>
-          <TableColumn className="text-lg">Mã căn cước công dân</TableColumn>
-          <TableColumn className="text-lg">Hành động</TableColumn>
+          <TableColumn className="text-lg">Nơi hiện tại làm việc</TableColumn>
+          {/* <TableColumn className="text-lg">Hành động</TableColumn> */}
         </TableHeader>
         <TableBody emptyContent={"Không có thông tin điều dưỡng"}>
-          {items.map((item) => (
+          {items.map((item, index) => (
             <TableRow
-              key={item.id}
+              key={item.user_id}
               onDoubleClick={() => handleRowDoubleClick(item)}
               style={{ cursor: "pointer" }}
             >
-              <TableCell style={{ fontSize: 18 }}>{item.id}</TableCell>
+              <TableCell style={{ fontSize: 18 }}>{index + 1}</TableCell>
               <TableCell>
                 <Avatar
                   isBordered
@@ -507,9 +415,11 @@ const NurseTable = () => {
                   radius="md"
                 />
               </TableCell>
-              <TableCell style={{ fontSize: 18 }}>{item.name}</TableCell>
-              <TableCell style={{ fontSize: 18 }}>{item.citizenID}</TableCell>
-              <TableCell>
+              <TableCell style={{ fontSize: 18 }}>{item.full_name}</TableCell>
+              <TableCell style={{ fontSize: 18 }}>
+                {item.current_workplace}
+              </TableCell>
+              {/* <TableCell>
                 <Button
                   color="warning"
                   style={{
@@ -523,7 +433,7 @@ const NurseTable = () => {
                 >
                   Sửa thông tin
                 </Button>
-              </TableCell>
+              </TableCell> */}
             </TableRow>
           ))}
         </TableBody>
@@ -532,15 +442,15 @@ const NurseTable = () => {
       <Modal
         isOpen={createModalOpen}
         onClose={handleCreateModalClose}
-        size="2xl"
+        style={{ maxWidth: "80vw", width: "100%" }}
       >
         <ModalContent>
           <ModalHeader className="flex flex-col gap-1">
             Tạo điều dưỡng mới
           </ModalHeader>
           <ModalBody>
-            <div className="flex flex-col gap-4">
-              <div className="flex flex-col items-center gap-2">
+            <div className="flex flex-row gap-4 w-full">
+              <div className="flex flex-col items-center gap-2 my-auto ">
                 <Avatar
                   isBordered
                   radius="lg"
@@ -566,78 +476,175 @@ const NurseTable = () => {
                   Chọn ảnh đại diện
                 </Button>
               </div>
-              <Input
-                label="Họ và tên điều dưỡng"
-                placeholder="Vui lòng nhập tên điều dưỡng"
-                variant="bordered"
-                value={createFormData.name}
-                onChange={(e) => handleCreateFormChange("name", e.target.value)}
-                style={{ fontSize: 18 }}
-                classNames={{ label: "text-[16px] font-bold mb-2" }}
-              />
-              <Input
-                label="Trình độ học vấn"
-                placeholder="Nhập trình độ học vấn"
-                variant="bordered"
-                value={createFormData.education}
-                onChange={(e) =>
-                  handleCreateFormChange("education", e.target.value)
-                }
-                classNames={{ label: "text-[16px] font-bold mb-2" }}
-                style={{ fontSize: 18 }}
-              />
-              <Input
-                label="Kinh nghiệm làm việc (năm)"
-                placeholder="Nhập số năm kinh nghiệm"
-                variant="bordered"
-                type="number"
-                value={createFormData.experience.toString()}
-                classNames={{ label: "text-[16px] font-bold mb-2" }}
-                style={{ fontSize: 18 }}
-                endContent={
-                  <div className="pointer-events-none flex items-center">
-                    <span className="text-default-400 text-small font-bold">
-                      năm
-                    </span>
-                  </div>
-                }
-                onChange={(e) =>
-                  handleCreateFormChange(
-                    "experience",
-                    parseFloat(e.target.value)
-                  )
-                }
-              />
+              <div className="flex-1 space-y-6">
+                <div className="grid grid-cols-2 gap-6">
+                  <Input
+                    label="Tên đăng nhập"
+                    placeholder="Vui lòng nhập tên đăng nhập"
+                    variant="bordered"
+                    value={createFormData.name}
+                    onChange={(e) =>
+                      handleCreateFormChange("name", e.target.value)
+                    }
+                    style={{ fontSize: 18 }}
+                    classNames={{ label: "text-[16px] font-bold mb-2" }}
+                  />
+                  <Input
+                    label="Mật khẩu"
+                    placeholder="Vui lòng nhập mật khẩu"
+                    variant="bordered"
+                    value={createFormData.password}
+                    onChange={(e) =>
+                      handleCreateFormChange("password", e.target.value)
+                    }
+                    style={{ fontSize: 18 }}
+                    classNames={{ label: "text-[16px] font-bold mb-2" }}
+                  />
+                  <Input
+                    label="Họ và tên điều dưỡng"
+                    placeholder="Vui lòng nhập tên điều dưỡng"
+                    variant="bordered"
+                    value={createFormData.full_name}
+                    onChange={(e) =>
+                      handleCreateFormChange("full_name", e.target.value)
+                    }
+                    style={{ fontSize: 18 }}
+                    classNames={{ label: "text-[16px] font-bold mb-2" }}
+                  />
+                  <Input
+                    label="Email"
+                    placeholder="Vui lòng nhập email"
+                    variant="bordered"
+                    value={createFormData.email}
+                    onChange={(e) =>
+                      handleCreateFormChange("email", e.target.value)
+                    }
+                    style={{ fontSize: 18 }}
+                    classNames={{ label: "text-[16px] font-bold mb-2" }}
+                  />
+                  <Input
+                    label="Mã Căn cước công dân"
+                    placeholder="Vui lòng nhập mã CCCD"
+                    variant="bordered"
+                    value={createFormData.citizen_id}
+                    onChange={(e) =>
+                      handleCreateFormChange("citizen_id", e.target.value)
+                    }
+                    style={{ fontSize: 18 }}
+                    classNames={{ label: "text-[16px] font-bold mb-2" }}
+                  />
+                  <Input
+                    label="Nơi làm việc hiện tại"
+                    placeholder="Vui lòng nhập nơi làm việc hiện tại"
+                    variant="bordered"
+                    value={createFormData.current_workplace}
+                    onChange={(e) =>
+                      handleCreateFormChange(
+                        "current_workplace",
+                        e.target.value
+                      )
+                    }
+                    style={{ fontSize: 18 }}
+                    classNames={{ label: "text-[16px] font-bold mb-2" }}
+                  />
 
-              <Input
-                label="Chứng chỉ"
-                placeholder="Nhập các chứng chỉ"
-                variant="bordered"
-                value={createFormData.certifications}
-                classNames={{ label: "text-[16px]  font-bold mb-2" }}
-                style={{ fontSize: 18 }}
-                onChange={(e) =>
-                  handleCreateFormChange("certifications", e.target.value)
-                }
-              />
-              <Select
-                label="Kỹ năng"
-                placeholder="Chọn kỹ năng"
-                selectionMode="multiple"
-                classNames={{ label: "text-[16px]  font-bold mb-2" }}
-                style={{ fontSize: 18 }}
-                className="max-w-full"
-                value={createFormData.skills}
-                onChange={(e) =>
-                  handleCreateFormChange("skills", e.target.value.split(","))
-                }
-              >
-                {skillOptions.map((skill) => (
-                  <SelectItem key={skill.value} value={skill.value}>
-                    {skill.label}
-                  </SelectItem>
-                ))}
-              </Select>
+                  <Input
+                    label="Số điện thoại"
+                    placeholder="Vui lòng nhập số điện thoại"
+                    variant="bordered"
+                    value={createFormData.phone_number}
+                    onChange={(e) =>
+                      handleCreateFormChange("phone_number", e.target.value)
+                    }
+                    style={{ fontSize: 18 }}
+                    classNames={{ label: "text-[16px] font-bold mb-2" }}
+                  />
+                  <Input
+                    label="Slogan"
+                    placeholder="Nhập slogan"
+                    variant="bordered"
+                    value={createFormData.slogan}
+                    onChange={(e) =>
+                      handleCreateFormChange("slogan", e.target.value)
+                    }
+                    style={{ fontSize: 18 }}
+                    classNames={{ label: "text-[16px] font-bold mb-2" }}
+                  />
+                  <Input
+                    label="Trình độ học vấn"
+                    placeholder="Nhập trình độ học vấn"
+                    variant="bordered"
+                    value={createFormData.education_level}
+                    onChange={(e) =>
+                      handleCreateFormChange("education_level", e.target.value)
+                    }
+                    classNames={{ label: "text-[16px] font-bold mb-2" }}
+                    style={{ fontSize: 18 }}
+                  />
+                  <Input
+                    label="Kinh nghiệm làm việc (năm)"
+                    placeholder="Nhập số năm kinh nghiệm"
+                    variant="bordered"
+                    type="number"
+                    value={createFormData.work_experience}
+                    classNames={{ label: "text-[16px] font-bold mb-2" }}
+                    style={{ fontSize: 18 }}
+                    endContent={
+                      <div className="pointer-events-none flex items-center">
+                        <span className="text-default-400 text-small font-bold">
+                          năm
+                        </span>
+                      </div>
+                    }
+                    onChange={(e) =>
+                      handleCreateFormChange("work_experience", e.target.value)
+                    }
+                  />
+                  <Input
+                    label="Chứng chỉ"
+                    placeholder="Nhập các chứng chỉ"
+                    variant="bordered"
+                    value={createFormData.certificate}
+                    classNames={{ label: "text-[16px] font-bold mb-2" }}
+                    style={{ fontSize: 18 }}
+                    onChange={(e) =>
+                      handleCreateFormChange("certificate", e.target.value)
+                    }
+                  />
+                  <Input
+                    label="Chuyên môn"
+                    placeholder="Nhập chuyên môn"
+                    variant="bordered"
+                    value={createFormData.expertise}
+                    classNames={{ label: "text-[16px] font-bold mb-2" }}
+                    style={{ fontSize: 18 }}
+                    onChange={(e) =>
+                      handleCreateFormChange("expertise", e.target.value)
+                    }
+                  />
+                  <Select
+                    label="Dịch vụ"
+                    placeholder="Chọn dịch vụ"
+                    selectionMode="multiple"
+                    classNames={{ label: "text-[16px] font-bold mb-2" }}
+                    style={{ fontSize: 18 }}
+                    className="max-w-full"
+                    value={createFormData.techniques}
+                    onChange={(e) =>
+                      handleCreateFormChange(
+                        "techniques",
+                        e.target.value.split(",")
+                      )
+                    }
+                  >
+                    {techniques.map((technique) => (
+                      <SelectItem key={technique.id} value={technique.id}>
+                        {technique.name}
+                      </SelectItem>
+                    ))}
+                  </Select>
+                </div>
+              </div>
             </div>
           </ModalBody>
           <ModalFooter>
@@ -696,8 +703,61 @@ const NurseTable = () => {
                 label="Họ và tên điều dưỡng"
                 placeholder="Vui lòng nhập tên điều dưỡng"
                 variant="bordered"
-                value={editFormData.name}
-                onChange={(e) => handleEditFormChange("name", e.target.value)}
+                value={editFormData.full_name}
+                onChange={(e) =>
+                  handleEditFormChange("full_name", e.target.value)
+                }
+                style={{ fontSize: 18 }}
+                classNames={{ label: "text-[16px] font-bold mb-2" }}
+              />
+              <Input
+                label="Mã Căn cước công dân"
+                placeholder="Vui lòng nhập mã CCCD"
+                variant="bordered"
+                value={editFormData.citizen_id}
+                onChange={(e) =>
+                  handleEditFormChange("citizen_id", e.target.value)
+                }
+                style={{ fontSize: 18 }}
+                classNames={{ label: "text-[16px] font-bold mb-2" }}
+              />
+              <Input
+                label="Nơi làm việc hiện tại"
+                placeholder="Vui lòng nhập nơi làm việc hiện tại"
+                variant="bordered"
+                value={editFormData.current_workplace}
+                onChange={(e) =>
+                  handleEditFormChange("current_workplace", e.target.value)
+                }
+                style={{ fontSize: 18 }}
+                classNames={{ label: "text-[16px] font-bold mb-2" }}
+              />
+              <Input
+                label="Email"
+                placeholder="Vui lòng nhập email"
+                variant="bordered"
+                value={editFormData.email}
+                onChange={(e) => handleEditFormChange("email", e.target.value)}
+                style={{ fontSize: 18 }}
+                classNames={{ label: "text-[16px] font-bold mb-2" }}
+              />
+              <Input
+                label="Số điện thoại"
+                placeholder="Vui lòng nhập số điện thoại"
+                variant="bordered"
+                value={editFormData.phone_number}
+                onChange={(e) =>
+                  handleEditFormChange("phone_number", e.target.value)
+                }
+                style={{ fontSize: 18 }}
+                classNames={{ label: "text-[16px] font-bold mb-2" }}
+              />
+              <Input
+                label="Slogan"
+                placeholder="Nhập slogan"
+                variant="bordered"
+                value={editFormData.slogan}
+                onChange={(e) => handleEditFormChange("slogan", e.target.value)}
                 style={{ fontSize: 18 }}
                 classNames={{ label: "text-[16px] font-bold mb-2" }}
               />
@@ -705,21 +765,21 @@ const NurseTable = () => {
                 label="Trình độ học vấn"
                 placeholder="Nhập trình độ học vấn"
                 variant="bordered"
-                value={editFormData.education}
-                style={{ fontSize: 18 }}
-                classNames={{ label: "text-[16px] font-bold mb-2" }}
+                value={editFormData.education_level}
                 onChange={(e) =>
-                  handleEditFormChange("education", e.target.value)
+                  handleEditFormChange("education_level", e.target.value)
                 }
+                classNames={{ label: "text-[16px] font-bold mb-2" }}
+                style={{ fontSize: 18 }}
               />
               <Input
                 label="Kinh nghiệm làm việc (năm)"
                 placeholder="Nhập số năm kinh nghiệm"
                 variant="bordered"
                 type="number"
-                value={editFormData.experience.toString()}
-                style={{ fontSize: 18 }}
+                value={editFormData.work_experience}
                 classNames={{ label: "text-[16px] font-bold mb-2" }}
+                style={{ fontSize: 18 }}
                 endContent={
                   <div className="pointer-events-none flex items-center">
                     <span className="text-default-400 text-small font-bold">
@@ -728,43 +788,47 @@ const NurseTable = () => {
                   </div>
                 }
                 onChange={(e) =>
-                  handleEditFormChange("experience", parseFloat(e.target.value))
+                  handleEditFormChange("work_experience", e.target.value)
                 }
               />
               <Input
                 label="Chứng chỉ"
                 placeholder="Nhập các chứng chỉ"
                 variant="bordered"
-                value={editFormData.certifications}
-                style={{ fontSize: 18 }}
+                value={editFormData.certificate}
                 classNames={{ label: "text-[16px] font-bold mb-2" }}
+                style={{ fontSize: 18 }}
                 onChange={(e) =>
-                  handleEditFormChange("certifications", e.target.value)
+                  handleEditFormChange("certificate", e.target.value)
                 }
               />
-              <Select
-                label="Kỹ năng"
-                placeholder="Chọn kỹ năng"
-                selectionMode="multiple"
-                className="max-w-full"
-                value={editFormData.skills}
-                defaultSelectedKeys={editFormData.skills}
-                style={{ fontSize: 18 }}
+              <Input
+                label="Chuyên môn"
+                placeholder="Nhập chuyên môn"
+                variant="bordered"
+                value={editFormData.expertise}
                 classNames={{ label: "text-[16px] font-bold mb-2" }}
+                style={{ fontSize: 18 }}
                 onChange={(e) =>
-                  handleEditFormChange("skills", e.target.value.split(","))
+                  handleEditFormChange("expertise", e.target.value)
                 }
-              >
-                {skillOptions.map((skill) => (
-                  <SelectItem
-                    key={skill.value}
-                    value={skill.value}
-                    color="secondary"
-                  >
-                    {skill.label}
-                  </SelectItem>
-                ))}
-              </Select>
+              />
+              {/* <Select
+          label="Kỹ thuật"
+          placeholder="Chọn kỹ thuật"
+          selectionMode="multiple"
+          classNames={{ label: "text-[16px] font-bold mb-2" }}
+          style={{ fontSize: 18 }}
+          className="max-w-full"
+          value={editFormData.techniques}
+          onChange={(e) => handleEditFormChange("techniques", e.target.value.split(","))}
+        >
+          {techniqueOptions.map((technique) => (
+            <SelectItem key={technique.value} value={technique.value}>
+              {technique.label}
+            </SelectItem>
+          ))}
+        </Select> */}
             </div>
           </ModalBody>
           <ModalFooter>

@@ -1,12 +1,12 @@
 // middleware.ts
 import { NextResponse } from "next/server";
 import type { NextRequest } from "next/server";
-import { toast } from "react-toastify";
 
 // Define role-based paths
 const roleBasedPaths = {
   admin: ["/admin"],
   user: ["/user"],
+  customer: ["/user"],
   nurse: ["/nurse"],
 };
 
@@ -30,6 +30,8 @@ export function middleware(req: NextRequest) {
       case "nurse":
         return NextResponse.redirect(new URL("/nurse", req.url));
       case "user":
+        return NextResponse.redirect(new URL("/user", req.url));
+      case "customer":
         return NextResponse.redirect(new URL("/user", req.url));
       default:
         return NextResponse.redirect(new URL("/login", req.url));
