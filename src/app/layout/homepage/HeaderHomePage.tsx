@@ -90,7 +90,7 @@ const HeaderHomePage = () => {
               as={Link}
               onClick={handleLoginClick}
               variant="flat"
-              className="bg-slate-900 text-white font-semibold underline-offset-1 underline decoration-indigo-600"
+              className="bg-slate-900 text-white font-semibold"
             >
               Đăng nhập
             </Button>

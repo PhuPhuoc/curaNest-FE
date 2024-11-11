@@ -106,7 +106,7 @@ const AuthPage = () => {
               router.push("/nurse");
               break;
             case "user":
-              router.push("/user");
+              router.push("/user/customerRegister");
               break;
             case "customer":
               router.push("/user");
