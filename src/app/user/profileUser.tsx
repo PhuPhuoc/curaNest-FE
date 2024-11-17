@@ -9,13 +9,16 @@ import {
 import { useAppContext } from "@/app/app-provider";
 
 const ProfileUser = () => {
-  const { setUser, user } = useAppContext();
+  const { setUser, user, setAccount } = useAppContext();
+  
   function handleLogout() {
     setUser(null);
+    setAccount(null);
     localStorage.removeItem("user");
     document.cookie =
       "userRole=; path=/; expires=Thu, 01 Jan 1970 00:00:00 GMT";
   }
+  
   return (
     <>
       <Dropdown placement="bottom-start">

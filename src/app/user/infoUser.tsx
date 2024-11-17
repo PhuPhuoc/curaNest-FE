@@ -69,30 +69,30 @@ const InfoUser: React.FC = () => {
 
             <div className="ml-4 flex-1">
               <div className="flex space-x-8">
-                <div className="text-lg font-semibold">{profile.full_name}</div>
+                <div className="text-xl font-semibold">{profile.full_name}</div>
               </div>
 
-              <div className="flex space-x-12 mt-10">
-                <div className="text-gray-500">
+              <div className="flex space-x-12 mt-8">
+                <div className="text-gray-500 text-lg">
                   <span className="text-gray-700 font-semibold">
                     Ngày sinh:{" "}
                   </span>
                   {profile.dob}
                 </div>
 
-                <div className="text-gray-500">
+                <div className="text-gray-500 text-lg">
                   <span className="text-gray-700 font-semibold">Căn cước công dân: </span>
                   {profile.citizen_id}
                 </div>
 
-                <div className="text-gray-500">
+                <div className="text-gray-500 text-lg">
                   <span className="text-gray-700 font-semibold">
                    Email: {" "}
                   </span>
                   {profile.email}
                 </div>
 
-                <div className="text-gray-500">
+                <div className="text-gray-500 text-lg">
                   <span className="text-gray-700 font-semibold">
                     Số điện thoại:{" "}
                   </span>
@@ -100,23 +100,23 @@ const InfoUser: React.FC = () => {
                 </div>            
               </div>
 
-              <div className="flex space-x-20 mt-10">
-                <div className="text-gray-500">
+              <div className="flex space-x-20 mt-8">
+                <div className="text-gray-500 text-lg">
                   <span className="text-gray-700 font-semibold">Địa chỉ: </span>
                   {profile.address}
                 </div>
 
-                <div className="text-gray-500">
+                <div className="text-gray-500 text-lg">
                   <span className="text-gray-700 font-semibold">Phường: </span>
                   {profile.ward}
                 </div>
 
-                <div className="text-gray-500">
+                <div className="text-gray-500 text-lg">
                   <span className="text-gray-700 font-semibold">Quận: </span>
                   {profile.district}
                 </div>
 
-                <div className="text-gray-500">
+                <div className="text-gray-500 text-lg">
                   <span className="text-gray-700 font-semibold">Thành phố: </span>
                   {profile.city}
                 </div>

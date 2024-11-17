@@ -36,6 +36,11 @@ export type infoPatient = {
   dob: string;
   old: number;
   address: string;
+  ward: string;
+  district: string;
+  city: string;
+  medical_description: string;
+  note_for_nurses: string;
   techniques: Technique[];
 };
 

@@ -12,11 +12,12 @@ import {
 } from "@nextui-org/react";
 import { toast } from "react-toastify";
 import { useAppContext } from "@/app/app-provider";
-import authApiRequest from "@/apiRequests/customer/customer";
+import authApi from "@/apiRequests/customer/customer";
+import authApiRequest from "@/apiRequests/auth";
 
 const FormRegister: React.FC = () => {
   const router = useRouter();
-  const { user } = useAppContext();
+  const { user, setUser, account } = useAppContext();
 
   const [full_name, setFull_name] = useState("");
   const [dob, setDob] = useState<DateValue | null>(null);
@@ -81,27 +82,37 @@ const FormRegister: React.FC = () => {
       district,
       ward,
     };
-    
+
     if (!user?.id) {
       toast.error("Bạn cần đăng nhập trước khi đăng ký khách hàng.");
       return;
     }
 
+    if (!account) {
+      toast.error("Vui lòng đăng nhập trước khi tiếp tục.");
+      return;
+    }
+
     try {
       setLoading(true);
-      const response = await authApiRequest.register(user.id, profile);
+      const response = await authApi.register(user.id, profile);
       if (response.status === 200) {
         toast.success(`${user.user_name} đã trở thành khách hàng của Curanest`);
+
+        const result = await authApiRequest.login(account);
+        setUser(result.payload.data);
+        document.cookie = `userRole=${result.payload.data.role}; path=/; max-age=86400; secure; samesite=strict`;
+
         router.push("/user/patientProfile");
       }
     } catch (error: any) {
       if (error.payload.log.includes("this citizen id already exists")) {
-        toast.error(`${user.user_name} đã đăng ký khách hàng của Curanest rồi!`);
+        toast.error(
+          `${user.user_name} đã đăng ký khách hàng của Curanest rồi!`
+        );
       } else {
         toast.error(error.payload.log);
       }
-    } finally {
-      setLoading(false);
     }
   };
 
@@ -215,12 +226,13 @@ const FormRegister: React.FC = () => {
           Quay lại
         </Button>
 
-        <Button size="lg" onClick={handleSubmit} color="primary" disabled={loading}>
-          {loading ? (
-            <CircularProgress size="md" color="primary" />
-          ) : (
-            "Đăng ký"
-          )}
+        <Button
+          size="lg"
+          onClick={handleSubmit}
+          color="primary"
+          disabled={loading}
+        >
+          {loading ? <CircularProgress size="md" color="primary" /> : "Đăng ký"}
         </Button>
       </div>
     </div>

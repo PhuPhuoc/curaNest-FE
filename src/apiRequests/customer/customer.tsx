@@ -1,11 +1,10 @@
 import {
-  RegisterBodyType,
-  RegisterResType,
+  RegisterBodyType, RegisterResType, createProfileProfileBodyType, createProfileProfileResType
 } from "@/schemaValidations/customer.schema";
 import http from "@/lib/http";
 import { infoCustomerRes, infoPatientRes } from "@/types/customer";
 
-const authApiRequest = {
+const authApi = {
   register: (user_id: string, body: RegisterBodyType) =>
     http.post<RegisterResType>(
       `/users/${user_id}/create-customer-profile`,
@@ -15,8 +14,14 @@ const authApiRequest = {
   infoCustomer: (customer_id: string) =>
     http.get<infoCustomerRes>(`/customers/${customer_id}`),
 
-  profilePatients: (customer_id: string) =>
+  profilePatient: (customer_id: string) =>
     http.get<infoPatientRes>(`/customers/${customer_id}/patients`),
+
+  createProfilePatient: (customer_id: string, body: createProfileProfileBodyType) =>
+    http.post<createProfileProfileResType>(
+      `/customers/${customer_id}/create-patient-profile`,
+      body
+    ),
 };
 
-export default authApiRequest;
+export default authApi;
