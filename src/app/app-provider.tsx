@@ -11,12 +11,21 @@ import {
 
 type User = AccountResType["data"];
 
+type Account = {
+  email: string;
+  password: string;
+}
+
 const AppContext = createContext<{
   user: User | null;
   setUser: (user: User | null) => void;
+  account: Account | null;
+  setAccount: (account: Account | null) => void;
 }>({
   user: null,
   setUser: () => {},
+  account: null,
+  setAccount: () => {}
 });
 
 export const useAppContext = () => useContext(AppContext);
@@ -27,6 +36,7 @@ export default function AppProvider({
   children: React.ReactNode;
 }) {
   const [user, setUserState] = useState<User | null>(null);
+  const [account, setAccount] = useState<Account | null>(null);
 
   const setUser = useCallback((user: User | null) => {
     setUserState(user);
@@ -48,7 +58,7 @@ export default function AppProvider({
   }, []);
 
   return (
-    <AppContext.Provider value={{ user, setUser }}>
+    <AppContext.Provider value={{ user, setUser, account, setAccount }}>
       {children}
     </AppContext.Provider>
   );

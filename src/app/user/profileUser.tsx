@@ -9,13 +9,16 @@ import {
 import { useAppContext } from "@/app/app-provider";
 
 const ProfileUser = () => {
-  const { setUser } = useAppContext();
+  const { setUser, user, setAccount } = useAppContext();
+  
   function handleLogout() {
     setUser(null);
+    setAccount(null);
     localStorage.removeItem("user");
     document.cookie =
       "userRole=; path=/; expires=Thu, 01 Jan 1970 00:00:00 GMT";
   }
+  
   return (
     <>
       <Dropdown placement="bottom-start">
@@ -27,8 +30,8 @@ const ProfileUser = () => {
               src: "https://as2.ftcdn.net/v2/jpg/04/10/43/77/1000_F_410437733_hdq4Q3QOH9uwh0mcqAhRFzOKfrCR24Ta.jpg",
             }}
             className="transition-transform"
-            description="nhantamhd@gmail.com"
-            name="Hồ Đắc Nhân Tâm"
+            description={user?.email || "Email không xác định"}
+            name={user?.user_name || "Tên không xác định"}
           />
         </DropdownTrigger>
 

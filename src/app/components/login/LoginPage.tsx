@@ -26,7 +26,7 @@ const AuthPage = () => {
   const [passwordError, setPasswordError] = useState("");
   const [confirmPasswordError, setConfirmPasswordError] = useState("");
   const [nameError, setNameError] = useState("");
-  const { setUser,user } = useAppContext();
+  const { setUser, setAccount,user } = useAppContext();
   const [loading, setLoading] = useState(false);
   const router = useRouter();
   const toggleVisibility = () => setIsVisible(!isVisible);
@@ -35,6 +35,8 @@ const AuthPage = () => {
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
     return emailRegex.test(email);
   };
+
+  const dataAccount ={email, password};
 
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
@@ -95,6 +97,7 @@ const AuthPage = () => {
           const result = await authApiRequest.login(valuesLogin);
           toast.success(`Chào mừng đăng nhập ${result.payload.data.user_name}`);
           setUser(result.payload.data);
+          setAccount(dataAccount);
           document.cookie = `userRole=${result.payload.data.role}; path=/; max-age=86400; secure; samesite=strict`;
 
           switch (result.payload.data.role) {
@@ -105,6 +108,8 @@ const AuthPage = () => {
               router.push("/nurse");
               break;
             case "user":
+              router.push("/user/customerRegister");
+              break;
             case "customer":
               router.push("/user");
               break;
@@ -133,7 +138,7 @@ const AuthPage = () => {
           };
 
           const result = await authApiRequest.register(valuesRegister);
-          toast.success(`${result.payload.message}`);
+          // toast.success(`${result.payload.message}`);
           setIsLogin(true);
         } catch (error: any) {
           setLoading(false);

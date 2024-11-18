@@ -12,19 +12,41 @@ import {
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import ProfileUser from "@/app/user/profileUser";
+import { useAppContext } from "@/app/app-provider";
 
 const UserNavbar = () => {
   const pathname = usePathname();
+  const { user } = useAppContext();
 
   const menuItems = [
-    { title: "Đăng ký khách hàng", link: "/customerRegister" },
-    { title: "Hồ sơ bệnh nhân", link: "/patientProfile" },
-    { title: "Tìm kiếm điều dưỡng", link: "/findingNurse" },
-    { title: "Lịch hẹn sắp tới", link: "/upcomingSchedule" },
-    { title: "Lịch sử giao dịch", link: "/historyTransaction" },
+    { title: "Trang chủ", link: "/", roles: ["user"] },
+    { title: "Đăng ký khách hàng", link: "/customerRegister", roles: ["user"] },
+    { title: "Hồ sơ bệnh nhân", link: "/patientProfile", roles: ["customer"] },
+    {
+      title: "Tìm kiếm điều dưỡng",
+      link: "/findingNurse",
+      roles: ["user", "customer"],
+    },
+    {
+      title: "Lịch hẹn sắp tới",
+      link: "/upcomingSchedule",
+      roles: ["customer"],
+    },
+    {
+      title: "Lịch sử giao dịch",
+      link: "/historyTransaction",
+      roles: ["customer"],
+    },
   ];
 
-  const allMenuItems = [...menuItems, { title: "Log out", link: "/login" }];
+  const filteredMenuItems = menuItems.filter((item) =>
+    item.roles.includes(user?.role ?? "")
+  );
+
+  const allMenuItems = [
+    ...filteredMenuItems,
+    { title: "Log out", link: "/login" },
+  ];
 
   return (
     <Navbar className="w-full">
@@ -47,21 +69,29 @@ const UserNavbar = () => {
         <NavbarBrand>
           <Link
             href="/"
-            className="font-bold text-inherit text-2xl hover:text-lime-500 mr-6"
+            className="font-bold text-inherit text-2xl hover:text-lime-500 mr-2"
           >
             CURANEST
           </Link>
         </NavbarBrand>
 
-        {menuItems.map((item, index) => (
+        {filteredMenuItems.map((item, index) => (
           <NavbarItem
             key={`${item}-${index}`}
-            isActive={pathname === `/user${item.link}`}
+            isActive={
+              pathname ===
+              (item.title === "Trang chủ" ? item.link : `/user${item.link}`)
+            }
           >
             <Link
-              href={`/user${item.link}`}
-              className={`px-4 py-2 ${
-                pathname === `/user${item.link}`
+              href={
+                item.title === "Trang chủ" ? item.link : `/user${item.link}`
+              }
+              className={`${
+                user?.role === "customer" ? "px-4" : "px-10"
+              } py-2 ${
+                pathname ===
+                (item.title === "Trang chủ" ? item.link : `/user${item.link}`)
                   ? "text-lime-500"
                   : "text-foreground"
               }`}
@@ -72,17 +102,8 @@ const UserNavbar = () => {
         ))}
       </NavbarContent>
 
-      <NavbarContent className="sm:flex-1 sm:justify-end" justify="end">
+      <NavbarContent className="sm:flex-1 sm:justify-end ml-2" justify="end">
         <NavbarItem>
-          {/* <Button
-            as={Link}
-            href="/"
-            onClick={handleLogout}
-            variant="solid"
-            className="hidden sm:block bg-slate-900 text-white font-semibold px-4 py-2"
-          >
-            Đăng xuất
-          </Button> */}
           <ProfileUser />
         </NavbarItem>
       </NavbarContent>
