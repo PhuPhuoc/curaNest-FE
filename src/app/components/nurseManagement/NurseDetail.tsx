@@ -38,6 +38,7 @@ const NurseDetail = ({ id }: { id: string }) => {
   const router = useRouter();
   const [loading, setLoading] = useState(false);
   const [nurseList, setNurseList] = useState<DetailNurse>();
+  console.log("🚀 ~ NurseDetail ~ nurseList:", nurseList)
 
   async function fetchDetailNurse() {
     setLoading(true);
@@ -168,7 +169,7 @@ const NurseDetail = ({ id }: { id: string }) => {
                 <h2 className="text-2xl font-bold text-default-900">
                   {nurseList?.full_name}
                 </h2>
-                <p className="text-default-500 italic mt-1">
+                <p className="text-default-500 italic mt-1 max-w-[200px]">
                   &quot;{nurseList?.slogan}&quot;
                 </p>
               </div>

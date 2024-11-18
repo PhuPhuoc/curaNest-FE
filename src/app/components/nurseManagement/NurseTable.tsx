@@ -4,7 +4,7 @@ import nurseApiRequest from "@/apiRequests/nurse/nurse";
 import techniqueApiRequest from "@/apiRequests/technique/technique";
 import Lightning from "@/app/Icon/Lightning";
 import Plus from "@/app/Icon/Plus";
-import { Nurse } from "@/types/nurse";
+import { CreateNurseData, Nurse } from "@/types/nurse";
 import { Technique } from "@/types/technique";
 import {
   Button,
@@ -30,9 +30,10 @@ import {
 } from "@nextui-org/react";
 import { useRouter } from "next/navigation";
 import { useEffect, useMemo, useRef, useState } from "react";
+import { toast } from "react-toastify";
 interface FormData {
-  name: string;
-  citizenID: string;
+  full_name: string;
+  phone_number: string;
 }
 
 export interface NurseData {
@@ -53,31 +54,29 @@ export interface NurseData {
   work_experience: string;
 }
 
-interface CreateNurseData {
-  avatar: string | null;
-  certificate: string;
-  citizen_id: string;
-  current_workplace: string;
-  education_level: string;
-  email: string;
-  expertise: string;
-  full_name: string;
-  name: string;
-  password: string;
-  phone_number: string;
-  slogan: string;
-  techniques: string[];
-  work_experience: string;
-}
+const inputStyles = {
+  inputStyle: {
+    fontSize: 18,
+  },
+  classNames: {
+    label: "text-[24px] font-bold",
+    input: [
+      "bg-transparent",
+      "text-black/90 dark:text-white/90",
+      "placeholder:text-default-700/50 dark:placeholder:text-white/60",
+    ],
+  },
+};
+
+interface FormErrors extends Record<keyof CreateNurseData, string> {}
 
 const NurseTable = () => {
   const fileInputRef = useRef<HTMLInputElement>(null);
   const [previewAvatar, setPreviewAvatar] = useState<string | null>(null);
   const router = useRouter();
-  const [editModalOpen, setEditModalOpen] = useState(false);
   const [formData, setFormData] = useState<FormData>({
-    name: "",
-    citizenID: "",
+    full_name: "",
+    phone_number: "",
   });
 
   const [loading, setLoading] = useState(false);
@@ -85,26 +84,20 @@ const NurseTable = () => {
   const [techniques, setTechniques] = useState<Technique[]>([]);
 
   async function fetchTechniques() {
-    setLoading(true);
     try {
       const response = await techniqueApiRequest.getTechnique();
       setTechniques(response.payload.data);
-      setLoading(false);
     } catch (error) {
       console.error("Error fetching techniques:", error);
-      setLoading(false);
     }
   }
 
   async function fetchNurseList() {
-    setLoading(true);
     try {
       const response = await nurseApiRequest.listNurse();
       setNurseList(response.payload.data);
-      setLoading(false);
     } catch (error) {
       console.error("Error fetching NurseList:", error);
-      setLoading(false);
     }
   }
 
@@ -114,7 +107,8 @@ const NurseTable = () => {
 
   const [createModalOpen, setCreateModalOpen] = useState(false);
   const [createFormData, setCreateFormData] = useState<CreateNurseData>({
-    avatar: null,
+    avatar:
+      "https://gratisography.com/wp-content/uploads/2024/01/gratisography-cyber-kitty-800x525.jpg",
     certificate: "",
     citizen_id: "",
     current_workplace: "",
@@ -130,61 +124,22 @@ const NurseTable = () => {
     work_experience: "",
   });
 
-  const [editFormData, setEditFormData] = useState<CreateNurseData>({
-    avatar: null,
-    certificate: "",
+  const [formErrors, setFormErrors] = useState<FormErrors>({
+    name: "",
+    email: "",
+    full_name: "",
     citizen_id: "",
     current_workplace: "",
-    education_level: "",
-    email: "",
-    expertise: "",
-    full_name: "",
-    name: "",
-    password: "",
     phone_number: "",
     slogan: "",
-    techniques: [],
+    education_level: "",
     work_experience: "",
+    avatar: "",
+    techniques: "",
+    certificate: "",
+    expertise: "",
+    password: "",
   });
-
-  const handleEditModalOpen = (nurse: NurseData) => {
-    setEditFormData({
-      avatar: nurse.avatar,
-      certificate: nurse.certificate,
-      citizen_id: nurse.citizen_id,
-      current_workplace: nurse.current_workplace,
-      education_level: nurse.education_level,
-      email: nurse.email,
-      expertise: nurse.expertise,
-      full_name: nurse.full_name,
-      name: nurse.name,
-      password: nurse.password,
-      phone_number: nurse.phone_number,
-      slogan: nurse.slogan,
-      techniques: nurse.techniques,
-      work_experience: nurse.work_experience,
-    });
-    setEditModalOpen(true);
-  };
-
-  const handleEditModalClose = () => {
-    setEditModalOpen(false);
-  };
-
-  const handleEditSubmit = () => {
-    console.log("Editing nurse with data:", editFormData);
-    setEditModalOpen(false);
-  };
-
-  const handleEditFormChange = (
-    field: keyof CreateNurseData,
-    value: string | string[] | number
-  ) => {
-    setEditFormData((prev) => ({
-      ...prev,
-      [field]: typeof value === "string" ? parseFloat(value) : value,
-    }));
-  };
 
   const handleRowDoubleClick = (nurse: Nurse) => {
     router.push(`./nurse-management/${nurse.user_id}`);
@@ -226,12 +181,79 @@ const NurseTable = () => {
       techniques: [],
       work_experience: "",
     });
+    setFormErrors({
+      avatar: "",
+      certificate: "",
+      citizen_id: "",
+      current_workplace: "",
+      education_level: "",
+      email: "",
+      expertise: "",
+      full_name: "",
+      name: "",
+      password: "",
+      phone_number: "",
+      slogan: "",
+      techniques: "",
+      work_experience: "",
+    });
     setPreviewAvatar(null);
   };
 
-  const handleCreateSubmit = () => {
-    console.log("Creating new nurse with data:", createFormData);
-    handleCreateModalClose();
+  const handleCreateSubmit = async () => {
+    let errors = { ...formErrors };
+    let hasError = false;
+    setLoading(true);
+    const requiredFields: Array<{ field: keyof FormErrors; message: string }> =
+      [
+        { field: "name", message: "Tên đăng nhập là bắt buộc" },
+        { field: "email", message: "Email là bắt buộc" },
+        { field: "password", message: "Mật khẩu là bắt buộc" },
+        { field: "full_name", message: "Họ và tên là bắt buộc" },
+        { field: "citizen_id", message: "Mã căn cước công dân là bắt buộc" },
+        { field: "current_workplace", message: "Nơi làm việc là bắt buộc" },
+        { field: "phone_number", message: "Số điện thoại là bắt buộc" },
+        { field: "slogan", message: "Slogan là bắt buộc" },
+        { field: "education_level", message: "Trình độ học vấn là bắt buộc" },
+        {
+          field: "work_experience",
+          message: "Kinh nghiệm làm việc là bắt buộc",
+        },
+        { field: "techniques", message: "Kỹ thuật là bắt buộc" },
+        { field: "certificate", message: "Chứng chỉ là bắt buộc" },
+        { field: "expertise", message: "Chuyên môn là bắt buộc" },
+      ];
+
+    requiredFields.forEach(({ field, message }) => {
+      if (!createFormData[field as keyof CreateNurseData]) {
+        errors[field] = message;
+        hasError = true;
+      } else {
+        errors[field] = "";
+      }
+    });
+
+    setFormErrors(errors);
+
+    if (hasError) {
+      return;
+    }
+
+    try {
+      const response = await nurseApiRequest.createNurse(createFormData);
+      toast.success(response.payload.message);
+      handleCreateModalClose();
+      setLoading(false);
+    } catch (error: any) {
+      if (error.payload.log.includes("this email already exists")) {
+        toast.error("Email đã tồn tại trong hệ thống");
+      } else if (error.payload.log.includes("this citizen id already exists")) {
+        toast.error("Mã cccd này đã tồn tại");
+      } else {
+        toast.error(error.payload.log);
+      }
+      setLoading(false);
+    }
   };
 
   const handleCreateFormChange = (
@@ -251,7 +273,6 @@ const NurseTable = () => {
   const handleAvatarChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (file) {
-      // Validate file type
       if (!file.type.startsWith("image/")) {
         alert("Vui lòng chọn file ảnh");
         return;
@@ -267,18 +288,26 @@ const NurseTable = () => {
         const base64String = reader.result as string;
         setPreviewAvatar(base64String);
         handleCreateFormChange("avatar", base64String);
-        handleEditFormChange("avatar", base64String);
       };
       reader.readAsDataURL(file);
     }
   };
 
-  const handleConfirm = () => {
-    console.log("Confirm clicked with data:", formData);
+  const handleConfirm = async () => {
+    try {
+      const response = await nurseApiRequest.listNurse(
+        formData.full_name,
+        formData.phone_number
+      );
+      setNurseList(response.payload.data);
+    } catch (error) {
+      console.error("Error fetching NurseList:", error);
+    }
   };
 
   const handleClear = () => {
-    setFormData({ name: "", citizenID: "" });
+    fetchNurseList();
+    setFormData({ full_name: "", phone_number: "" });
   };
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -319,22 +348,38 @@ const NurseTable = () => {
                     placeholder="Vui lòng nhập tên"
                     fullWidth
                     variant="bordered"
-                    name="name"
-                    value={formData.name}
+                    name="full_name"
+                    value={formData.full_name}
                     onChange={handleChange}
                     style={{ fontSize: 20 }}
-                    classNames={{ label: "text-[20px]  font-bold mb-2" }}
+                    classNames={{
+                      label:
+                        "text-[20px] mb-2 text-black/50 dark:text-white/90",
+                      input: [
+                        "bg-transparent",
+                        "text-black/90 dark:text-white/90",
+                        "placeholder:text-default-700/50 dark:placeholder:text-white/60",
+                      ],
+                    }}
                   />
                   <Input
-                    label="Mã căn cước công dân"
-                    placeholder="Vui lòng nhập mã căn cước công dân"
+                    label="Số điện thoại"
+                    placeholder="Vui lòng nhập số điện thoại"
                     fullWidth
                     variant="bordered"
-                    name="citizenID"
-                    value={formData.citizenID}
+                    name="phone_number"
+                    value={formData.phone_number}
                     onChange={handleChange}
                     style={{ fontSize: 20 }}
-                    classNames={{ label: "text-[20px] font-bold mb-2" }}
+                    classNames={{
+                      label:
+                        "text-[20px] mb-2 text-black/50 dark:text-white/90",
+                      input: [
+                        "bg-transparent",
+                        "text-black/90 dark:text-white/90",
+                        "placeholder:text-default-700/50 dark:placeholder:text-white/60",
+                      ],
+                    }}
                   />
                   <div
                     style={{
@@ -396,8 +441,7 @@ const NurseTable = () => {
           <TableColumn className="text-lg">ID</TableColumn>
           <TableColumn className="text-lg">Ảnh điều dưỡng</TableColumn>
           <TableColumn className="text-lg">Tên điều dưỡng</TableColumn>
-          <TableColumn className="text-lg">Nơi hiện tại làm việc</TableColumn>
-          {/* <TableColumn className="text-lg">Hành động</TableColumn> */}
+          <TableColumn className="text-lg">Số điện thoại</TableColumn>
         </TableHeader>
         <TableBody emptyContent={"Không có thông tin điều dưỡng"}>
           {items.map((item, index) => (
@@ -417,23 +461,8 @@ const NurseTable = () => {
               </TableCell>
               <TableCell style={{ fontSize: 18 }}>{item.full_name}</TableCell>
               <TableCell style={{ fontSize: 18 }}>
-                {item.current_workplace}
+                {item.phone_number}
               </TableCell>
-              {/* <TableCell>
-                <Button
-                  color="warning"
-                  style={{
-                    color: "#FFF",
-                    marginRight: 10,
-                    fontSize: 18,
-                    fontWeight: 700,
-                    padding: "1.5rem",
-                  }}
-                  onClick={() => handleEditModalOpen(item)}
-                >
-                  Sửa thông tin
-                </Button>
-              </TableCell> */}
             </TableRow>
           ))}
         </TableBody>
@@ -480,115 +509,135 @@ const NurseTable = () => {
                 <div className="grid grid-cols-2 gap-6">
                   <Input
                     label="Tên đăng nhập"
-                    placeholder="Vui lòng nhập tên đăng nhập"
                     variant="bordered"
+                    size="lg"
                     value={createFormData.name}
+                    color={formErrors.name ? "danger" : "default"}
+                    isInvalid={!!formErrors.name}
+                    errorMessage={formErrors.name}
                     onChange={(e) =>
                       handleCreateFormChange("name", e.target.value)
                     }
-                    style={{ fontSize: 18 }}
-                    classNames={{ label: "text-[16px] font-bold mb-2" }}
+                    {...inputStyles}
                   />
                   <Input
                     label="Mật khẩu"
-                    placeholder="Vui lòng nhập mật khẩu"
                     variant="bordered"
+                    size="lg"
                     value={createFormData.password}
+                    color={formErrors.password ? "danger" : "default"}
+                    isInvalid={!!formErrors.password}
+                    errorMessage={formErrors.password}
                     onChange={(e) =>
                       handleCreateFormChange("password", e.target.value)
                     }
-                    style={{ fontSize: 18 }}
-                    classNames={{ label: "text-[16px] font-bold mb-2" }}
+                    {...inputStyles}
                   />
                   <Input
                     label="Họ và tên điều dưỡng"
-                    placeholder="Vui lòng nhập tên điều dưỡng"
                     variant="bordered"
+                    size="lg"
                     value={createFormData.full_name}
+                    color={formErrors.full_name ? "danger" : "default"}
+                    isInvalid={!!formErrors.full_name}
+                    errorMessage={formErrors.full_name}
                     onChange={(e) =>
                       handleCreateFormChange("full_name", e.target.value)
                     }
-                    style={{ fontSize: 18 }}
-                    classNames={{ label: "text-[16px] font-bold mb-2" }}
+                    {...inputStyles}
                   />
                   <Input
                     label="Email"
-                    placeholder="Vui lòng nhập email"
                     variant="bordered"
+                    size="lg"
                     value={createFormData.email}
+                    color={formErrors.email ? "danger" : "default"}
+                    isInvalid={!!formErrors.email}
+                    errorMessage={formErrors.email}
                     onChange={(e) =>
                       handleCreateFormChange("email", e.target.value)
                     }
-                    style={{ fontSize: 18 }}
-                    classNames={{ label: "text-[16px] font-bold mb-2" }}
+                    {...inputStyles}
                   />
                   <Input
                     label="Mã Căn cước công dân"
-                    placeholder="Vui lòng nhập mã CCCD"
                     variant="bordered"
+                    size="lg"
                     value={createFormData.citizen_id}
+                    color={formErrors.citizen_id ? "danger" : "default"}
+                    isInvalid={!!formErrors.citizen_id}
+                    errorMessage={formErrors.citizen_id}
                     onChange={(e) =>
                       handleCreateFormChange("citizen_id", e.target.value)
                     }
-                    style={{ fontSize: 18 }}
-                    classNames={{ label: "text-[16px] font-bold mb-2" }}
+                    {...inputStyles}
                   />
                   <Input
                     label="Nơi làm việc hiện tại"
-                    placeholder="Vui lòng nhập nơi làm việc hiện tại"
                     variant="bordered"
+                    size="lg"
                     value={createFormData.current_workplace}
+                    color={formErrors.current_workplace ? "danger" : "default"}
+                    isInvalid={!!formErrors.current_workplace}
+                    errorMessage={formErrors.current_workplace}
                     onChange={(e) =>
                       handleCreateFormChange(
                         "current_workplace",
                         e.target.value
                       )
                     }
-                    style={{ fontSize: 18 }}
-                    classNames={{ label: "text-[16px] font-bold mb-2" }}
+                    {...inputStyles}
                   />
 
                   <Input
                     label="Số điện thoại"
-                    placeholder="Vui lòng nhập số điện thoại"
                     variant="bordered"
+                    size="lg"
                     value={createFormData.phone_number}
+                    color={formErrors.phone_number ? "danger" : "default"}
+                    isInvalid={!!formErrors.phone_number}
+                    errorMessage={formErrors.phone_number}
                     onChange={(e) =>
                       handleCreateFormChange("phone_number", e.target.value)
                     }
-                    style={{ fontSize: 18 }}
-                    classNames={{ label: "text-[16px] font-bold mb-2" }}
+                    {...inputStyles}
                   />
                   <Input
                     label="Slogan"
-                    placeholder="Nhập slogan"
                     variant="bordered"
+                    size="lg"
                     value={createFormData.slogan}
+                    color={formErrors.slogan ? "danger" : "default"}
+                    isInvalid={!!formErrors.slogan}
+                    errorMessage={formErrors.slogan}
                     onChange={(e) =>
                       handleCreateFormChange("slogan", e.target.value)
                     }
-                    style={{ fontSize: 18 }}
-                    classNames={{ label: "text-[16px] font-bold mb-2" }}
+                    {...inputStyles}
                   />
                   <Input
                     label="Trình độ học vấn"
-                    placeholder="Nhập trình độ học vấn"
                     variant="bordered"
+                    size="lg"
                     value={createFormData.education_level}
+                    color={formErrors.education_level ? "danger" : "default"}
+                    isInvalid={!!formErrors.education_level}
+                    errorMessage={formErrors.education_level}
                     onChange={(e) =>
                       handleCreateFormChange("education_level", e.target.value)
                     }
-                    classNames={{ label: "text-[16px] font-bold mb-2" }}
-                    style={{ fontSize: 18 }}
+                    {...inputStyles}
                   />
                   <Input
                     label="Kinh nghiệm làm việc (năm)"
-                    placeholder="Nhập số năm kinh nghiệm"
                     variant="bordered"
                     type="number"
+                    size="lg"
                     value={createFormData.work_experience}
-                    classNames={{ label: "text-[16px] font-bold mb-2" }}
-                    style={{ fontSize: 18 }}
+                    color={formErrors.work_experience ? "danger" : "default"}
+                    isInvalid={!!formErrors.work_experience}
+                    errorMessage={formErrors.work_experience}
+                    {...inputStyles}
                     endContent={
                       <div className="pointer-events-none flex items-center">
                         <span className="text-default-400 text-small font-bold">
@@ -602,22 +651,26 @@ const NurseTable = () => {
                   />
                   <Input
                     label="Chứng chỉ"
-                    placeholder="Nhập các chứng chỉ"
                     variant="bordered"
+                    size="lg"
                     value={createFormData.certificate}
-                    classNames={{ label: "text-[16px] font-bold mb-2" }}
-                    style={{ fontSize: 18 }}
+                    color={formErrors.certificate ? "danger" : "default"}
+                    isInvalid={!!formErrors.certificate}
+                    errorMessage={formErrors.certificate}
+                    {...inputStyles}
                     onChange={(e) =>
                       handleCreateFormChange("certificate", e.target.value)
                     }
                   />
                   <Input
                     label="Chuyên môn"
-                    placeholder="Nhập chuyên môn"
                     variant="bordered"
+                    size="lg"
                     value={createFormData.expertise}
-                    classNames={{ label: "text-[16px] font-bold mb-2" }}
-                    style={{ fontSize: 18 }}
+                    color={formErrors.expertise ? "danger" : "default"}
+                    isInvalid={!!formErrors.expertise}
+                    errorMessage={formErrors.expertise}
+                    {...inputStyles}
                     onChange={(e) =>
                       handleCreateFormChange("expertise", e.target.value)
                     }
@@ -625,11 +678,14 @@ const NurseTable = () => {
                   <Select
                     label="Dịch vụ"
                     placeholder="Chọn dịch vụ"
+                    size="lg"
                     selectionMode="multiple"
-                    classNames={{ label: "text-[16px] font-bold mb-2" }}
-                    style={{ fontSize: 18 }}
+                    variant="underlined"
+                    {...inputStyles}
                     className="max-w-full"
                     value={createFormData.techniques}
+                    isInvalid={!!formErrors.expertise}
+                    errorMessage={formErrors.expertise}
                     onChange={(e) =>
                       handleCreateFormChange(
                         "techniques",
@@ -657,195 +713,11 @@ const NurseTable = () => {
               Hủy
             </Button>
             <Button
+              isLoading={loading}
               className="bg-indigo-700 text-white text-md font-bold"
               onPress={handleCreateSubmit}
             >
               Tạo điều dưỡng
-            </Button>
-          </ModalFooter>
-        </ModalContent>
-      </Modal>
-
-      <Modal isOpen={editModalOpen} onClose={handleEditModalClose} size="2xl">
-        <ModalContent>
-          <ModalHeader className="flex flex-col gap-1 ">
-            Chỉnh sửa thông tin điều dưỡng
-          </ModalHeader>
-          <ModalBody>
-            <div className="flex flex-col gap-4">
-              <div className="flex flex-col items-center gap-2">
-                <Avatar
-                  isBordered
-                  radius="lg"
-                  color="warning"
-                  showFallback
-                  src={editFormData?.avatar || "../../../public/Login.png"}
-                  className="w-40 h-40 cursor-pointer "
-                  onClick={handleAvatarClick}
-                />
-                <input
-                  type="file"
-                  ref={fileInputRef}
-                  className="hidden"
-                  accept="image/*"
-                  onChange={handleAvatarChange}
-                />
-                <Button
-                  size="sm"
-                  variant="light"
-                  onClick={handleAvatarClick}
-                  className="text-xl"
-                >
-                  Chọn ảnh đại diện
-                </Button>
-              </div>
-              <Input
-                label="Họ và tên điều dưỡng"
-                placeholder="Vui lòng nhập tên điều dưỡng"
-                variant="bordered"
-                value={editFormData.full_name}
-                onChange={(e) =>
-                  handleEditFormChange("full_name", e.target.value)
-                }
-                style={{ fontSize: 18 }}
-                classNames={{ label: "text-[16px] font-bold mb-2" }}
-              />
-              <Input
-                label="Mã Căn cước công dân"
-                placeholder="Vui lòng nhập mã CCCD"
-                variant="bordered"
-                value={editFormData.citizen_id}
-                onChange={(e) =>
-                  handleEditFormChange("citizen_id", e.target.value)
-                }
-                style={{ fontSize: 18 }}
-                classNames={{ label: "text-[16px] font-bold mb-2" }}
-              />
-              <Input
-                label="Nơi làm việc hiện tại"
-                placeholder="Vui lòng nhập nơi làm việc hiện tại"
-                variant="bordered"
-                value={editFormData.current_workplace}
-                onChange={(e) =>
-                  handleEditFormChange("current_workplace", e.target.value)
-                }
-                style={{ fontSize: 18 }}
-                classNames={{ label: "text-[16px] font-bold mb-2" }}
-              />
-              <Input
-                label="Email"
-                placeholder="Vui lòng nhập email"
-                variant="bordered"
-                value={editFormData.email}
-                onChange={(e) => handleEditFormChange("email", e.target.value)}
-                style={{ fontSize: 18 }}
-                classNames={{ label: "text-[16px] font-bold mb-2" }}
-              />
-              <Input
-                label="Số điện thoại"
-                placeholder="Vui lòng nhập số điện thoại"
-                variant="bordered"
-                value={editFormData.phone_number}
-                onChange={(e) =>
-                  handleEditFormChange("phone_number", e.target.value)
-                }
-                style={{ fontSize: 18 }}
-                classNames={{ label: "text-[16px] font-bold mb-2" }}
-              />
-              <Input
-                label="Slogan"
-                placeholder="Nhập slogan"
-                variant="bordered"
-                value={editFormData.slogan}
-                onChange={(e) => handleEditFormChange("slogan", e.target.value)}
-                style={{ fontSize: 18 }}
-                classNames={{ label: "text-[16px] font-bold mb-2" }}
-              />
-              <Input
-                label="Trình độ học vấn"
-                placeholder="Nhập trình độ học vấn"
-                variant="bordered"
-                value={editFormData.education_level}
-                onChange={(e) =>
-                  handleEditFormChange("education_level", e.target.value)
-                }
-                classNames={{ label: "text-[16px] font-bold mb-2" }}
-                style={{ fontSize: 18 }}
-              />
-              <Input
-                label="Kinh nghiệm làm việc (năm)"
-                placeholder="Nhập số năm kinh nghiệm"
-                variant="bordered"
-                type="number"
-                value={editFormData.work_experience}
-                classNames={{ label: "text-[16px] font-bold mb-2" }}
-                style={{ fontSize: 18 }}
-                endContent={
-                  <div className="pointer-events-none flex items-center">
-                    <span className="text-default-400 text-small font-bold">
-                      năm
-                    </span>
-                  </div>
-                }
-                onChange={(e) =>
-                  handleEditFormChange("work_experience", e.target.value)
-                }
-              />
-              <Input
-                label="Chứng chỉ"
-                placeholder="Nhập các chứng chỉ"
-                variant="bordered"
-                value={editFormData.certificate}
-                classNames={{ label: "text-[16px] font-bold mb-2" }}
-                style={{ fontSize: 18 }}
-                onChange={(e) =>
-                  handleEditFormChange("certificate", e.target.value)
-                }
-              />
-              <Input
-                label="Chuyên môn"
-                placeholder="Nhập chuyên môn"
-                variant="bordered"
-                value={editFormData.expertise}
-                classNames={{ label: "text-[16px] font-bold mb-2" }}
-                style={{ fontSize: 18 }}
-                onChange={(e) =>
-                  handleEditFormChange("expertise", e.target.value)
-                }
-              />
-              {/* <Select
-          label="Kỹ thuật"
-          placeholder="Chọn kỹ thuật"
-          selectionMode="multiple"
-          classNames={{ label: "text-[16px] font-bold mb-2" }}
-          style={{ fontSize: 18 }}
-          className="max-w-full"
-          value={editFormData.techniques}
-          onChange={(e) => handleEditFormChange("techniques", e.target.value.split(","))}
-        >
-          {techniqueOptions.map((technique) => (
-            <SelectItem key={technique.value} value={technique.value}>
-              {technique.label}
-            </SelectItem>
-          ))}
-        </Select> */}
-            </div>
-          </ModalBody>
-          <ModalFooter>
-            <Button
-              color="danger"
-              variant="light"
-              onPress={handleEditModalClose}
-              className="font-bold text-md"
-            >
-              Hủy
-            </Button>
-            <Button
-              color="warning"
-              className="text-white font-bold text-md"
-              onPress={handleEditSubmit}
-            >
-              Lưu
             </Button>
           </ModalFooter>
         </ModalContent>

@@ -8,25 +8,30 @@ import {
   BreadcrumbItem,
   DateInput,
   DateValue,
+  CircularProgress,
 } from "@nextui-org/react";
-import { v4 as uuidv4 } from "uuid"; // Import uuid
 import { toast } from "react-toastify";
+import { useAppContext } from "@/app/app-provider";
+import authApi from "@/apiRequests/customer/customer";
+import authApiRequest from "@/apiRequests/auth";
 
 const FormRegister: React.FC = () => {
   const router = useRouter();
+  const { user, setUser, account } = useAppContext();
 
-  const [name, setName] = useState("");
+  const [full_name, setFull_name] = useState("");
   const [dob, setDob] = useState<DateValue | null>(null);
   const [address, setAddress] = useState("");
-  const [phoneNumber, setPhoneNumber] = useState("");
-  const [cccd, setCccd] = useState("");
+  const [phone_number, setPhone_number] = useState("");
+  const [citizen_id, setCitizen_id] = useState("");
   const [city, setCity] = useState("Hồ Chí Minh");
   const [district, setDistrict] = useState("");
   const [ward, setWard] = useState("");
+  const [loading, setLoading] = useState(false);
 
-  const handleSubmit = () => {
+  const handleSubmit = async () => {
     const nameRegex = /^[^0-9]*$/;
-    if (!name || !nameRegex.test(name)) {
+    if (!full_name || !nameRegex.test(full_name)) {
       toast.error("Họ và Tên không được để trống và không được chứa số.");
       return;
     }
@@ -42,7 +47,7 @@ const FormRegister: React.FC = () => {
     }
 
     const phoneRegex = /^\d{1,10}$/;
-    if (!phoneNumber || !phoneRegex.test(phoneNumber)) {
+    if (!phone_number || !phoneRegex.test(phone_number)) {
       toast.error(
         "Số điện thoại không được để trống, chỉ chứa số, và tối đa 10 chữ số."
       );
@@ -50,7 +55,7 @@ const FormRegister: React.FC = () => {
     }
 
     const cccdRegex = /^\d{1,12}$/;
-    if (!cccd || !cccdRegex.test(cccd)) {
+    if (!citizen_id || !cccdRegex.test(citizen_id)) {
       toast.error("Số CCCD không được để trống và tối đa 12 chữ số.");
       return;
     }
@@ -68,20 +73,47 @@ const FormRegister: React.FC = () => {
     const formattedDob = dob ? dob.toString() : "";
 
     const profile = {
-      id: uuidv4(),
-      name,
+      full_name,
       dob: formattedDob,
       address,
-      phoneNumber,
-      cccd,
+      phone_number,
+      citizen_id,
       city,
       district,
       ward,
     };
 
-    console.log(profile);
-    toast.success("Thông tin đã được đăng ký thành công!");
-    router.push("/user/patientProfile");
+    if (!user?.id) {
+      toast.error("Bạn cần đăng nhập trước khi đăng ký khách hàng.");
+      return;
+    }
+
+    if (!account) {
+      toast.error("Vui lòng đăng nhập trước khi tiếp tục.");
+      return;
+    }
+
+    try {
+      setLoading(true);
+      const response = await authApi.register(user.id, profile);
+      if (response.status === 200) {
+        toast.success(`${user.user_name} đã trở thành khách hàng của Curanest`);
+
+        const result = await authApiRequest.login(account);
+        setUser(result.payload.data);
+        document.cookie = `userRole=${result.payload.data.role}; path=/; max-age=86400; secure; samesite=strict`;
+
+        router.push("/user/patientProfile");
+      }
+    } catch (error: any) {
+      if (error.payload.log.includes("this citizen id already exists")) {
+        toast.error(
+          `${user.user_name} đã đăng ký khách hàng của Curanest rồi!`
+        );
+      } else {
+        toast.error(error.payload.log);
+      }
+    }
   };
 
   const handleGoBack = () => {
@@ -106,8 +138,8 @@ const FormRegister: React.FC = () => {
           <div className="flex gap-4 mb-4">
             <Input
               label="Họ và Tên"
-              value={name}
-              onChange={(e) => setName(e.target.value)}
+              value={full_name}
+              onChange={(e) => setFull_name(e.target.value)}
               className="flex-1"
               size="lg"
             />
@@ -123,15 +155,15 @@ const FormRegister: React.FC = () => {
           <div className="flex gap-4 mb-4">
             <Input
               label="Số thẻ Căn cước công dân"
-              value={cccd}
-              onChange={(e) => setCccd(e.target.value)}
+              value={citizen_id}
+              onChange={(e) => setCitizen_id(e.target.value)}
               className="flex-1"
               size="lg"
             />
             <Input
               label="Số điện thoại"
-              value={phoneNumber}
-              onChange={(e) => setPhoneNumber(e.target.value)}
+              value={phone_number}
+              onChange={(e) => setPhone_number(e.target.value)}
               className="flex-1"
               size="lg"
             />
@@ -194,8 +226,13 @@ const FormRegister: React.FC = () => {
           Quay lại
         </Button>
 
-        <Button size="lg" onClick={handleSubmit} color="primary">
-          Đăng ký
+        <Button
+          size="lg"
+          onClick={handleSubmit}
+          color="primary"
+          disabled={loading}
+        >
+          {loading ? <CircularProgress size="md" color="primary" /> : "Đăng ký"}
         </Button>
       </div>
     </div>

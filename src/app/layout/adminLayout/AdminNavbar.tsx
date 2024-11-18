@@ -9,10 +9,11 @@ import { useAppContext } from "@/app/app-provider";
 const AdminNavbar = () => {
   const pathname = usePathname();
   const [isOpen, setIsOpen] = useState(false);
-  const { setUser } = useAppContext();
+  const { setUser, setAccount } = useAppContext();
 
   function handleLogout() {
     setUser(null);
+    setAccount(null);
     localStorage.removeItem("user");
     document.cookie =
       "userRole=; path=/; expires=Thu, 01 Jan 1970 00:00:00 GMT";
@@ -26,10 +27,10 @@ const AdminNavbar = () => {
 
   return (
     <>
-      <div className="h-screen w-64 bg-gray-800 p-4 text-white fixed hidden lg:flex flex-col">
+      <div className="h-screen w-64  p-4 fixed hidden lg:flex flex-col bg-stripe-gradient">
         <div className="mb-8">
           <Link href="">
-            <p className="font-bold text-inherit text-2xl hover:text-sky-400">
+            <p className="font-bold text-center text-2xl hover:text-sky-400 mt-7">
               CURANEST
             </p>
           </Link>
@@ -40,10 +41,10 @@ const AdminNavbar = () => {
             <Link
               key={index}
               href={`/admin${item.link}`}
-              className={`block p-4 my-2 rounded-2xl font-semibold ${
+              className={`block p-4 my-2 rounded-xl font-semibold ${
                 pathname === `/admin${item.link}`
-                  ? "bg-amber-500 text-white"
-                  : "text-gray-300 hover:bg-gray-700 hover:text-white"
+                  ? "bg-indigo-500 text-white"
+                  : "text-slate-800 hover:bg-gray-700 hover:text-white"
               }`}
             >
               {item.title}

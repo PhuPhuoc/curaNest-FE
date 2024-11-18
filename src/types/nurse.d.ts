@@ -1,9 +1,10 @@
 export type Nurse = {
   user_id: string;
-  avatar:string;
+  avatar: string;
   full_name: string;
   current_workplace: string;
   expertise: string;
+  phone_number: string;
   techniques: string[];
 };
 
@@ -40,3 +41,20 @@ export type DetailNurseRes = {
   message: string;
   data: DetailNurse;
 };
+
+export interface CreateNurseData {
+  avatar: string | null;
+  certificate: string;
+  citizen_id: string;
+  current_workplace: string;
+  education_level: string;
+  email: string;
+  expertise: string;
+  full_name: string;
+  name: string;
+  password: string;
+  phone_number: string;
+  slogan: string;
+  techniques: string[];
+  work_experience: string;
+}

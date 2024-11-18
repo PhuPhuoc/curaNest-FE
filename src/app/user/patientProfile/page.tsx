@@ -2,39 +2,60 @@
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { Avatar, Chip, Button } from "@nextui-org/react";
+import InfoUser from "../infoUser";
+import { Divider } from "antd";
+import { infoPatient } from "@/types/customer";
+import { useAppContext } from "@/app/app-provider";
+import authApiRequest from "@/apiRequests/customer/customer";
+import { toast } from "react-toastify";
 
-const serviceColors: Record<string, string> = {
-  "Thay băng": "bg-blue-500",
-  "Cho ăn": "bg-green-500",
-  "Tiêm thuốc": "bg-red-500",
-};
+const colors = ["bg-blue-500", "bg-green-500", "bg-red-500", "bg-yellow-500"];
 
 const PatientProfile: React.FC = () => {
   const router = useRouter();
-  const [profiles, setProfiles] = useState<any[]>([]);
+  const { user } = useAppContext();
+  const [profiles, setProfiles] = useState<infoPatient[]>([]);
 
   useEffect(() => {
-    const storedProfiles = JSON.parse(localStorage.getItem("profiles") || "[]");
-    setProfiles(storedProfiles);
-  }, []);
+    if (user?.id) {
+      const fetchProfiles = async () => {
+        try {
+          const response = await authApiRequest.profilePatient(user.id);
+          const profileData = Array.isArray(response.payload.data)
+            ? response.payload.data
+            : [response.payload.data];
+          setProfiles(profileData);
 
-  const handleDelete = (id: number) => {
-    const updatedProfiles = profiles.filter(profile => profile.id !== id);
-    setProfiles(updatedProfiles);
-    localStorage.setItem("profiles", JSON.stringify(updatedProfiles));
-  };
-  
+          console.log("profile: ", profileData);
+        } catch (error) {
+          toast.error("Không thể tải hồ sơ bệnh nhân.");
+          console.error("Failed to fetch patient profiles", error);
+        }
+      };
+      fetchProfiles();
+    }
+  }, [user?.id]);
+
   return (
     <div className="p-6">
-      <Button
-        onClick={() => router.push("/user/createProfile")}
-        className="bg-lime-500 text-white font-bold px-4 py-2 rounded shadow-md transition-colors mb-6"
-      >
-        Tạo hồ sơ bệnh nhân
-      </Button>
+      <div className="flex items-center justify-between mb-10">
+        <p className="text-2xl font-bold">Thông tin khách hàng</p>
+        <Button
+          onClick={() => router.push("/user/createPatientProfile")}
+          className="bg-lime-500 text-white font-bold px-4 py-2 rounded shadow-md transition-colors"
+        >
+          Tạo hồ sơ bệnh nhân
+        </Button>
+      </div>
+
+      <InfoUser />
+
+      <Divider />
+
+      <p className="text-2xl font-bold mb-5 mt-5">Hồ sơ bệnh nhân</p>
 
       <div className="grid gap-6 grid-cols-1">
-        {profiles.map((profile, index) => (
+        {profiles.map((profile) => (
           <div
             key={profile.id}
             className="bg-white border rounded-lg shadow-md overflow-hidden flex flex-col p-4 w-full"
@@ -58,77 +79,112 @@ const PatientProfile: React.FC = () => {
 
               <div className="ml-4 flex-1">
                 <div className="flex space-x-8">
-                  <div className="text-lg font-semibold">{profile.name}</div>
+                  <div className="text-xl font-semibold">
+                    {profile.full_name}
+                  </div>
                 </div>
 
-                <div className="flex space-x-12 mt-4">
-                  <div className="text-gray-500">
+                <div className="flex space-x-12 mt-5">
+                  <div className="text-gray-500 text-lg">
                     <span className="text-gray-700 font-semibold">
                       Ngày sinh:{" "}
                     </span>
-                    {profile.dob
-                      ? new Date(profile.dob).toLocaleDateString()
-                      : "N/A"}
+                    {profile.dob}{" "}
+                    {/* <span className="text-red-700 font-semibold">
+                      ({profile.old} tuổi)
+                    </span> */}
                   </div>
 
-                  <div className="text-gray-500">
+                  <div className="text-gray-500 text-lg">
+                    <span className="text-gray-700 font-semibold">
+                      Căn cước công dân:{" "}
+                    </span>
+                    {profile.citizen_id}
+                  </div>
+
+                  <div className="text-gray-500 text-lg">
+                    <span className="text-gray-700 font-semibold">
+                      Số điện thoại:{" "}
+                    </span>
+                    {profile.phone_number}
+                  </div>
+                </div>
+
+                <div className="flex space-x-12 mt-5">
+                  <div className="text-gray-500 text-lg">
                     <span className="text-gray-700 font-semibold">
                       Địa chỉ:{" "}
                     </span>
                     {profile.address}
                   </div>
 
-                  <div className="text-gray-500">
+                  <div className="text-gray-500 text-lg">
                     <span className="text-gray-700 font-semibold">
-                      Số điện thoại:{" "}
+                      Phường:{" "}
                     </span>
-                    {profile.phoneNumber}
+                    {profile.ward}
+                  </div>
+
+                  <div className="text-gray-500 text-lg">
+                    <span className="text-gray-700 font-semibold">Quận: </span>
+                    {profile.district}
+                  </div>
+
+                  <div className="text-gray-500 text-lg">
+                    <span className="text-gray-700 font-semibold">
+                      Thành phố:{" "}
+                    </span>
+                    {profile.city}
                   </div>
                 </div>
 
-                <div className="flex space-x-40 mt-3">
-                  <div className="text-gray-500">
-                    <span className="text-gray-700 font-semibold">CCCD: </span>
-                    {profile.cccd}
-                  </div>
-                  <div className="text-gray-500">
-                    <span className="text-gray-700 font-semibold">Email: </span>
-                    {profile.email}
+                <div className="flex space-x-12 mt-5">
+                  <div className="text-gray-500 text-lg">
+                    <span className="text-gray-700 font-semibold">
+                      Mô tả bệnh lý:{" "}
+                    </span>
+                    {profile.medical_description}
                   </div>
                 </div>
 
-                <div className="mt-4 text-gray-500">
-                  <span className="text-gray-700 font-semibold">Mô tả: </span>
-                  {profile.medicalDescription}
+                <div className="flex space-x-12 mt-5">
+                  <div className="text-gray-500 text-lg">
+                    <span className="text-gray-700 font-semibold">
+                      Lưu ý với điều dưỡng:{" "}
+                    </span>
+                    {profile.note_for_nurses}
+                  </div>
+                </div>
+
+                <div className="flex flex-wrap gap-2 mt-5 text-lg">
+                  <p className="text-gray-700 font-semibold ">Dịch vụ:</p>
+                  {profile.techniques.map((technique, index: number) => (
+                    <Chip
+                      key={index}
+                      className={`text-white font-bold ${
+                        colors[index % colors.length]
+                      } px-4 py-2`}
+                      size="md"
+                    >
+                      {technique.name}
+                    </Chip>
+                  ))}
                 </div>
 
                 <div className="mt-4 flex items-center justify-between">
-                  <div className="flex flex-wrap gap-2">
-                    <p className="text-gray-700 font-semibold">Dịch vụ:</p>
-                    {profile.selectedServices.map(
-                      (service: string, index: number) => (
-                        <Chip
-                          key={index}
-                          className={`text-white ${serviceColors[service] || "bg-gray-500"
-                            }`}
-                          size="md"
-                        >
-                          {service}
-                        </Chip>
-                      )
-                    )}
-                  </div>
-
+                  <div>{""}</div>
                   <div className="flex space-x-4">
                     <Button
-                      onClick={() => router.push(`/user/patientProfile/${profile.id}`)}
+                      onClick={() =>
+                        router.push(`/user/patientProfile/${profile.id}`)
+                      }
                       className="bg-teal-400 text-white px-4 py-2 rounded shadow-md hover:bg-teal-600 transition-colors"
                     >
                       Đặt điều dưỡng
                     </Button>
 
                     <Button
-                      onClick={() => handleDelete(profile.id)}
+                      // onClick={() => handleDelete(profile.id)}
                       className="bg-red-500 text-white px-4 py-2 rounded shadow-md hover:bg-red-600 transition-colors"
                     >
                       Xóa
