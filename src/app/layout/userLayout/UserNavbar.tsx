@@ -92,7 +92,7 @@ const UserNavbar = () => {
               } py-2 ${
                 pathname ===
                 (item.title === "Trang chủ" ? item.link : `/user${item.link}`)
-                  ? "text-lime-500"
+                  ? "text-lime-500 bg-lime-50 rounded-xl shadow-lg"
                   : "text-foreground"
               }`}
             >

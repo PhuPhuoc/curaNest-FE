@@ -53,6 +53,7 @@ export interface NurseData {
   techniques: string[];
   work_experience: string;
 }
+
 const inputStyles = {
   inputStyle: {
     fontSize: 18,
