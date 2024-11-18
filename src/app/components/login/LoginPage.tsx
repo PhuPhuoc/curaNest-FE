@@ -26,9 +26,8 @@ const AuthPage = () => {
   const [passwordError, setPasswordError] = useState("");
   const [confirmPasswordError, setConfirmPasswordError] = useState("");
   const [nameError, setNameError] = useState("");
-  const { setUser } = useAppContext();
+  const { setUser,user } = useAppContext();
   const [loading, setLoading] = useState(false);
-
   const router = useRouter();
   const toggleVisibility = () => setIsVisible(!isVisible);
 
@@ -106,8 +105,6 @@ const AuthPage = () => {
               router.push("/nurse");
               break;
             case "user":
-              router.push("/user");
-              break;
             case "customer":
               router.push("/user");
               break;

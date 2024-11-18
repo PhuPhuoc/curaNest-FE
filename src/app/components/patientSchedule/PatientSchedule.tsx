@@ -132,6 +132,7 @@ const PatientSchedule = () => {
     "19:00",
     "20:00",
     "21:00",
+    "22:00",
   ];
 
   const daysOfWeek = Array.from({ length: 7 }, (_, i) => {
