@@ -16,6 +16,7 @@ import { Technique } from "@/types/technique";
 import { toast } from "react-toastify";
 import authApi from "@/apiRequests/customer/customer";
 import { useAppContext } from "@/app/app-provider";
+import Image from "next/image";
 
 const colors = [
   "text-white bg-blue-500",
@@ -164,10 +165,12 @@ const CreatePatientProfile: React.FC = () => {
               className="absolute inset-0 opacity-0 cursor-pointer"
             />
             {avatar ? (
-              <img
-                src={URL.createObjectURL(avatar)}
+              <Image
+              width={500}
+              height={500}
+                              src={URL.createObjectURL(avatar)}
                 alt="Avatar preview"
-                className="w-full h-full object-cover"
+                className=" object-cover"
               />
             ) : (
               <span className="text-gray-500">Chọn ảnh</span>
