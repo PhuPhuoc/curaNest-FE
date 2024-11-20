@@ -50,22 +50,35 @@ body {
 }
 
 @keyframes carousel {
-    0% {
-      transform: translateX(0%);
-    }
-    33% {
-      transform: translateX(-100%);
-    }
-    66% {
-      transform: translateX(-200%);
-    }
-    100% {
-      transform: translateX(0%);
-    }
+  0% {
+    transform: translateX(0%);
   }
-  
-  .animate-carousel {
-    animation: carousel 12s infinite;
+  33% {
+    transform: translateX(-100%);
   }
-  
-  
+  66% {
+    transform: translateX(-200%);
+  }
+  100% {
+    transform: translateX(0%);
+  }
+}
+
+.animate-carousel {
+  animation: carousel 12s infinite;
+}
+
+.bg-stripe-gradient {
+  --tw-bg-opacity: 1;
+  background-image: linear-gradient(
+    45deg,
+    rgb(16 185 129 / var(--tw-bg-opacity)) 25%,
+    transparent 25%,
+    transparent 50%,
+    rgb(16 185 129 / var(--tw-bg-opacity)) 50%,
+    rgba(0, 0, 0, 0.1) 75%,
+    transparent 75%,
+    transparent
+  );
+}
+

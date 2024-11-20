@@ -31,6 +31,9 @@ import {
 import { useRouter } from "next/navigation";
 import { useEffect, useMemo, useRef, useState } from "react";
 import { toast } from "react-toastify";
+import { ref, uploadBytes, getDownloadURL } from "firebase/storage";
+import { storage } from "../../../../firebaseConfig";
+
 interface FormData {
   full_name: string;
   phone_number: string;
@@ -59,21 +62,39 @@ const inputStyles = {
     fontSize: 18,
   },
   classNames: {
-    label: "text-[24px] font-bold",
+    label: "text-[22px] font-bold text-black/70 dark:text-white/90 mb-2",
     input: [
-      "bg-transparent",
+      "bg-transparent mt-2",
       "text-black/90 dark:text-white/90",
       "placeholder:text-default-700/50 dark:placeholder:text-white/60",
     ],
+    errorMessage: "text-red-500 text-sm mt-1",
   },
 };
 
 interface FormErrors extends Record<keyof CreateNurseData, string> {}
 
+const uploadImageToFirebase = async (uri: string) => {
+  try {
+    const response = await fetch(uri);
+    const blob = await response.blob();
+    const filename = `images/${Date.now()}_${uri.split("/").pop()}`;
+    const storageRef = ref(storage, filename);
+
+    await uploadBytes(storageRef, blob);
+    const downloadURL = await getDownloadURL(storageRef);
+    return downloadURL;
+  } catch (error) {
+    console.error("Error uploading image:", error);
+    return null;
+  }
+};
+
 const NurseTable = () => {
   const fileInputRef = useRef<HTMLInputElement>(null);
   const [previewAvatar, setPreviewAvatar] = useState<string | null>(null);
   const router = useRouter();
+  
   const [formData, setFormData] = useState<FormData>({
     full_name: "",
     phone_number: "",
@@ -204,6 +225,7 @@ const NurseTable = () => {
     let errors = { ...formErrors };
     let hasError = false;
     setLoading(true);
+
     const requiredFields: Array<{ field: keyof FormErrors; message: string }> =
       [
         { field: "name", message: "Tên đăng nhập là bắt buộc" },
@@ -240,6 +262,16 @@ const NurseTable = () => {
     }
 
     try {
+      if (previewAvatar) {
+        const uploadedAvatarUrl = await uploadImageToFirebase(previewAvatar);
+        if (uploadedAvatarUrl) {
+          createFormData.avatar = uploadedAvatarUrl;
+        } else {
+          toast.error("Lỗi tải ảnh lên. Vui lòng thử lại.");
+          setLoading(false);
+          return;
+        }
+      }
       const response = await nurseApiRequest.createNurse(createFormData);
       toast.success(response.payload.message);
       handleCreateModalClose();
@@ -474,7 +506,7 @@ const NurseTable = () => {
         style={{ maxWidth: "80vw", width: "100%" }}
       >
         <ModalContent>
-          <ModalHeader className="flex flex-col gap-1">
+          <ModalHeader className="flex flex-col gap-1 text-xl">
             Tạo điều dưỡng mới
           </ModalHeader>
           <ModalBody>
@@ -708,13 +740,16 @@ const NurseTable = () => {
               color="danger"
               variant="light"
               onPress={handleCreateModalClose}
-              className="text-md font-bold"
+              className="text-lg font-bold"
+              size="lg"
+
             >
               Hủy
             </Button>
             <Button
               isLoading={loading}
-              className="bg-indigo-700 text-white text-md font-bold"
+              size="lg"
+              className="bg-indigo-700 text-white text-lg font-bold"
               onPress={handleCreateSubmit}
             >
               Tạo điều dưỡng

@@ -42,6 +42,21 @@ export type DetailNurseRes = {
   data: DetailNurse;
 };
 
+export type WorkSchedule = {
+  id: string;
+  shift_date: string;
+  shift_from: string;
+  shift_to: string;
+  status: string;
+  appointment_id: string;
+};
+
+export type WorkScheduleRes = {
+  status: number;
+  message: string;
+  data: WorkSchedule[];
+};
+
 export interface CreateNurseData {
   avatar: string | null;
   certificate: string;

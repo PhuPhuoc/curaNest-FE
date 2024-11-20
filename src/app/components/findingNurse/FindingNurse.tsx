@@ -8,6 +8,7 @@ import {
   Chip,
   Input,
   Tooltip,
+  Spinner,
 } from "@nextui-org/react";
 import NavBarNurse from "@/app/components/findingNurse/NavBarNurse";
 import { useRouter } from "next/navigation";
@@ -38,9 +39,8 @@ const NurseCard: React.FC<NurseCardProps> = ({
           <Avatar
             src={avatar}
             name={name}
-            className="w-24 h-24 text-large mb-2"
-            color="danger"
             isBordered
+            className="w-24 h-24 text-large mb-2"
           />
           <div className="w-full flex flex-row justify-between items-center sm:text-left ml-4">
             <div className="flex flex-col items-left gap-4">
@@ -52,11 +52,11 @@ const NurseCard: React.FC<NurseCardProps> = ({
               </span>
             </div>
             <div className="items-center">
-              <ScrollShadow className="max-h-24">
+              <ScrollShadow hideScrollBar className="max-h-24">
                 <div className="flex flex-wrap gap-2">
                   {techniques.slice(0, 2).map((skill, index) => (
                     <Chip
-                      size="lg"
+                      size="md"
                       key={index}
                       color="secondary"
                       variant="flat"
@@ -111,13 +111,17 @@ const NurseCard: React.FC<NurseCardProps> = ({
 const FindingNurse = () => {
   const [nurseList, setNurseList] = useState<Nurse[]>([]);
   const [searchTerm, setSearchTerm] = useState<string>("");
+  const [loading, setLoading] = useState<boolean>(false);
 
   async function fetchNurseList() {
     try {
+      setLoading(true);
       const response = await nurseApiRequest.listNurse();
       setNurseList(response.payload.data);
     } catch (error) {
       console.error("Error fetching NurseList:", error);
+    }finally {
+      setLoading(false);
     }
   }
 
@@ -139,7 +143,7 @@ const FindingNurse = () => {
     setSearchTerm("");
   };
   return (
-    <div className="flex flex-col md:flex-row h-screen">
+    <div className="flex flex-col md:flex-row h-[675px]">
       <div className="w-full md:w-1/4 lg:w-1/5 bg-gray-100 p-4 overflow-y-auto">
         <NavBarNurse />
       </div>
@@ -175,16 +179,22 @@ const FindingNurse = () => {
           </Button>
         </div>
 
-        {nurseList.map((nurse, index) => (
-          <NurseCard
-            key={index}
-            id={nurse.user_id}
-            name={nurse.full_name}
-            current_workplace={nurse.current_workplace}
-            techniques={nurse.techniques}
-            avatar={nurse.avatar}
-          />
-        ))}
+        {loading ? (
+          <div className="flex justify-center items-center h-[50vh]">
+            <Spinner size="lg" color="primary" />
+          </div>
+        ) : (
+          nurseList.map((nurse, index) => (
+            <NurseCard
+              key={index}
+              id={nurse.user_id}
+              name={nurse.full_name}
+              avatar={nurse.avatar}
+              current_workplace={nurse.current_workplace}
+              techniques={nurse.techniques}
+            />
+          ))
+        )}
       </div>
     </div>
   );

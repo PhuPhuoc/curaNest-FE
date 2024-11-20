@@ -59,7 +59,7 @@ const Profile = () => {
             className="ml-4 text-base font-bold"
             color="danger"
             onClick={handleScheduleClick}
-            disabled={isScheduled} // Disable after scheduling
+            disabled={isScheduled} 
           >
             Đặt lịch
           </Button>
