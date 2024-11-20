@@ -64,7 +64,6 @@ function Booking(props: any) {
   const handleSubmit = () => {
     if (!selectedDate || !selectedTime || selectedChips.length === 0) {
       toast.error("Vui lòng chọn đầy đủ thông tin (Ngày, Giờ và Dịch vụ) trước khi đặt lịch.");
-      console.log("not ");
       return;
     }
 

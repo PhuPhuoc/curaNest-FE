@@ -45,7 +45,6 @@ const PatientSchedule = () => {
   const { user } = useAppContext();
   const [loading, setLoading] = useState(false);
   const [workList, setWorkList] = useState<WorkSchedule[]>([]);
-  console.log("🚀 ~ PatientSchedule ~ workList:", workList);
 
   async function fetchDetailNurse(from: string, to: string) {
     setLoading(true);

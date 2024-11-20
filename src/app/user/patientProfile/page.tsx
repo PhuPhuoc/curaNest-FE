@@ -25,8 +25,6 @@ const PatientProfile: React.FC = () => {
             ? response.payload.data
             : [response.payload.data];
           setProfiles(profileData);
-
-          console.log("profile: ", profileData);
         } catch (error) {
           toast.error("Không thể tải hồ sơ bệnh nhân.");
           console.error("Failed to fetch patient profiles", error);
