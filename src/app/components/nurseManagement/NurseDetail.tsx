@@ -38,7 +38,6 @@ const NurseDetail = ({ id }: { id: string }) => {
   const router = useRouter();
   const [loading, setLoading] = useState(false);
   const [nurseList, setNurseList] = useState<DetailNurse>();
-  console.log("🚀 ~ NurseDetail ~ nurseList:", nurseList)
 
   async function fetchDetailNurse() {
     setLoading(true);
@@ -194,7 +193,10 @@ const NurseDetail = ({ id }: { id: string }) => {
                   label="Kinh nghiệm"
                   value={`${nurseList?.work_experience} năm`}
                 />
-                <InfoItem label="Kỹ năng chuyên môn" value={nurseList?.expertise} />
+                <InfoItem
+                  label="Kỹ năng chuyên môn"
+                  value={nurseList?.expertise}
+                />
                 <InfoItem label="Chứng chỉ" value={nurseList?.certificate} />
               </div>
 

@@ -1,5 +1,10 @@
 import http from "@/lib/http";
-import { CreateNurseData, DetailNurseRes, NurseRes } from "@/types/nurse";
+import {
+  CreateNurseData,
+  DetailNurseRes,
+  NurseRes,
+  WorkScheduleRes,
+} from "@/types/nurse";
 import { CreateRes } from "@/types/technique";
 
 const nurseApiRequest = {
@@ -18,7 +23,10 @@ const nurseApiRequest = {
       queryParams.length > 0 ? `?${queryParams.join("&")}` : "";
     return http.get<NurseRes>(`/nurses${queryString}`);
   },
-
+  scheduleWork: (id: string, from: string, to: string) =>
+    http.get<WorkScheduleRes>(
+      `/nurses/${id}/get-weekly-work-schedule?from=${from}&to=${to}`
+    ),
   detailNurse: (id: string, role: string) =>
     http.get<DetailNurseRes>(`/nurses/${id}?role=${role}`),
   createNurse: (body: CreateNurseData) => http.post<CreateRes>(`/nurses`, body),
