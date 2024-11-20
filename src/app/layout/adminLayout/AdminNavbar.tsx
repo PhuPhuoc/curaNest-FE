@@ -27,7 +27,7 @@ const AdminNavbar = () => {
 
   return (
     <>
-      <div className="h-screen w-64  p-4 fixed hidden lg:flex flex-col bg-stripe-gradient">
+      <div className="h-screen w-64  p-4 fixed hidden lg:flex flex-col bg-stripe-gradient ">
         <div className="mb-8">
           <Link href="">
             <p className="font-bold text-center text-2xl hover:text-sky-400 mt-7">
@@ -41,7 +41,7 @@ const AdminNavbar = () => {
             <Link
               key={index}
               href={`/admin${item.link}`}
-              className={`block p-4 my-2 rounded-xl font-semibold ${
+              className={`block p-4 my-2 rounded-xl font-semibold text-lg ${
                 pathname === `/admin${item.link}`
                   ? "bg-indigo-500 text-white"
                   : "text-slate-800 hover:bg-gray-700 hover:text-white"

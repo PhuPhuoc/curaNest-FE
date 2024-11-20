@@ -1,6 +1,9 @@
 "use client";
 
+import nurseApiRequest from "@/apiRequests/nurse/nurse";
+import { useAppContext } from "@/app/app-provider";
 import AppointmentModal from "@/app/components/modal/AppointmentModal";
+import { WorkSchedule } from "@/types/nurse";
 import {
   Avatar,
   Button,
@@ -8,21 +11,21 @@ import {
   CardBody,
   useDisclosure,
 } from "@nextui-org/react";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 
-type Appointment = {
-  id: number;
-  date: string;
-  startTime: string;
-  endTime: string;
-  description: string;
-  patientName: string;
-  address: string;
-  birthdate: string;
-  phoneNumber: string;
-  notes: string;
-  avatar: string;
-};
+// type Appointment = {
+//   id: number;
+//   date: string;
+//   startTime: string;
+//   endTime: string;
+//   description: string;
+//   patientName: string;
+//   address: string;
+//   birthdate: string;
+//   phoneNumber: string;
+//   notes: string;
+//   avatar: string;
+// };
 
 const formatDate = (date: Date) => {
   return date.toISOString().split("T")[0];
@@ -39,83 +42,44 @@ const PatientSchedule = () => {
     getMonday(new Date())
   );
 
-  const [selectedSchedule, setSelectedSchedule] = useState<Appointment | null>(
-    null
-  );
-  const { isOpen, onOpen, onOpenChange } = useDisclosure();
+  const { user } = useAppContext();
+  const [loading, setLoading] = useState(false);
+  const [workList, setWorkList] = useState<WorkSchedule[]>([]);
+  console.log("🚀 ~ PatientSchedule ~ workList:", workList);
 
-  const handleOpenModal = (appointment: Appointment) => {
-    setSelectedSchedule(appointment);
-    onOpen();
-  };
+  async function fetchDetailNurse(from: string, to: string) {
+    setLoading(true);
+    try {
+      if (user) {
+        const response = await nurseApiRequest.scheduleWork(user.id, from, to);
+        setWorkList(response.payload.data);
+        setLoading(false);
+      }
+    } catch (error) {
+      console.error("Error fetching techniques:", error);
+      setLoading(false);
+    }
+  }
 
-  const appointments: Appointment[] = [
-    {
-      id: 1,
-      date: "2024-11-07",
-      startTime: "09:00",
-      endTime: "11:00",
-      description: "Routine check-up",
-      patientName: "John Doe",
-      address: "123 Street Name",
-      birthdate: "1990-01-01",
-      phoneNumber: "123-456-7890",
-      notes: "No specific notes",
-      avatar: "https://example.com/avatar.jpg",
-    },
-    {
-      id: 2,
-      date: "2024-11-08",
-      startTime: "09:00",
-      endTime: "12:00",
-      description: "Routine check-up",
-      patientName: "John Doe",
-      address: "123 Street Name",
-      birthdate: "1990-01-01",
-      phoneNumber: "123-456-7890",
-      notes: "No specific notes",
-      avatar: "https://example.com/avatar.jpg",
-    },
-    {
-      id: 3,
-      date: "2024-11-09",
-      startTime: "09:00",
-      endTime: "12:00",
-      description: "Routine check-up",
-      patientName: "John Doe",
-      address: "123 Street Name",
-      birthdate: "1990-01-01",
-      phoneNumber: "123-456-7890",
-      notes: "No specific notes",
-      avatar: "https://example.com/avatar.jpg",
-    },
-    {
-      id: 4,
-      date: "2024-11-10",
-      startTime: "09:00",
-      endTime: "12:00",
-      description: "Routine check-up",
-      patientName: "John Doe",
-      address: "123 Street Name",
-      birthdate: "1990-01-01",
-      phoneNumber: "123-456-7890",
-      notes: "No specific notes",
-      avatar: "https://example.com/avatar.jpg",
-    },
-    {
-      id: 5,
-      date: "2024-11-06",
-      startTime: "13:00",
-      endTime: "15:00",
-      description: "Routine check-up",
-      patientName: "John Doe",
-      address: "123 Street Name",
-      birthdate: "1990-01-01",
-      phoneNumber: "123-456-7890",
-      notes: "No specific notes",
-      avatar: "https://example.com/avatar.jpg",
-    },
-  ];
+  useEffect(() => {
+    if (user?.id) {
+      const from = formatDate(currentWeekStart);
+      const to = formatDate(
+        new Date(currentWeekStart.getTime() + 6 * 24 * 60 * 60 * 1000)
+      );
+      fetchDetailNurse(from, to);
+    }
+  }, [user?.id, currentWeekStart]);
+
+  // const [selectedSchedule, setSelectedSchedule] = useState<Appointment | null>(
+  //   null
+  // );
+  // const { isOpen, onOpen, onOpenChange } = useDisclosure();
+
+  // const handleOpenModal = (appointment: Appointment) => {
+  //   setSelectedSchedule(appointment);
+  //   onOpen();
+  // };
 
   const times = [
     "08:00",
@@ -151,19 +115,21 @@ const PatientSchedule = () => {
   const calculateSpan = (startTime: string, endTime: string) => {
     const start = new Date(`1970-01-01T${startTime}:00`);
     const end = new Date(`1970-01-01T${endTime}:00`);
-    const spanInMinutes = (end.getTime() - start.getTime()) / (1000 * 60); // Difference in minutes
-    return Math.floor(spanInMinutes / 60); // Round down to nearest whole hour
+    const spanInMinutes = (end.getTime() - start.getTime()) / (1000 * 60);
+    return Math.floor(spanInMinutes / 60);
   };
 
   const shouldRenderCell = (day: string, time: string) => {
-    const appointment = appointments.find(
-      (appt) =>
-        appt.date === day && appt.startTime <= time && appt.endTime > time
+    const workSchedule = workList?.find(
+      (schedule) =>
+        schedule.shift_date === day &&
+        schedule.shift_from.slice(0, 5) <= time &&
+        schedule.shift_to.slice(0, 5) > time
     );
 
-    if (!appointment) return true;
+    if (!workSchedule) return true;
 
-    return appointment.startTime === time;
+    return workSchedule.shift_from.slice(0, 5) === time;
   };
 
   const goToNextWeek = () => {
@@ -197,7 +163,7 @@ const PatientSchedule = () => {
         </Button>
         <div className="flex flex-col items-center">
           <span className="text-xl font-semibold">
-            {formatDate(currentWeekStart)}
+            Ngày hiện tại: {formatDate(new Date())}
           </span>
           <span className="text-lg text-gray-600">
             {daysOfWeek[0].label} - {daysOfWeek[6].label}
@@ -243,7 +209,7 @@ const PatientSchedule = () => {
                   className="bg-white transition "
                   style={{ height: 150 }}
                 >
-                  <td className="  text-xl p-8 font-semibold text-gray-600 text-center border-t border-b border-gray-300">
+                  <td className="text-xl p-8 font-semibold text-gray-600 text-center border-t border-b border-gray-300">
                     {time}
                   </td>
                   {daysOfWeek.map((day) => {
@@ -251,16 +217,18 @@ const PatientSchedule = () => {
                       return null;
                     }
 
-                    const appointment = appointments.find(
-                      (appt) =>
-                        appt.date === day.date && appt.startTime === time
+                    const workSchedule = workList?.find(
+                      (schedule) =>
+                        schedule.shift_date === day.date &&
+                        schedule.shift_from.slice(0, 5) === time
                     );
 
-                    if (appointment) {
+                    if (workSchedule) {
                       const span = calculateSpan(
-                        appointment.startTime,
-                        appointment.endTime
+                        workSchedule.shift_from.slice(0, 5),
+                        workSchedule.shift_to.slice(0, 5)
                       );
+
                       return (
                         <td
                           key={`${day.date}-${time}`}
@@ -273,14 +241,17 @@ const PatientSchedule = () => {
                               width: "auto",
                               height: "100%",
                               borderRadius: "0.75rem",
-                              backgroundColor: "#f0f4ff",
                               boxShadow: "0 4px 8px rgba(0, 0, 0, 0.15)",
                               cursor: "pointer",
+                              backgroundColor:
+                                workSchedule?.status === "available"
+                                  ? "#00FF9C"
+                                  : "#bab6b6",
                             }}
                             className="mx-auto"
                           >
                             <CardBody
-                              onClick={() => handleOpenModal(appointment)}
+                              // onClick={() => handleOpenModal(appointment)}
                               style={{
                                 display: "flex",
                                 flexDirection: "column",
@@ -292,22 +263,19 @@ const PatientSchedule = () => {
                                 gap: 10,
                               }}
                             >
-                              <Avatar
-                                src="https://thumbs.dreamstime.com/b/cat-gun-pointed-s-face-ai-cat-gun-pointed-s-face-ai-generated-307980031.jpg"
-                                className="w-20 h-20 rounded-md shadow-lg mx-auto my-2"
-                              />
                               <p
                                 style={{
                                   marginBottom: "0.25rem",
                                   fontSize: "1.2rem",
                                 }}
                               >
-                                {appointment.startTime} - {appointment.endTime}
+                                {workSchedule.shift_from.slice(0, 5)} -{" "}
+                                {workSchedule.shift_to.slice(0, 5)}
                               </p>
                               <strong
                                 style={{ fontSize: "1.2rem", margin: "0" }}
                               >
-                                {appointment.patientName}
+                                {workSchedule.status}
                               </strong>
                             </CardBody>
                           </Card>
@@ -329,11 +297,11 @@ const PatientSchedule = () => {
 
         <div className="md:hidden">
           {daysOfWeek.map((day) => {
-            const appointmentsForDay = appointments.filter(
-              (appointment) => appointment.date === day.date
+            const schedulesForDay = workList?.filter(
+              (schedule) => schedule.shift_date === day.date
             );
 
-            if (appointmentsForDay.length > 0) {
+            if (schedulesForDay?.length > 0) {
               return (
                 <div key={day.date} className="mb-6">
                   <h4 className="text-lg font-semibold text-gray-800 mb-4">
@@ -341,17 +309,21 @@ const PatientSchedule = () => {
                   </h4>
 
                   <div className="flex flex-col space-y-4">
-                    {appointmentsForDay.map((appointment) => (
+                    {schedulesForDay.map((schedule) => (
                       <Card
-                        key={appointment.id}
+                        key={schedule.id}
                         style={{
                           width: "100%",
                           marginBottom: "1rem",
                           cursor: "pointer",
+                          backgroundColor:
+                            schedule.status === "not-available"
+                              ? "#e6f3ff"
+                              : "#f0f0f0",
                         }}
                       >
                         <CardBody
-                          onClick={() => handleOpenModal(appointment)}
+                          // onClick={() => handleOpenModal(appointment)}
                           style={{
                             display: "flex",
                             flexDirection: "column",
@@ -363,20 +335,17 @@ const PatientSchedule = () => {
                             fontWeight: "bold",
                           }}
                         >
-                          <Avatar
-                            src="https://thumbs.dreamstime.com/b/cat-gun-pointed-s-face-ai-cat-gun-pointed-s-face-ai-generated-307980031.jpg"
-                            className="w-10 h-10 rounded-md shadow-lg mx-auto my-2"
-                          />
                           <p
                             style={{
                               marginBottom: "0.25rem",
                               fontSize: "0.9rem",
                             }}
                           >
-                            {appointment.startTime} - {appointment.endTime}
+                            {schedule.shift_from.slice(0, 5)} -{" "}
+                            {schedule.shift_to.slice(0, 5)}
                           </p>
                           <strong style={{ fontSize: "0.8rem", margin: "0" }}>
-                            {appointment.patientName}
+                            {schedule.status}
                           </strong>
                         </CardBody>
                       </Card>
@@ -390,13 +359,13 @@ const PatientSchedule = () => {
         </div>
       </div>
 
-      {selectedSchedule && (
+      {/* {selectedSchedule && (
         <AppointmentModal
           isOpen={isOpen}
           onOpenChange={onOpenChange}
           selectedSchedule={selectedSchedule}
         />
-      )}
+      )} */}
     </div>
   );
 };
