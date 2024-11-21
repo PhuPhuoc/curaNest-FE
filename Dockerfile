@@ -1,32 +1,23 @@
-# Dockerfile
 FROM node:alpine AS builder
 
-# Thiết lập thư mục làm việc
 WORKDIR /app
 
-# Sao chép package.json và package-lock.json
+RUN npm cache clean --force
+
 COPY package*.json ./
 
-# Cài đặt các dependencies
-RUN npm install
+RUN npm install --verbose
 
-# Sao chép mã nguồn vào container
 COPY . .
 
-# Build ứng dụng
-RUN npm run build
+RUN export NODE_OPTIONS=--max_old_space_size=4096
 
-# Tạo stage chạy ứng dụng
+RUN npm run build --verbose
+
 FROM node:alpine
-
-# Thiết lập thư mục làm việc
 WORKDIR /app
 
-# Sao chép từ stage builder
 COPY --from=builder /app ./
 
-# Chạy ứng dụng
 CMD ["npm", "start"]
-
-# Expose port
 EXPOSE 3000
