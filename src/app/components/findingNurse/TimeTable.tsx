@@ -107,16 +107,16 @@ const Timetable: React.FC<TimetableProps> = () => {
   };
 
   return (
-    <div className="border rounded-lg p-3 shadow-md bg-white">
+    <div className="border rounded-lg p-3 shadow-md bg-white mb-10">
       <div className="relative mb-4">
         <p className="text-2xl font-bold text-center">Lịch làm việc</p>
-        <Button
+        {/* <Button
           className="absolute right-0 top-0 text-base font-bold"
           color="danger"
           onClick={handleScheduleClick}
         >
           Đặt lịch
-        </Button>
+        </Button> */}
       </div>
 
       <div className="overflow-x-auto">
