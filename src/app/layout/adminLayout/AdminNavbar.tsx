@@ -22,7 +22,7 @@ const AdminNavbar = () => {
 
   return (
     <>
-      <div className="h-screen w-72 bg-[#F3F6F9] p-4 fixed hidden lg:flex flex-col ">
+      <div className="h-screen w-72 bg-[#FFF p-4 fixed hidden lg:flex flex-col ">
         <div className="mb-8">
           <Link href="">
             <p className="font-bold text-center text-4xl text-sky-400 mt-4">
