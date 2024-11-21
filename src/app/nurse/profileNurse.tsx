@@ -70,7 +70,7 @@ const ProfileNurse: React.FC<ProfileDrawerProps> = ({ open, onClose }) => {
       fetchDetailNurse();
     }
   }, [user]);
-  console.log("điều dưỡng: ", nurseList);
+  
   useEffect(() => {
     const fetchTechniques = async () => {
       try {

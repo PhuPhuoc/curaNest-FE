@@ -73,3 +73,21 @@ export interface CreateNurseData {
   techniques: string[];
   work_experience: string;
 }
+
+export type Shift = {
+  shift_date: string; 
+  shift_from: string; 
+  shift_to: string;  
+};
+
+export interface CreateScheduleData {
+  shifts: Shift[];   
+  week_from: string; 
+  week_to: string;  
+}
+
+export type CreateScheduleDataRes = {
+  status: number;
+  message: string;
+  data: CreateScheduleData[];
+};
