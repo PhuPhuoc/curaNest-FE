@@ -78,9 +78,12 @@ const DetailNurseFinding = (props: any) => {
               </p>
             </div>
           </div>
+          
+          <Timetable id={id} />
 
           {/* PatientProfile Component */}
           {user?.role !== "user" && <Profile />}
+
 
           {/* Review Component */}
           <Review />
