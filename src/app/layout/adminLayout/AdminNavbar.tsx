@@ -4,24 +4,28 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { Button } from "@nextui-org/react";
 import MenuIcon from "@/app/Icon/MenuIcon";
-import { useAppContext } from "@/app/app-provider";
-
+import Dashboard from "@/app/Icon/Dashboard";
+import Management from "@/app/Icon/Management";
 const AdminNavbar = () => {
   const pathname = usePathname();
   const [isOpen, setIsOpen] = useState(false);
 
   const menuItems = [
-    { title: "Thống kê", link: "/dashboard" },
-    { title: "Quản lí điều dưỡng", link: "/nurse-management" },
-    { title: "Quản lí dịch vụ", link: "/service-fee" },
+    { title: "Thống kê", link: "/dashboard", icon: <Dashboard /> },
+    {
+      title: "Quản lí điều dưỡng",
+      link: "/nurse-management",
+      icon: <Management />,
+    },
+    { title: "Quản lí dịch vụ", link: "/service-fee", icon: <Management /> },
   ];
 
   return (
     <>
-      <div className="h-screen w-64  p-4 fixed hidden lg:flex flex-col bg-stripe-gradient ">
+      <div className="h-screen w-72 bg-[#F3F6F9] p-4 fixed hidden lg:flex flex-col ">
         <div className="mb-8">
           <Link href="">
-            <p className="font-bold text-center text-2xl hover:text-sky-400 mt-7">
+            <p className="font-bold text-center text-4xl text-sky-400 mt-4">
               CURANEST
             </p>
           </Link>
@@ -32,12 +36,13 @@ const AdminNavbar = () => {
             <Link
               key={index}
               href={`/admin${item.link}`}
-              className={`block p-4 my-2 rounded-xl font-semibold text-lg ${
+              className={`flex items-center p-4 my-2 rounded-xl font-semibold text-lg ${
                 pathname === `/admin${item.link}`
-                  ? "bg-indigo-500 text-white"
-                  : "text-slate-800 hover:bg-gray-700 hover:text-white"
+                  ? "bg-white text-sky-400 border-l-4 border-sky-600 shadow-lg"
+                  : "text-slate-800 hover:bg-white hover:border-l-4 hover:border-sky-600 hover:text-sky-400"
               }`}
             >
+              <span className="mr-3 rounded-full bg-sky-300 p-2 text-white">{item.icon}</span>
               {item.title}
             </Link>
           ))}
@@ -64,11 +69,12 @@ const AdminNavbar = () => {
                 key={index}
                 href={`/admin${item.link}`}
                 className={`block px-4 py-2 my-2 rounded ${
-                  pathname === `/user${item.link}`
-                    ? "bg-blue-500 text-white"
-                    : "text-gray-300 hover:bg-gray-700 hover:text-white"
+                  pathname === `/admin${item.link}`
+                    ? "bg-white text-black border-l-4 border-green-500"
+                    : "text-gray-300 hover:bg-gray-200 hover:border-l-4 hover:border-gray-300 hover:text-black"
                 }`}
               >
+                <span className="mr-3">{item.icon}</span>
                 {item.title}
               </Link>
             ))}
