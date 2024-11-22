@@ -6,8 +6,9 @@ import InfoUser from "../infoUser";
 import { Divider } from "antd";
 import { infoPatient } from "@/types/customer";
 import { useAppContext } from "@/app/app-provider";
-import authApiRequest from "@/apiRequests/customer/customer";
+import authApi from "@/apiRequests/customer/customer";
 import { toast } from "react-toastify";
+import { generateColor } from "@/lib/utils";
 
 const colors = ["bg-blue-500", "bg-green-500", "bg-red-500", "bg-yellow-500"];
 
@@ -20,7 +21,7 @@ const PatientProfile: React.FC = () => {
     if (user?.id) {
       const fetchProfiles = async () => {
         try {
-          const response = await authApiRequest.profilePatient(user.id);
+          const response = await authApi.profilePatient(user.id);
           const profileData = Array.isArray(response.payload.data)
             ? response.payload.data
             : [response.payload.data];
@@ -156,13 +157,12 @@ const PatientProfile: React.FC = () => {
 
                 <div className="flex flex-wrap gap-2 mt-5 text-lg">
                   <p className="text-gray-700 font-semibold ">Dịch vụ:</p>
-                  {profile.techniques.map((technique, index: number) => (
-                    <Chip
-                      key={index}
-                      className={`text-white font-bold ${
-                        colors[index % colors.length]
-                      } px-4 py-2`}
+                  {profile.techniques.map((technique) => (
+                      <Chip
+                      key={technique.id}
+                      className="text-white font-bold px-4 py-2"
                       size="md"
+                      style={{ backgroundColor: generateColor(technique.id) }} 
                     >
                       {technique.name}
                     </Chip>

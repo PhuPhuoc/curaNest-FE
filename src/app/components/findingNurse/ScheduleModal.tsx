@@ -1,153 +1,208 @@
 import React, { useEffect, useState } from "react";
 import { Modal } from "antd";
 import { Button, Chip } from "@nextui-org/react";
-import Profile from "./Profile";
-import { toast, ToastContainer } from "react-toastify";
+import { toast } from "react-toastify";
+import nurseApiRequest from "@/apiRequests/nurse/nurse";
+import techniqueApiRequest from "@/apiRequests/technique/technique";
+import { Technique } from "@/types/technique";
+import { formatDateVN, formatTime, generateColor } from "@/lib/utils";
 
 interface ScheduleModalProps {
+  id: string;
   visible: boolean;
   onClose: () => void;
   profileServices: string[];
 }
 
+const formatDate = (date: Date): string => {
+  const year = date.getFullYear();
+  const month = String(date.getMonth() + 1).padStart(2, "0");
+  const day = String(date.getDate()).padStart(2, "0");
+  return `${year}-${month}-${day}`;
+};
+
 const ScheduleModal: React.FC<ScheduleModalProps> = ({
+  id,
   visible,
   onClose,
   profileServices,
 }) => {
-  const [selectedTime, setSelectedTime] = useState<string[]>([]);
   const [weekDays, setWeekDays] = useState<string[]>([]);
-  const [selectedProfile, setSelectedProfile] = useState<any>(null);
   const [selectedChips, setSelectedChips] = useState<string[]>([]);
+  const [techniques, setTechniques] = useState<Technique[]>([]);
+  const [totalPrice, setTotalPrice] = useState<number>(0);
+  const [selectedTime, setSelectedTime] = useState<{
+    appointment_date: string;
+    time_from: string;
+    time_to: string;
+  } | null>(null);
 
-  const timeSlots = [
-    "08:00 AM",
-    "09:00 AM",
-    "10:00 AM",
-    "11:00 AM",
-    "12:00 PM",
-    "01:00 PM",
-    "02:00 PM",
-    "03:00 PM",
-    "04:00 PM",
-    "05:00 PM",
+  const [suggestedTimeFrames, setSuggestedTimeFrames] = useState<
+    { appointment_date: string; time_from: string; time_to: string }[]
+  >([]);
+
+  const colors = [
+    "text-white bg-blue-500",
+    "text-white bg-green-500",
+    "text-white bg-red-500",
+    "text-white bg-yellow-500",
   ];
 
-  const chipValues: { [key: string]: number } = {
-    "Thay băng": 50000,
-    "Tiêm thuốc": 75000,
-    "Khám bệnh": 100000,
-    "Tư vấn": 120000,
-    "Cho ăn": 75000,
+  const getCurrentWeekRange = () => {
+    const today = new Date();
+    const dayOfWeek = today.getDay();
+
+    const monday = new Date(today);
+    monday.setDate(today.getDate() - dayOfWeek + (dayOfWeek === 0 ? -6 : 1));
+
+    const sunday = new Date(monday);
+    sunday.setDate(monday.getDate() + 6);
+
+    const weekDays = [];
+    for (let i = 0; i < 7; i++) {
+      const day = new Date(monday);
+      day.setDate(monday.getDate() + i);
+      const formattedDate = formatDate(day);
+      weekDays.push(formattedDate);
+    }
+
+    return {
+      from: formatDate(monday),
+      to: formatDate(sunday),
+      weekDays,
+    };
   };
 
-  const colors: { [key: string]: string } = {
-    "Thay băng": "bg-blue-500 text-white",
-    "Cho ăn": "bg-green-500 text-white",
-    "Tiêm thuốc": "bg-red-500 text-white",
-    "Khám bệnh": "bg-sky-500 text-white",
-    "Tư vấn": "bg-orange-500 text-white",
+  async function fetchTechniques() {
+    try {
+      const response = await techniqueApiRequest.getTechnique();
+      const convertedTechniques = response.payload.data.map(
+        (technique: Technique) => {
+          const timeParts = technique.estimated_time.split(":");
+          const hours = parseInt(timeParts[0], 10);
+          const minutes = parseInt(timeParts[1], 10);
+          const totalMinutes = hours * 60 + minutes;
+
+          return {
+            ...technique,
+            estimated_time: totalMinutes.toString(),
+          };
+        }
+      );
+      setTechniques(convertedTechniques);
+    } catch (error) {
+      console.error("Error fetching techniques:", error);
+    }
+  }
+
+  const fetchAvailableScheduleWork = async () => {
+    try {
+      const { from, to } = getCurrentWeekRange();
+      const totalMinutes = calculateTotalMinutes();
+      const response = await nurseApiRequest.availableScheduleWork(
+        id,
+        from,
+        to,
+        totalMinutes.toString()
+      );
+
+      const transformedData = response.payload.data.map((item: any) => ({
+        appointment_date: item.appoinment_date,
+        time_from: item.from,
+        time_to: item.to,
+      }));
+
+      setSuggestedTimeFrames(transformedData);
+      console.log("transformedData: ", transformedData);
+    } catch (error) {
+      toast.error("Đã xảy ra lỗi khi lấy khung giờ đề xuất.");
+    }
   };
+
+  // console.log("suggestedTimeFrames: ", suggestedTimeFrames)
+
+  const calculateTotalPrice = () => {
+    const selectedTechniques = techniques.filter((technique) =>
+      selectedChips.includes(technique.name)
+    );
+    const total = selectedTechniques.reduce((sum, technique) => {
+      return sum + technique.fee;
+    }, 0);
+    setTotalPrice(total);
+  };
+
+  const calculateTotalMinutes = (): number => {
+    const selectedTechniques = techniques.filter((technique) =>
+      selectedChips.includes(technique.name)
+    );
+    return selectedTechniques.reduce((total, technique) => {
+      const totalMinutes = parseInt(technique.estimated_time, 10);
+      return total + totalMinutes;
+    }, 0);
+  };
+
+  //   console.log("selectedChips:", selectedChips);
+  // console.log("Total minutes:", calculateTotalMinutes());
+  // console.log("Khung giờ gợi ý:", suggestedTimeFrames);
+  // console.log("Weekdays:", weekDays);
 
   useEffect(() => {
-    const getCurrentWeekDays = () => {
-      const today = new Date();
-      const dayOfWeek = today.getDay();
-      const currentWeekDays: string[] = [];
-
-      for (let i = 1; i <= 6; i++) {
-        const currentDay = new Date(today);
-        const first = currentDay.getDate() - dayOfWeek + i;
-        currentDay.setDate(first);
-        const day = currentDay.toLocaleDateString("vi-VN", {
-          weekday: "long",
-          day: "numeric",
-          month: "numeric",
-        });
-        currentWeekDays.push(day);
-      }
-
-      setWeekDays(currentWeekDays);
-    };
-
-    getCurrentWeekDays();
-  }, []);
+    const { weekDays } = getCurrentWeekRange();
+    setWeekDays(weekDays);
+    calculateTotalPrice();
+    fetchAvailableScheduleWork();
+    fetchTechniques();
+  }, [selectedChips]);
 
   const resetStates = () => {
-    setSelectedTime([]);
     setSelectedChips([]);
-    setSelectedProfile(null);
-  };
-
-  useEffect(() => {
-    if (visible) {
-      const initialSelectedChips = profileServices.filter((service) =>
-        Object.keys(chipValues).includes(service)
-      );
-      setSelectedChips(initialSelectedChips);
-    }
-  }, [visible, profileServices]);
-
-  const isPastDate = (day: string) => {
-    const today = new Date();
-    const dayOfWeek = new Date(today).getDay();
-
-    const dayIndex = weekDays.indexOf(day);
-    if (dayIndex === -1) return false;
-
-    const currentDay = new Date(today);
-    currentDay.setDate(currentDay.getDate() - dayOfWeek + dayIndex);
-
-    return currentDay < today;
-  };
-
-  const handleTimeSelect = (time: string, day: string) => {
-    if (isPastDate(day)) {
-      toast.warn("Vui lòng chọn khung giờ của ngày hiện tại hoặc tương lai!");
-      return;
-    }
-
-    setSelectedTime((prevSelectedTime) =>
-      prevSelectedTime.includes(`${day} - ${time}`)
-        ? prevSelectedTime.filter((t) => t !== `${day} - ${time}`)
-        : [...prevSelectedTime, `${day} - ${time}`]
-    );
+    setSelectedTime(null);
+    setTotalPrice(0);
+    setSuggestedTimeFrames([]);
   };
 
   const handleConfirm = () => {
-    if (selectedTime.length) {
-      console.log("Khung giờ đã chọn:", selectedTime.join(", "));
-      console.log("Tổng giá:", totalPrice.toLocaleString(), "VNĐ");
+    if (selectedChips.length) {
       console.log("Các dịch vụ đã chọn:", selectedChips.join(", "));
-
-      toast.success(`Đặt lịch thành công cho các giờ: ${selectedTime.join(", ")}`);
+      toast.success(
+        `Đặt lịch thành công cho các dịch vụ: ${selectedChips.join(", ")}`
+      );
       onClose();
       resetStates();
     } else {
-      toast.error("Vui lòng chọn ít nhất một giờ.");
+      toast.error("Vui lòng chọn ít nhất một dịch vụ.");
     }
   };
 
-  // const handleChipClick = (chip: string) => {
-  //   if (selectedChips.includes(chip)) {
-  //     setSelectedChips(selectedChips.filter((item) => item !== chip));
-  //   } else {
-  //     setSelectedChips([...selectedChips, chip]);
-  //   }
-  // };
-
   const handleChipClick = (chip: string) => {
-    setSelectedChips((prev) =>
-      prev.includes(chip)
+    setSelectedChips((prev) => {
+      const updatedChips = prev.includes(chip)
         ? prev.filter((item) => item !== chip)
-        : [...prev, chip]
-    );
+        : [...prev, chip];
+
+      calculateTotalPrice();
+      calculateTotalMinutes();
+      return updatedChips;
+    });
   };
 
-  const totalPrice = selectedChips.reduce(
-    (total, chip) => total + (chipValues[chip] || 0),
-    0
-  );
+  const handleSelectTime = (time: {
+    appointment_date: string;
+    time_from: string;
+    time_to: string;
+  }) => {
+    setSelectedTime((prev) => {
+      if (
+        prev &&
+        prev.appointment_date === time.appointment_date &&
+        prev.time_from === time.time_from &&
+        prev.time_to === time.time_to
+      ) {
+        return null;
+      }
+      return time;
+    });
+  };
 
   return (
     <Modal
@@ -181,21 +236,18 @@ const ScheduleModal: React.FC<ScheduleModalProps> = ({
         </Button>,
       ]}
     >
-
       <div className="p-4">
         <div className="flex flex-col md:flex-row">
           {/* Left side*/}
           <div className="md:w-2/3 p-4 border border-gray-300 rounded">
             <h3 className="text-xl font-semibold">Các dịch vụ đã chọn</h3>
 
-            {profileServices.length > 0 ? (
+            {selectedChips.length > 0 ? (
               <div className="flex flex-wrap gap-1">
                 {selectedChips.map((chip, index) => (
                   <Chip
                     key={index}
-                    className={`m-1 ${
-                      colors[chip] || "bg-gray-200 text-gray-700"
-                    }`}
+                    className={`m-1 ${colors[index % colors.length]} `}
                     onClick={() => handleChipClick(chip)}
                     size="lg"
                   >
@@ -224,51 +276,74 @@ const ScheduleModal: React.FC<ScheduleModalProps> = ({
           <div className="md:w-1/3 p-4 flex flex-col">
             <p className="text-xl font-semibold mb-2">Hãy chọn loại dịch vụ</p>
             <div className="flex flex-wrap">
-              {Object.keys(chipValues)
-                .filter((chip) => !selectedChips.includes(chip))
-                .map((chip, index) => (
-                  <Chip
-                    key={index}
-                    className={`m-1 p-1 rounded-full ${
-                      colors[chip] || "bg-gray-200 text-gray-700"
-                    }`}
-                    onClick={() => handleChipClick(chip)}
-                    size="lg"
-                  >
-                    {chip}
-                  </Chip>
-                ))}
+              {techniques.map((technique) => (
+                <Chip
+                  key={technique.id}
+                  className={`m-1 p-1 rounded-full ${
+                    selectedChips.includes(technique.name)
+                      ? "text-white"
+                      : "text-black"
+                  }`}
+                  style={{
+                    color: "white",
+                    backgroundColor: selectedChips.includes(technique.name)
+                      ? "lightgrey"
+                      : generateColor(technique.id),
+                  }}
+                  onClick={() => handleChipClick(technique.name)}
+                  size="lg"
+                >
+                  {technique.name}
+                </Chip>
+              ))}
             </div>
           </div>
         </div>
       </div>
 
       <div className="space-y-6">
-        <p className="text-xl font-bold">Chọn khung giờ</p>
+        <p className="text-xl font-bold">Khung giờ phù hợp cho dịch vụ trên</p>
+        
+        {weekDays.map((day, dayIndex) => {
+          const formattedDay = formatDateVN(day);
 
-        {weekDays.map((day, dayIndex) => (
-          <div key={dayIndex} className="mb-4">
-            <p className="text-lg font-semibold mb-2">{day}</p>
+          const matchingTimes = suggestedTimeFrames.filter(
+            (time) => time.appointment_date === day
+          );
 
-            <div className="grid grid-cols-2 sm:grid-cols-4 md:grid-cols-6 lg:grid-cols-8 gap-4">
-              {timeSlots.map((time, index) => (
-                <Button
-                  key={index}
-                  type="button"
-                  className={`w-full ${
-                    selectedTime.includes(`${day} - ${time}`)
-                      ? "bg-blue-500 text-white"
-                      : "bg-gray-200"
-                  }`}
-                  onClick={() => handleTimeSelect(time, day)}
-                  
-                >
-                  {time}
-                </Button>
-              ))}
+          return (
+            <div key={dayIndex} className="mb-4">
+              <p className="text-lg font-semibold mb-2">{formattedDay}</p>
+              <div className="grid grid-cols-2 sm:grid-cols-4 md:grid-cols-6 lg:grid-cols-8 gap-4">
+                {matchingTimes.map((time, index) => {
+                  const formattedTimeFrom = formatTime(time.time_from);
+                  const formattedTimeTo = formatTime(time.time_to);
+
+                  const isSelected =
+                    selectedTime &&
+                    selectedTime.appointment_date === time.appointment_date &&
+                    selectedTime.time_from === time.time_from &&
+                    selectedTime.time_to === time.time_to;
+                  return (
+                    <Button
+                      key={index}
+                      type="button"
+                      size="md"
+                      className={`${
+                        isSelected
+                          ? "bg-blue-500 text-white"
+                          : "bg-gray-200 text-black"
+                      }`}
+                      onClick={() => handleSelectTime(time)}
+                    >
+                      {formattedTimeFrom} - {formattedTimeTo}
+                    </Button>
+                  );
+                })}
+              </div>
             </div>
-          </div>
-        ))}
+          );
+        })}
       </div>
     </Modal>
   );

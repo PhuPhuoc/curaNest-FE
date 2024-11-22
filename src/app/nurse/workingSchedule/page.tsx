@@ -30,7 +30,6 @@ type Schedule = {
 
 const WorkingSchedule = () => {
   const { user } = useAppContext();
-
   const [currentWeekStart, setCurrentWeekStart] = useState<Date>(
     getMonday(new Date())
   );

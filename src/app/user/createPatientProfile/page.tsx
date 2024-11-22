@@ -17,6 +17,7 @@ import { toast } from "react-toastify";
 import authApi from "@/apiRequests/customer/customer";
 import { useAppContext } from "@/app/app-provider";
 import Image from "next/image";
+import { generateColor } from "@/lib/utils";
 
 const colors = [
   "text-white bg-blue-500",
@@ -166,9 +167,9 @@ const CreatePatientProfile: React.FC = () => {
             />
             {avatar ? (
               <Image
-              width={500}
-              height={500}
-                              src={URL.createObjectURL(avatar)}
+                width={500}
+                height={500}
+                src={URL.createObjectURL(avatar)}
                 alt="Avatar preview"
                 className=" object-cover"
               />
@@ -268,18 +269,22 @@ const CreatePatientProfile: React.FC = () => {
           <div className="mt-4">
             <p className="text-lg font-semibold">Chọn dịch vụ mong muốn</p>
             <div className="flex flex-wrap gap-2 mt-3">
-              {techniques.map(({ id, name }, index) => (
+              {techniques.map(({ id, name }) => (
                 <Chip
-                  key={id}
-                  onClick={() => handleChipClick(id)}
-                  className={`${
-                    selectedTechniques.includes(id)
-                      ? `${colors[index % colors.length]}`
-                      : "text-black bg-gray-300"
-                  } px-4 py-2`}
-                >
-                  {name}
-                </Chip>
+                key={id}
+                onClick={() => handleChipClick(id)}
+                style={{
+                  backgroundColor: selectedTechniques.includes(id)
+                    ? generateColor(id) 
+                    : "lightgrey", 
+                }}
+                className={`${
+                  selectedTechniques.includes(id) ? "text-white" : "text-black"
+                } px-4 py-2`}
+              >
+                {name}
+              </Chip>
+              
               ))}
             </div>
           </div>

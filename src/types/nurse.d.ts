@@ -91,3 +91,16 @@ export type CreateScheduleDataRes = {
   message: string;
   data: CreateScheduleData[];
 };
+
+export type AvailableScheduleWork = {
+  appoinment_date: string; 
+  from: string;           
+  to: string;            
+  nurse_schedule_ids: string[]; 
+};
+
+export type AvailableScheduleWorkRes = {
+  status: number;        
+  message: string;        
+  data: AvailableScheduleWork[];  
+};

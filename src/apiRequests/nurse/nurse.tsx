@@ -1,5 +1,6 @@
 import http from "@/lib/http";
 import {
+  AvailableScheduleWorkRes,
   CreateNurseData,
   CreateScheduleData,
   CreateScheduleDataRes,
@@ -37,6 +38,11 @@ const nurseApiRequest = {
     http.post<CreateScheduleDataRes>(
       `/nurses/${id}/register-weekly-work-schedule`,
       body
+    ),
+
+  availableScheduleWork: (id: string, from: string, to: string, totalMinute: string) =>
+    http.get<AvailableScheduleWorkRes>(
+      `/nurses/${id}/get-suitable-time-frames?from=${from}&to=${to}&total_minute=${totalMinute}`
     ),
 };
 

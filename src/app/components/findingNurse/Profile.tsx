@@ -2,33 +2,40 @@
 import React, { useEffect, useState } from "react";
 import { Avatar, Button, Chip, Modal } from "@nextui-org/react";
 import ScheduleModal from "./ScheduleModal";
+import { useAppContext } from "@/app/app-provider";
+import { infoPatient } from "@/types/customer";
+import authApi from "@/apiRequests/customer/customer";
+import { toast } from "react-toastify";
+import { generateColor } from "@/lib/utils";
 
-export interface ProfileType {
+interface ProfileProps {
   id: string;
-  name: string;
-  dob: string;
-  address: string;
-  avatar?: string;
-  medicalDescription: string;
-  selectedServices: string[];
 }
 
-const serviceColors: Record<string, string> = {
-  "Thay băng": "bg-blue-500",
-  "Cho ăn": "bg-green-500",
-  "Tiêm thuốc": "bg-red-500",
-};
-
-const Profile = () => {
-  const [profiles, setProfiles] = useState<ProfileType[]>([]);
+const Profile = ({ id }: ProfileProps) => {
+  const { user } = useAppContext();
+  const [profiles, setProfiles] = useState<infoPatient[]>([]);
   const [selectedProfile, setSelectedProfile] = useState<string | null>(null);
   const [isModalVisible, setModalVisible] = useState(false);
   const [isScheduled, setIsScheduled] = useState(false);
 
   useEffect(() => {
-    const storedProfiles = JSON.parse(localStorage.getItem("profiles") || "[]");
-    setProfiles(storedProfiles);
-  }, []);
+    if (user?.id) {
+      const fetchProfiles = async () => {
+        try {
+          const response = await authApi.profilePatient(user.id);
+          const profileData = Array.isArray(response.payload.data)
+            ? response.payload.data
+            : [response.payload.data];
+          setProfiles(profileData);
+        } catch (error) {
+          toast.error("Không thể tải hồ sơ bệnh nhân.");
+          console.error("Failed to fetch patient profiles", error);
+        }
+      };
+      fetchProfiles();
+    }
+  }, [user?.id]);
 
   const handleProfileSelect = (profileId: string) => {
     setSelectedProfile(profileId === selectedProfile ? null : profileId);
@@ -59,14 +66,14 @@ const Profile = () => {
             className="ml-4 text-base font-bold"
             color="danger"
             onClick={handleScheduleClick}
-            disabled={isScheduled} 
+            disabled={isScheduled}
           >
             Đặt lịch
           </Button>
         )}
       </div>
 
-      <div className="grid gap-6 grid-cols-3 mb-10">
+      <div className="grid gap-6 grid-cols-2 mb-10">
         {profiles.map((profile) => (
           <div
             key={profile.id}
@@ -78,6 +85,7 @@ const Profile = () => {
               onChange={() => handleProfileSelect(profile.id)}
               className="absolute top-2 right-2 w-5 h-5 cursor-pointer"
             />
+
             <div className="flex items-start">
               <Avatar
                 src={profile.avatar || undefined}
@@ -86,29 +94,79 @@ const Profile = () => {
               />
 
               <div className="ml-4">
-                <h3 className="text-lg font-semibold mb-2">{profile.name}</h3>
-                <p className="text-gray-500 mb-3">
-                  Ngày sinh:{" "}
-                  {new Date(profile.dob).toLocaleDateString() || "N/A"}
-                </p>
-                <p className="text-gray-500">Địa chỉ: {profile.address}</p>
+                <h3 className="text-lg font-semibold mb-2">
+                  {profile.full_name}
+                </h3>
+
+                <div className="text-gray-500 mb-3">
+                  <span className="text-gray-700 font-semibold">
+                    Ngày sinh:{" "}
+                  </span>
+                  {profile.dob}
+                </div>
+
+                <div className="text-gray-500 mb-3">
+                  <span className="text-gray-700 font-semibold">
+                    Căn cước công dân:{" "}
+                  </span>
+                  {profile.citizen_id}
+                </div>
+
+                <div className="text-gray-500 mb-3">
+                  <span className="text-gray-700 font-semibold">
+                    Số điện thoại:{" "}
+                  </span>
+                  {profile.phone_number}
+                </div>
               </div>
             </div>
+
             <div className="mt-4 text-gray-500">
-              <span className="text-gray-700 font-semibold">Mô tả: </span>
-              {profile.medicalDescription}
+              <span className="text-gray-700 font-semibold">Địa chỉ: </span>
+              {profile.address}
             </div>
+
+            <div className="flex mt-4 text-gray-500 space-x-4">
+              <div>
+                <span className="text-gray-700 font-semibold">Phường: </span>
+                {profile.ward}
+              </div>
+
+              <div>
+                <span className="text-gray-700 font-semibold">Quận: </span>
+                {profile.district}
+              </div>
+
+              <div>
+                <span className="text-gray-700 font-semibold">Thành phố: </span>
+                {profile.city}
+              </div>
+            </div>
+
+            <div className="mt-4 text-gray-500">
+              <span className="text-gray-700 font-semibold">
+                Mô tả bệnh lý:{" "}
+              </span>
+              {profile.medical_description}
+            </div>
+
+            <div className="mt-4 text-gray-500">
+              <span className="text-gray-700 font-semibold">
+                Lưu ý với điều dưỡng:{" "}
+              </span>
+              {profile.note_for_nurses}
+            </div>
+
             <div className="mt-4 flex flex-wrap gap-2">
               <p className="text-gray-700 font-semibold">Dịch vụ:</p>
-              {profile.selectedServices.map((service, idx) => (
+              {profile.techniques.map((technique, index: number) => (
                 <Chip
-                  key={idx}
-                  className={`text-white ${
-                    serviceColors[service] || "bg-gray-500"
-                  }`}
+                  key={technique.id}
+                  className="text-white font-bold px-4 py-2"
                   size="md"
+                  style={{ backgroundColor: generateColor(technique.id) }}
                 >
-                  {service}
+                  {technique.name}
                 </Chip>
               ))}
             </div>
@@ -117,9 +175,11 @@ const Profile = () => {
       </div>
 
       <ScheduleModal
+        id={id}
         profileServices={
-          profiles.find((profile) => profile.id === selectedProfile)
-            ?.selectedServices || []
+          profiles
+            .find((profile) => profile.id === selectedProfile)
+            ?.techniques.map((technique) => technique.name) || []
         }
         visible={isModalVisible}
         onClose={handleModalClose}

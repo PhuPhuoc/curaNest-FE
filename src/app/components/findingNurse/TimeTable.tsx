@@ -2,6 +2,7 @@
 import React, { useEffect, useState } from "react";
 import nurseApiRequest from "@/apiRequests/nurse/nurse";
 import { WorkSchedule } from "@/types/nurse";
+import { formatShiftDate } from "@/lib/utils";
 
 interface TimetableProps {
   id: string;
@@ -15,14 +16,6 @@ const Timetable = ({ id }: TimetableProps) => {
     to: string;
   } | null>(null);
 
-  const formatShiftDate = (dateStr: string) => {
-    const date = new Date(dateStr.split("/").reverse().join("/")); // Convert "dd/mm/yyyy" to "yyyy/mm/dd"
-    return `${date.getFullYear()}/${String(date.getMonth() + 1).padStart(
-      2,
-      "0"
-    )}/${String(date.getDate()).padStart(2, "0")}`;
-  };
-
   useEffect(() => {
     const today = new Date();
     const dayOfWeek = today.getDay();
@@ -32,7 +25,7 @@ const Timetable = ({ id }: TimetableProps) => {
     const sunday = new Date(today);
     sunday.setDate(today.getDate() - dayOfWeek + 7);
 
-    for (let i = 1; i <= 6; i++) {
+    for (let i = 1; i <= 7; i++) {
       const currentDay = new Date(monday);
       currentDay.setDate(monday.getDate() + i - 1);
       currentWeekDays.push(currentDay.toLocaleDateString("vi-VN"));
@@ -63,17 +56,26 @@ const Timetable = ({ id }: TimetableProps) => {
 
   useEffect(() => {
     if (id && weekRange) {
+      console.log("useEffect triggered with id:", id, "and weekRange:", weekRange);
+  
       (async () => {
         try {
-          const response = await nurseApiRequest.scheduleWork(
-            id,
-            formatShiftDate(weekRange.from),
-            formatShiftDate(weekRange.to)
-          );
+          const fromDate = formatShiftDate(weekRange.from);
+          const toDate = formatShiftDate(weekRange.to);
+  
+          console.log("Formatted dates - From:", fromDate, "To:", toDate);
+  
+          const response = await nurseApiRequest.scheduleWork(id, fromDate, toDate);
+  
+          console.log("API Response:", response);
+  
           const formattedWorkList = response.payload.data.map((work) => ({
             ...work,
             shift_date: formatShiftDate(work.shift_date),
           }));
+  
+          console.log("Formatted Work List:", formattedWorkList);
+  
           setWorkList(formattedWorkList);
         } catch (error) {
           console.error("Error fetching schedule:", error);
@@ -81,6 +83,7 @@ const Timetable = ({ id }: TimetableProps) => {
       })();
     }
   }, [id, weekRange, formatShiftDate]);
+  
 
   // console.log("🚀 ~ Customer ~ workList:", workList);
 
@@ -90,14 +93,14 @@ const Timetable = ({ id }: TimetableProps) => {
         <p className="text-2xl font-bold text-center">Lịch làm việc</p>
       </div>
 
-      <div className="overflow-x-auto">
+      <div>
         <table className="table-auto w-full border-collapse">
           <thead>
             <tr>
               <th className="border bg-gray-100"></th>
               {weekDays.map((day, index) => (
                 <th key={index} className="border p-3 bg-gray-100 text-center">
-                  {`Thứ ${index + 2}`}
+                  {index < 6 ? `Thứ ${index + 2}` : "Chủ nhật"}
                   <p className="mt-1">{day}</p>
                 </th>
               ))}
@@ -114,11 +117,15 @@ const Timetable = ({ id }: TimetableProps) => {
                 {weekDays.map((day) => {
                   const hasWork = workList.some(
                     ({ shift_date, shift_from, shift_to }) => {
-                      const isSameDay = shift_date === formatShiftDate(day); 
-                     
-                      const [start, end] = hour.split(" - ").map((time) => time.trim());
-                      const isSameStart = shift_from.slice(0, 5) === start.slice(0, 5); 
-                      const isSameEnd = shift_to.slice(0, 5) === end.slice(0, 5);
+                      const isSameDay = shift_date === formatShiftDate(day);
+
+                      const [start, end] = hour
+                        .split(" - ")
+                        .map((time) => time.trim());
+                      const isSameStart =
+                        shift_from.slice(0, 5) === start.slice(0, 5);
+                      const isSameEnd =
+                        shift_to.slice(0, 5) === end.slice(0, 5);
 
                       return isSameDay && isSameStart && isSameEnd;
                     }
@@ -128,7 +135,7 @@ const Timetable = ({ id }: TimetableProps) => {
                     <td
                       key={`${day}-${hour}`}
                       className={`border border-gray-300 p-1 text-center ${
-                        hasWork ? "bg-green-100" : "bg-white"
+                        hasWork ? "bg-green-100" : "bg-gray-50"
                       }`}
                       style={{
                         minHeight: "50px",
@@ -153,6 +160,20 @@ const Timetable = ({ id }: TimetableProps) => {
             ))}
           </tbody>
         </table>
+
+        {/* Chú thích */}
+        <div className="mt-4">
+          <div className="flex items-center gap-4">
+            <div className="flex items-center gap-2">
+              <span className="block w-4 h-4 bg-green-100 border border-gray-300"></span>
+              <span className="text-green-700 font-bold text-lg">Lịch rảnh</span>
+            </div>
+            <div className="flex items-center gap-2">
+              <span className="block w-4 h-4 bg-gray-300 border border-gray-300"></span>
+              <span className="text-gray-700 font-bold text-lg">Lịch bận</span>
+            </div>
+          </div>
+        </div>
       </div>
     </div>
   );
