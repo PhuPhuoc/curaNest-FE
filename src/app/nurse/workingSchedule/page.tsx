@@ -3,13 +3,12 @@
 import nurseApiRequest from "@/apiRequests/nurse/nurse";
 import { useAppContext } from "@/app/app-provider";
 import {
-  formatInputDate,
+  formatDateVN,
   formatShiftDate,
-  formatTime,
   getEndTime,
   getStartTime,
 } from "@/lib/utils";
-import { CreateScheduleData, WorkSchedule } from "@/types/nurse";
+import { WorkSchedule } from "@/types/nurse";
 import { Button } from "@nextui-org/react";
 import { useEffect, useState } from "react";
 import { toast } from "react-toastify";
@@ -92,19 +91,19 @@ const WorkingSchedule = () => {
 
   const handleToggle = (time: string, day: string) => {
     const workItem = findWorkListItem(day, time);
-    if (workItem?.status && workItem.status !== 'available') {
+    if (workItem?.status && workItem.status !== "available") {
       return;
     }
 
     setSchedule((prevSchedule) => {
       const updatedSchedule = JSON.parse(JSON.stringify(prevSchedule));
-      
+
       if (!updatedSchedule[time]) {
         updatedSchedule[time] = {};
       }
-      
+
       updatedSchedule[time][day] = !updatedSchedule[time][day];
-      
+
       return updatedSchedule;
     });
   };
@@ -153,7 +152,7 @@ const WorkingSchedule = () => {
         nextWeekDays.push(formatDate(currentDay));
       }
       setWeekDays(nextWeekDays);
-      setSchedule({}); // Reset schedule when changing week
+      setSchedule({});
     }
   };
 
@@ -176,8 +175,11 @@ const WorkingSchedule = () => {
           const initialSchedule: Schedule = {};
           formattedWorkList.forEach((work) => {
             // Chỉ thêm vào schedule nếu status là available
-            if (!work.status || work.status === 'available') {
-              const time = `${work.shift_from.slice(0, 5)} - ${work.shift_to.slice(0, 5)}`;
+            if (!work.status || work.status === "available") {
+              const time = `${work.shift_from.slice(
+                0,
+                5
+              )} - ${work.shift_to.slice(0, 5)}`;
               if (!initialSchedule[time]) {
                 initialSchedule[time] = {};
               }
@@ -211,13 +213,15 @@ const WorkingSchedule = () => {
           }))
       );
 
+      console.log("selectedShifts: ", selectedShifts);
+
       if (selectedShifts.length > 0) {
         const scheduleData = {
           shifts: selectedShifts,
           week_from: weekRange?.from || "",
           week_to: weekRange?.to || "",
         };
-        console.log("🚀 ~ handleSubmit ~ scheduleData:", scheduleData)
+        console.log("🚀 ~ handleSubmit ~ scheduleData:", scheduleData);
 
         if (user?.id) {
           await nurseApiRequest.createScheduleWork(user.id, scheduleData);
@@ -243,7 +247,11 @@ const WorkingSchedule = () => {
         <div className="flex items-center space-x-4">
           <Button onClick={goToPreviousWeek}>{"<<"}</Button>
           <span className="text-xl font-semibold">
-            {weekRange?.from} - {weekRange?.to}
+            {weekRange?.from && weekRange?.to
+              ? `${formatDateVN(weekRange.from)} - ${formatDateVN(
+                  weekRange.to
+                )}`
+              : ""}
           </span>
           <Button onClick={goToNextWeek}>{">>"}</Button>
         </div>
@@ -256,17 +264,36 @@ const WorkingSchedule = () => {
         </Button>
       </div>
 
-      <div className="overflow-x-auto bg-gray-50 p-4 rounded-lg shadow-md">
+      <div className="mt-4 mb-4">
+          <div className="flex items-center gap-4">
+            <div className="flex items-center gap-2">
+              <span className="block w-4 h-4 bg-green-100 border border-gray-300"></span>
+              <span className="text-green-700 font-bold text-lg">
+                Được thay đổi lịch
+              </span>
+            </div>
+            <div className="flex items-center gap-2">
+              <span className="block w-4 h-4 bg-white border border-gray-300"></span>
+              <span className="text-gray-700 font-bold text-lg">Lịch trống</span>
+            </div>
+            <div className="flex items-center gap-2">
+              <span className="block w-4 h-4 bg-yellow-100 border border-gray-300"></span>
+              <span className="text-yellow-700 font-bold text-lg">
+                Không được thay đổi
+              </span>
+            </div>
+          </div>
+        </div>
+
+      <div className="overflow-x-auto rounded-lg shadow-md">
         <table className="table-auto w-full border-collapse border border-gray-300">
           <thead>
             <tr>
-              <th className="border border-gray-300 p-2"></th>
-              {weekDays.map((day) => (
-                <th
-                  key={day}
-                  className="border border-gray-300 p-2 text-center font-semibold text-gray-600"
-                >
-                  {day}
+            <th className="border bg-gray-100"></th>
+            {weekDays.map((day, index) => (
+                <th key={index} className="border p-3 bg-gray-100 text-center">
+                  {index < 6 ? `Thứ ${index + 2}` : "Chủ nhật"}
+                  <p className="mt-1">{formatDateVN(day)}</p>
                 </th>
               ))}
             </tr>
@@ -275,26 +302,29 @@ const WorkingSchedule = () => {
           <tbody>
             {times.map((time) => (
               <tr key={time}>
-                <td className="border border-gray-300 p-2 font-semibold text-gray-600 text-center">
+                <td className="border border-gray-300 font-semibold text-gray-600 text-center">
                   {time}
                 </td>
 
                 {weekDays.map((day) => {
                   const workItem = findWorkListItem(day, time);
-                  const isDisabled = workItem?.status && workItem.status !== 'available';
+                  const isDisabled =
+                    workItem?.status && workItem.status !== "available";
                   const isSelected = schedule[time]?.[day];
-                  
+
                   let cellBgColor = "bg-white";
                   if (isDisabled) {
-                    cellBgColor = "bg-gray-200"; // Không thể toggle
+                    cellBgColor = "bg-yellow-100";
                   } else if (isSelected) {
-                    cellBgColor = "bg-green-200"; // Đã được chọn (cả từ workList available và chọn mới)
+                    cellBgColor = "bg-green-200";
                   }
 
                   return (
                     <td
                       key={`${day}-${time}`}
-                      className={`border border-gray-300 p-2 text-center ${isDisabled ? 'cursor-not-allowed' : 'cursor-pointer'} ${cellBgColor}`}
+                      className={`border border-gray-300 p-2 text-center ${
+                        isDisabled ? "cursor-not-allowed" : "cursor-pointer"
+                      } ${cellBgColor}`}
                       onClick={() => !isDisabled && handleToggle(time, day)}
                       style={{
                         minHeight: "50px",
@@ -309,11 +339,11 @@ const WorkingSchedule = () => {
                         }}
                       >
                         {isSelected && !isDisabled && (
-                          <span className="text-blue-500 font-bold">✔</span>
+                          <span className="text-green-500 font-bold">✔</span>
                         )}
-                        {isDisabled && (
+                        {/* {isDisabled && (
                           <span className="text-gray-500 font-bold">✖</span>
-                        )}
+                        )} */}
                       </div>
                     </td>
                   );

@@ -13,7 +13,7 @@ import { useRouter } from "next/navigation";
 interface ScheduleModalProps {
   id: string;
   visible: boolean;
-  selectedProfile: string | null; 
+  selectedProfile: string | null;
   onClose: () => void;
   profileServices: string[];
 }
@@ -30,7 +30,7 @@ const ScheduleModal: React.FC<ScheduleModalProps> = ({
   visible,
   onClose,
   profileServices,
-  selectedProfile
+  selectedProfile,
 }) => {
   const router = useRouter();
   const [weekDays, setWeekDays] = useState<string[]>([]);
@@ -194,7 +194,7 @@ const ScheduleModal: React.FC<ScheduleModalProps> = ({
               time.time_from === selectedTime.time_from &&
               time.time_to === selectedTime.time_to
           )
-          .flatMap((time) => time.nurse_schedule_ids ),
+          .flatMap((time) => time.nurse_schedule_ids),
         nurse_id: id,
         patient_id: selectedProfile,
         techniques: selectedChips.join(" - "),
@@ -204,14 +204,17 @@ const ScheduleModal: React.FC<ScheduleModalProps> = ({
 
       // const response = await authApi.createAppointment(body);
 
-      const response = fetch("https://api.curanest.com.vn/api/v1/appointments", {
-        mode: "no-cors",
-        method: "post",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify(body),
-      });
+      const response = fetch(
+        "https://api.curanest.com.vn/api/v1/appointments",
+        {
+          mode: "no-cors",
+          method: "post",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify(body),
+        }
+      );
 
       toast.success("Đặt lịch thành công!");
       router.push("/user/upcomingSchedule");
@@ -367,7 +370,11 @@ const ScheduleModal: React.FC<ScheduleModalProps> = ({
 
           return (
             <div key={dayIndex} className="mb-4">
-              <p className="text-lg font-semibold mb-2">{formattedDay}</p>
+              <p className="text-lg font-semibold mb-2">
+                {dayIndex < 6 ? `Thứ ${dayIndex + 2}` : "Chủ nhật"},
+                <span> {formattedDay}</span>
+              </p>
+
               <div className="grid grid-cols-2 sm:grid-cols-4 md:grid-cols-6 lg:grid-cols-8 gap-4">
                 {matchingTimes.map((time, index) => {
                   const formattedTimeFrom = formatTime(time.time_from);
