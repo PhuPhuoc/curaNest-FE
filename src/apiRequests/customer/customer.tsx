@@ -2,7 +2,7 @@ import {
   RegisterBodyType, RegisterResType, createProfileProfileBodyType, createProfileProfileResType
 } from "@/schemaValidations/customer.schema";
 import http from "@/lib/http";
-import { infoCustomerRes, infoPatientRes } from "@/types/customer";
+import { infoCustomerRes, infoPatientRes, infoPatientResSchedule } from "@/types/customer";
 
 const authApi = {
   register: (user_id: string, body: RegisterBodyType) =>
@@ -17,6 +17,9 @@ const authApi = {
   profilePatient: (customer_id: string) =>
     http.get<infoPatientRes>(`/customers/${customer_id}/patients`),
 
+  profilePatientSchedule: (customer_id: string) =>
+    http.get<infoPatientResSchedule>(`/customers/${customer_id}/patients`),
+  
   createProfilePatient: (customer_id: string, body: createProfileProfileBodyType) =>
     http.post<createProfileProfileResType>(
       `/customers/${customer_id}/create-patient-profile`,

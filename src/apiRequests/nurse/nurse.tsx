@@ -5,7 +5,9 @@ import {
   CreateScheduleData,
   CreateScheduleDataRes,
   DetailNurseRes,
+  DetailScheduleRes,
   NurseRes,
+  NurseScheduleCardRes,
   WorkScheduleRes,
 } from "@/types/nurse";
 import { CreateRes } from "@/types/technique";
@@ -30,8 +32,24 @@ const nurseApiRequest = {
     http.get<WorkScheduleRes>(
       `/nurses/${id}/get-weekly-work-schedule?from=${from}&to=${to}`
     ),
+  nurseScheduleCard: (id: string, role: string, from?: string, to?: string) => {
+    let url = `appointments/card/${id}?role=${role}`;
+    if (from) {
+      url += `&from=${from}`;
+    }
+    if (to) {
+      url += `&to=${to}`;
+    }
+
+    return http.get<NurseScheduleCardRes>(url);
+  },
+  
+  detailScheduleWork: (id: string) =>
+    http.get<DetailScheduleRes>(`/appointments/${id}`),
   detailNurse: (id: string, role: string) =>
     http.get<DetailNurseRes>(`/nurses/${id}?role=${role}`),
+  confirmOrCancelSchedule: (id: string, confirm: string) =>
+    http.post<CreateRes>(`/appointments/${id}/confirm?confirm=${confirm}`, {}),
   createNurse: (body: CreateNurseData) => http.post<CreateRes>(`/nurses`, body),
 
   createScheduleWork: (id: string, body: CreateScheduleData) =>

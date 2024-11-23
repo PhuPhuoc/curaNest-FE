@@ -1,5 +1,5 @@
 "use client";
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { useRouter } from "next/navigation";
 import {
   Input,
@@ -18,6 +18,8 @@ import authApi from "@/apiRequests/customer/customer";
 import { useAppContext } from "@/app/app-provider";
 import Image from "next/image";
 import { generateColor } from "@/lib/utils";
+import { getDownloadURL, ref, uploadBytes } from "firebase/storage";
+import { storage } from "../../../../firebaseConfig";
 
 const colors = [
   "text-white bg-blue-500",
@@ -101,6 +103,20 @@ const CreatePatientProfile: React.FC = () => {
 
     const formattedDob = dob ? dob.toString() : "";
 
+    let uploadedAvatarUrl = "";
+    if (avatar) {
+      try {
+        const storageRef = ref(storage, `images/${Date.now()}_${avatar.name}`);
+        const fileBlob = new Blob([avatar], { type: avatar.type });
+        await uploadBytes(storageRef, fileBlob);
+        uploadedAvatarUrl = await getDownloadURL(storageRef);
+      } catch (error) {
+        toast.error("Không thể tải ảnh lên, vui lòng thử lại.");
+        console.error("Error uploading image:", error);
+        return;
+      }
+    }
+
     const profile = {
       full_name,
       dob: formattedDob,
@@ -113,7 +129,7 @@ const CreatePatientProfile: React.FC = () => {
       medical_description,
       note_for_nurses,
       techniques: selectedTechniques,
-      avatar: avatar ? URL.createObjectURL(avatar) : "",
+      avatar: avatar ? uploadedAvatarUrl : "",
     };
 
     if (!user?.id) {

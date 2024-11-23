@@ -49,3 +49,9 @@ export type infoPatientRes = {
   message: string;
   data: infoPatient;
 };
+
+export type infoPatientResSchedule = {
+  status: number;
+  message: string;
+  data: infoPatient[];
+};

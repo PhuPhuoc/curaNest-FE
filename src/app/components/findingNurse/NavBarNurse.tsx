@@ -51,11 +51,11 @@ const NavBarNurse = () => {
 
   return (
     <div className="max-w-md mx-auto p-4">
-      {/* <div className="w-full text-center">
+      <div className="w-full text-center">
         <Title level={2} style={{ fontSize: "36px",fontFamily:"monospace" }}>
           Tìm theo kĩ năng
         </Title>
-      </div> */}
+      </div>
       <Listbox
         aria-label="Multiple selection example"
         variant="flat"

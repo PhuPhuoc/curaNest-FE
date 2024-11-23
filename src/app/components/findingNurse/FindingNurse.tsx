@@ -143,7 +143,7 @@ const FindingNurse = () => {
     setSearchTerm("");
   };
   return (
-    <div className="flex flex-col md:flex-row h-[675px]">
+    <div className="flex flex-col md:flex-row h-[900px]">
       <div className="w-full md:w-1/4 lg:w-1/5 bg-gray-100 p-4 overflow-y-auto">
         <NavBarNurse />
       </div>

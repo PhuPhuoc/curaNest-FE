@@ -75,15 +75,15 @@ export interface CreateNurseData {
 }
 
 export type Shift = {
-  shift_date: string; 
-  shift_from: string; 
-  shift_to: string;  
+  shift_date: string;
+  shift_from: string;
+  shift_to: string;
 };
 
 export interface CreateScheduleData {
-  shifts: Shift[];   
-  week_from: string; 
-  week_to: string;  
+  shifts: Shift[];
+  week_from: string;
+  week_to: string;
 }
 
 export type CreateScheduleDataRes = {
@@ -104,3 +104,56 @@ export type AvailableScheduleWorkRes = {
   message: string;        
   data: AvailableScheduleWork[];  
 };
+
+
+export interface DetailSchedule {
+  appointment_information: {
+    appointment_date: string;
+    time_from_to: string;
+    status: string;
+    techniques: string;
+    total_fee: number;
+  };
+  nurse_information: {
+    nurse_name: string;
+    phone_number: string;
+    avatar: string;
+  };
+  patient_infomation: {
+    avatar: string;
+    full_name: string;
+    phone_number: string;
+    old: number;
+    dob: string;
+    ward: string;
+    district: string;
+    city: string;
+    address: string;
+    medical_description: string;
+    note_for_nurses: string;
+  };
+}
+
+export type DetailScheduleRes = {
+  status: number;
+  message: string;
+  data: DetailSchedule;
+};
+
+export interface NurseScheduleCard {
+  id: string;
+  appointment_date: string;
+  time_from_to: string;
+  techniques: string;
+  total_fee: number;
+  status: string;
+  nurse_name: string;
+  phone_number: string;
+  avatar: string;
+}
+
+export interface NurseScheduleCardRes {
+  status: number;
+  message: string;
+  data: NurseScheduleCard[];
+}
