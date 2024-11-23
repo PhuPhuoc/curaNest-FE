@@ -68,8 +68,6 @@ const TimeTableCustomer = ({ id }: TimetableProps) => {
           const fromDate = formatShiftDate(weekRange.from);
           const toDate = formatShiftDate(weekRange.to);
 
-          console.log("Formatted dates - From:", fromDate, "To:", toDate);
-
           const response = await nurseApiRequest.scheduleWork(
             id,
             fromDate,
@@ -192,7 +190,9 @@ const TimeTableCustomer = ({ id }: TimetableProps) => {
             </div>
             <div className="flex items-center gap-2">
               <span className="block w-4 h-4 bg-yellow-100 border border-gray-300"></span>
-              <span className="text-yellow-700 font-bold text-lg">Có người đặt</span>
+              <span className="text-yellow-700 font-bold text-lg">
+                Có người đặt
+              </span>
             </div>
           </div>
         </div>

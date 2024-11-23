@@ -130,8 +130,8 @@ const PatientSchedule = () => {
     return Math.floor(spanInMinutes / 60);
   };
 
-  const shouldRenderCell = (day: string, time: string) => {
-    const workSchedule = workList?.find(
+  const shouldRenderCell = (day: string, time: string, mergedSchedules: WorkSchedule[]) => {
+    const workSchedule = mergedSchedules.find(
       (schedule) =>
         schedule.shift_date === day &&
         schedule.shift_from.slice(0, 5) <= time &&
@@ -140,16 +140,16 @@ const PatientSchedule = () => {
 
     if (!workSchedule) return true;
 
+    // Only render if this is the start time of the schedule
     return workSchedule.shift_from.slice(0, 5) === time;
   };
 
   const mergeWorkSchedules = (schedules: WorkSchedule[]) => {
     const groupedSchedules: Record<string, WorkSchedule[]> = {};
+    
+    // Group schedules by appointment_id and date
     schedules.forEach((schedule) => {
-      if (
-        schedule.status === "pending" ||
-        schedule.status === "not-available"
-      ) {
+      if (schedule.status === "pending" || schedule.status === "not-available") {
         const key = `${schedule.appointment_id}-${schedule.shift_date}`;
         if (!groupedSchedules[key]) {
           groupedSchedules[key] = [];
@@ -159,36 +159,40 @@ const PatientSchedule = () => {
     });
 
     const mergedSchedules: WorkSchedule[] = [];
+    
+    // Process each group to merge continuous schedules
     Object.values(groupedSchedules).forEach((group) => {
-      group.sort(
-        (a, b) =>
-          new Date(`1970-01-01T${a.shift_from}`).getTime() -
-          new Date(`1970-01-01T${b.shift_from}`).getTime()
+      // Sort by start time
+      group.sort((a, b) => 
+        new Date(`1970-01-01T${a.shift_from}`).getTime() -
+        new Date(`1970-01-01T${b.shift_from}`).getTime()
       );
 
-      let merged = group[0];
+      let merged = { ...group[0] };
+      
       for (let i = 1; i < group.length; i++) {
         const current = group[i];
         if (merged.shift_to === current.shift_from) {
-          merged = {
-            ...merged,
-            shift_to: current.shift_to,
-          };
+          // Merge continuous schedules
+          merged.shift_to = current.shift_to;
         } else {
+          // If not continuous, add the merged schedule and start a new one
           mergedSchedules.push(merged);
-          merged = current;
+          merged = { ...current };
         }
       }
+      // Add the last merged schedule
       mergedSchedules.push(merged);
     });
 
-    // Thêm các lịch khác (không thuộc pending hoặc not-available)
+    // Add schedules that don't need merging
     const nonMergedSchedules = schedules.filter(
-      (schedule) =>
-        schedule.status !== "pending" && schedule.status !== "not-available"
+      (schedule) => 
+        schedule.status !== "pending" && 
+        schedule.status !== "not-available"
     );
 
-    return [...nonMergedSchedules, ...mergedSchedules];
+    return [...mergedSchedules, ...nonMergedSchedules];
   };
 
   const mergedWorkList = mergeWorkSchedules(workList);
@@ -274,7 +278,7 @@ const PatientSchedule = () => {
                     {time}
                   </td>
                   {daysOfWeek.map((day) => {
-                    if (!shouldRenderCell(day.date, time)) {
+                    if (!shouldRenderCell(day.date, time, mergedWorkList)) {
                       return null;
                     }
 
@@ -333,33 +337,22 @@ const PatientSchedule = () => {
                                 gap: 10,
                               }}
                             >
-                              <p
-                                style={{
-                                  marginBottom: "0.25rem",
-                                  fontSize: "1.2rem",
-                                }}
-                              >
+                              <p style={{ marginBottom: "0.25rem", fontSize: "1.2rem" }}>
                                 {workSchedule.shift_from.slice(0, 5)} -{" "}
                                 {workSchedule.shift_to.slice(0, 5)}
                               </p>
                               {workSchedule.status === "pending" && (
-                                <strong
-                                  style={{ fontSize: "1.2rem", margin: "0" }}
-                                >
+                                <strong style={{ fontSize: "1.2rem", margin: "0" }}>
                                   Vui lòng xác nhận lịch
                                 </strong>
                               )}
                               {workSchedule.status === "available" && (
-                                <strong
-                                  style={{ fontSize: "1.2rem", margin: "0" }}
-                                >
+                                <strong style={{ fontSize: "1.2rem", margin: "0" }}>
                                   Chưa có lịch hẹn
                                 </strong>
                               )}
                               {workSchedule.status === "not-available" && (
-                                <strong
-                                  style={{ fontSize: "1.2rem", margin: "0" }}
-                                >
+                                <strong style={{ fontSize: "1.2rem", margin: "0" }}>
                                   Lịch hẹn sắp tới
                                 </strong>
                               )}

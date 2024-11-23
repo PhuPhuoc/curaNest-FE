@@ -82,6 +82,12 @@ export const formatTime = (time: string): string => {
   )}`;
 };
 
+export const getStartTime = (time: string): string => {
+  const [endHour, endMinute] = time.split(" - ")[1].split(":");
+  const startHour = parseInt(endHour) - 1; // Giảm 1 giờ
+  return `${startHour.toString().padStart(2, "0")}:${endMinute.padStart(2, "0")}:00`;
+};
+
 export const getEndTime = (time: string): string => {
   const [endHour, endMinute] = time.split(" - ")[1].split(":");
   return `${endHour.padStart(2, "0")}:${endMinute.padStart(2, "0")}:00`;
