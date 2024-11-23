@@ -6,10 +6,14 @@ import nurseApiRequest from "@/apiRequests/nurse/nurse";
 import techniqueApiRequest from "@/apiRequests/technique/technique";
 import { Technique } from "@/types/technique";
 import { formatDateVN, formatTime, generateColor } from "@/lib/utils";
+import { CreateAppointmentData } from "@/types/appointment";
+import authApi from "@/apiRequests/customer/customer";
+import { useRouter } from "next/navigation";
 
 interface ScheduleModalProps {
   id: string;
   visible: boolean;
+  selectedProfile: string | null; 
   onClose: () => void;
   profileServices: string[];
 }
@@ -26,7 +30,9 @@ const ScheduleModal: React.FC<ScheduleModalProps> = ({
   visible,
   onClose,
   profileServices,
+  selectedProfile
 }) => {
+  const router = useRouter();
   const [weekDays, setWeekDays] = useState<string[]>([]);
   const [selectedChips, setSelectedChips] = useState<string[]>([]);
   const [techniques, setTechniques] = useState<Technique[]>([]);
@@ -38,7 +44,12 @@ const ScheduleModal: React.FC<ScheduleModalProps> = ({
   } | null>(null);
 
   const [suggestedTimeFrames, setSuggestedTimeFrames] = useState<
-    { appointment_date: string; time_from: string; time_to: string }[]
+    {
+      appointment_date: string;
+      time_from: string;
+      time_to: string;
+      nurse_schedule_ids: string[];
+    }[]
   >([]);
 
   const colors = [
@@ -110,6 +121,7 @@ const ScheduleModal: React.FC<ScheduleModalProps> = ({
         appointment_date: item.appoinment_date,
         time_from: item.from,
         time_to: item.to,
+        nurse_schedule_ids: item.nurse_schedule_ids || [],
       }));
 
       setSuggestedTimeFrames(transformedData);
@@ -161,16 +173,57 @@ const ScheduleModal: React.FC<ScheduleModalProps> = ({
     setSuggestedTimeFrames([]);
   };
 
-  const handleConfirm = () => {
-    if (selectedChips.length) {
-      console.log("Các dịch vụ đã chọn:", selectedChips.join(", "));
-      toast.success(
-        `Đặt lịch thành công cho các dịch vụ: ${selectedChips.join(", ")}`
-      );
-      onClose();
-      resetStates();
-    } else {
+  const handleConfirm = async () => {
+    if (!selectedChips.length) {
       toast.error("Vui lòng chọn ít nhất một dịch vụ.");
+      return;
+    }
+
+    if (!selectedTime) {
+      toast.error("Vui lòng chọn khung giờ.");
+      return;
+    }
+
+    try {
+      const body: CreateAppointmentData = {
+        appointment_date: selectedTime.appointment_date,
+        listNurseWorkSchedules: suggestedTimeFrames
+          .filter(
+            (time) =>
+              time.appointment_date === selectedTime.appointment_date &&
+              time.time_from === selectedTime.time_from &&
+              time.time_to === selectedTime.time_to
+          )
+          .flatMap((time) => time.nurse_schedule_ids ),
+        nurse_id: id,
+        patient_id: selectedProfile,
+        techniques: selectedChips.join(" - "),
+        time_from_to: `${selectedTime.time_from} - ${selectedTime.time_to}`,
+        total_fee: totalPrice,
+      };
+
+      // const response = await authApi.createAppointment(body);
+
+      const response = fetch("https://api.curanest.com.vn/api/v1/appointments", {
+        mode: "no-cors",
+        method: "post",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(body),
+      });
+
+      toast.success("Đặt lịch thành công!");
+      router.push("/user/upcomingSchedule");
+
+      console.log("Appointment created: ", response);
+
+      // Reset and close modal
+      resetStates();
+      onClose();
+    } catch (error) {
+      console.error("Failed to create appointment:", error);
+      toast.error("Đặt lịch thất bại. Vui lòng thử lại.");
     }
   };
 
@@ -203,6 +256,7 @@ const ScheduleModal: React.FC<ScheduleModalProps> = ({
       return time;
     });
   };
+  // console.log("selectedTime: ", selectedTime);
 
   return (
     <Modal
@@ -303,7 +357,7 @@ const ScheduleModal: React.FC<ScheduleModalProps> = ({
 
       <div className="space-y-6">
         <p className="text-xl font-bold">Khung giờ phù hợp cho dịch vụ trên</p>
-        
+
         {weekDays.map((day, dayIndex) => {
           const formattedDay = formatDateVN(day);
 

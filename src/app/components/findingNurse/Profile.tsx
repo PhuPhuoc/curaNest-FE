@@ -6,7 +6,7 @@ import { useAppContext } from "@/app/app-provider";
 import { infoPatient } from "@/types/customer";
 import authApi from "@/apiRequests/customer/customer";
 import { toast } from "react-toastify";
-import { generateColor } from "@/lib/utils";
+import { formatDateVN, generateColor } from "@/lib/utils";
 
 interface ProfileProps {
   id: string;
@@ -27,6 +27,7 @@ const Profile = ({ id }: ProfileProps) => {
           const profileData = Array.isArray(response.payload.data)
             ? response.payload.data
             : [response.payload.data];
+            
           setProfiles(profileData);
         } catch (error) {
           toast.error("Không thể tải hồ sơ bệnh nhân.");
@@ -40,6 +41,7 @@ const Profile = ({ id }: ProfileProps) => {
   const handleProfileSelect = (profileId: string) => {
     setSelectedProfile(profileId === selectedProfile ? null : profileId);
     setIsScheduled(false);
+    // console.log("Patient profile", profileId);
   };
 
   const handleScheduleClick = () => {
@@ -102,7 +104,7 @@ const Profile = ({ id }: ProfileProps) => {
                   <span className="text-gray-700 font-semibold">
                     Ngày sinh:{" "}
                   </span>
-                  {profile.dob}
+                  {formatDateVN(profile.dob)}
                 </div>
 
                 <div className="text-gray-500 mb-3">
@@ -181,6 +183,7 @@ const Profile = ({ id }: ProfileProps) => {
             .find((profile) => profile.id === selectedProfile)
             ?.techniques.map((technique) => technique.name) || []
         }
+        selectedProfile={selectedProfile}
         visible={isModalVisible}
         onClose={handleModalClose}
       />

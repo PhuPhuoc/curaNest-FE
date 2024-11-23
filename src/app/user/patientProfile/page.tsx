@@ -8,7 +8,7 @@ import { infoPatient } from "@/types/customer";
 import { useAppContext } from "@/app/app-provider";
 import authApi from "@/apiRequests/customer/customer";
 import { toast } from "react-toastify";
-import { generateColor } from "@/lib/utils";
+import { formatDateVN, generateColor } from "@/lib/utils";
 
 const colors = ["bg-blue-500", "bg-green-500", "bg-red-500", "bg-yellow-500"];
 
@@ -88,7 +88,7 @@ const PatientProfile: React.FC = () => {
                     <span className="text-gray-700 font-semibold">
                       Ngày sinh:{" "}
                     </span>
-                    {profile.dob}{" "}
+                    {formatDateVN(profile.dob)}
                     {/* <span className="text-red-700 font-semibold">
                       ({profile.old} tuổi)
                     </span> */}

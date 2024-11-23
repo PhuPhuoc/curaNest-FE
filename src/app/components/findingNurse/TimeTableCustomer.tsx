@@ -8,7 +8,7 @@ interface TimetableProps {
   id: string;
 }
 
-const Timetable = ({ id }: TimetableProps) => {
+const TimeTableCustomer = ({ id }: TimetableProps) => {
   const [weekDays, setWeekDays] = useState<string[]>([]);
   const [workList, setWorkList] = useState<WorkSchedule[]>([]);
   const [weekRange, setWeekRange] = useState<{
@@ -56,26 +56,35 @@ const Timetable = ({ id }: TimetableProps) => {
 
   useEffect(() => {
     if (id && weekRange) {
-      console.log("useEffect triggered with id:", id, "and weekRange:", weekRange);
-  
+      console.log(
+        "useEffect triggered with id:",
+        id,
+        "and weekRange:",
+        weekRange
+      );
+
       (async () => {
         try {
           const fromDate = formatShiftDate(weekRange.from);
           const toDate = formatShiftDate(weekRange.to);
-  
+
           console.log("Formatted dates - From:", fromDate, "To:", toDate);
-  
-          const response = await nurseApiRequest.scheduleWork(id, fromDate, toDate);
-  
+
+          const response = await nurseApiRequest.scheduleWork(
+            id,
+            fromDate,
+            toDate
+          );
+
           console.log("API Response:", response);
-  
+
           const formattedWorkList = response.payload.data.map((work) => ({
             ...work,
             shift_date: formatShiftDate(work.shift_date),
           }));
-  
+
           console.log("Formatted Work List:", formattedWorkList);
-  
+
           setWorkList(formattedWorkList);
         } catch (error) {
           console.error("Error fetching schedule:", error);
@@ -83,7 +92,6 @@ const Timetable = ({ id }: TimetableProps) => {
       })();
     }
   }, [id, weekRange, formatShiftDate]);
-  
 
   // console.log("🚀 ~ Customer ~ workList:", workList);
 
@@ -115,7 +123,7 @@ const Timetable = ({ id }: TimetableProps) => {
                 </td>
 
                 {weekDays.map((day) => {
-                  const hasWork = workList.some(
+                  const hasWork = workList.find(
                     ({ shift_date, shift_from, shift_to }) => {
                       const isSameDay = shift_date === formatShiftDate(day);
 
@@ -126,16 +134,22 @@ const Timetable = ({ id }: TimetableProps) => {
                         shift_from.slice(0, 5) === start.slice(0, 5);
                       const isSameEnd =
                         shift_to.slice(0, 5) === end.slice(0, 5);
-
                       return isSameDay && isSameStart && isSameEnd;
                     }
                   );
+
+                  // const hasApt = !!hasWork;
+                  const isAppointment = hasWork?.appointment_id !== null;
 
                   return (
                     <td
                       key={`${day}-${hour}`}
                       className={`border border-gray-300 p-1 text-center ${
-                        hasWork ? "bg-green-100" : "bg-gray-50"
+                        hasWork
+                          ? isAppointment
+                            ? "bg-yellow-100"
+                            : "bg-green-100"
+                          : "bg-gray-50"
                       }`}
                       style={{
                         minHeight: "50px",
@@ -150,7 +164,9 @@ const Timetable = ({ id }: TimetableProps) => {
                         }}
                       >
                         {hasWork && (
-                          <span className="text-green-500 font-bold">✔</span>
+                          <span className="text-green-500 font-bold">
+                            {isAppointment ? "" : "✔"}
+                          </span>
                         )}
                       </div>
                     </td>
@@ -166,11 +182,17 @@ const Timetable = ({ id }: TimetableProps) => {
           <div className="flex items-center gap-4">
             <div className="flex items-center gap-2">
               <span className="block w-4 h-4 bg-green-100 border border-gray-300"></span>
-              <span className="text-green-700 font-bold text-lg">Lịch rảnh</span>
+              <span className="text-green-700 font-bold text-lg">
+                Lịch rảnh
+              </span>
             </div>
             <div className="flex items-center gap-2">
               <span className="block w-4 h-4 bg-gray-300 border border-gray-300"></span>
               <span className="text-gray-700 font-bold text-lg">Lịch bận</span>
+            </div>
+            <div className="flex items-center gap-2">
+              <span className="block w-4 h-4 bg-yellow-100 border border-gray-300"></span>
+              <span className="text-yellow-700 font-bold text-lg">Có người đặt</span>
             </div>
           </div>
         </div>
@@ -179,4 +201,4 @@ const Timetable = ({ id }: TimetableProps) => {
   );
 };
 
-export default Timetable;
+export default TimeTableCustomer;
