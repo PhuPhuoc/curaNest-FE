@@ -13,15 +13,18 @@ import {
   Avatar,
   Chip,
   Tooltip,
+  useDisclosure,
 } from "@nextui-org/react";
 import Calendar from "@/app/Icon/Calendar";
 import ArrowLeft from "@/app/Icon/ArrowLeft";
 import ArrowRight from "@/app/Icon/ArrowRight";
-import { EyeSlashFilledIcon } from "@/app/Icon/EyeSlashFilledIcon";
 import { EyeFilledIcon } from "@/app/Icon/EyeFilledIcon";
 import dayjs from "dayjs";
+import AppointmentModal from "@/app/components/modal/AppointmentModal";
+import { toast } from "react-toastify";
 
 const UpcomingSchedule = () => {
+  const { isOpen, onOpen, onOpenChange } = useDisclosure();
   const [listPatient, setListPatient] = useState<infoPatient[]>([]);
   const [listScheduleCard, setListScheduleCard] = useState<NurseScheduleCard[]>(
     []
@@ -35,6 +38,7 @@ const UpcomingSchedule = () => {
   const [selectedDate, setSelectedDate] = useState<string | null>(null);
   const { user } = useAppContext();
   const [currentWeekStart, setCurrentWeekStart] = useState<Date>(new Date());
+  const [selectedScheduleId, setSelectedScheduleId] = useState<string>();
 
   async function fetchPatientList(id: string) {
     try {
@@ -96,6 +100,11 @@ const UpcomingSchedule = () => {
   };
 
   const filterByDate = (day: string) => {
+    if (!selectedPatientId) {
+      toast.error("Vui lòng chọn hồ sơ bệnh nhân trước khi chọn ngày");
+      return;
+    }
+
     setSelectedDate(day);
     const filtered = listScheduleCard.filter(
       (appointment) => appointment.appointment_date === day
@@ -171,7 +180,8 @@ const UpcomingSchedule = () => {
   }, [selectedPatientId, currentWeekStart]);
 
   const handleViewDetail = (appointmentId: string) => {
-    console.log("View detail for appointment:", appointmentId);
+    setSelectedScheduleId(appointmentId);
+    onOpen();
   };
 
   return (
@@ -182,7 +192,8 @@ const UpcomingSchedule = () => {
           <h2 className="text-3xl font-bold text-gray-800">Lịch hẹn sắp tới</h2>
         </div>
 
-        <div className="flex flex-wrap gap-2">
+        <div className="flex flex-wrap gap-2 items-center">
+          <p className="text-lg font-bold">Hồ sơ bệnh nhân:</p>
           {listPatient.map((patient) => (
             <Chip
               key={patient.id}
@@ -310,12 +321,12 @@ const UpcomingSchedule = () => {
                             .slice(0, 2)
                             .map((technique, index) => {
                               const colors = [
-                                "blue",
-                                "green",
-                                "red",
-                                "yellow",
-                                "purple",
-                                "pink",
+                                "bg-cyan-500",
+                                "bg-emerald-500",
+                                "bg-rose-500",
+                                "bg-amber-500",
+                                "bg-indigo-500",
+                                "bg-violet-500",
                               ];
                               const randomColor =
                                 colors[
@@ -325,7 +336,7 @@ const UpcomingSchedule = () => {
                               return (
                                 <div
                                   key={index}
-                                  className={`px-3 py-1 font-medium text-white rounded-full bg-${randomColor}-500`}
+                                  className={`px-3 py-1 font-medium text-white rounded-full ${randomColor}`}
                                 >
                                   {technique.trim()}
                                 </div>
@@ -363,7 +374,9 @@ const UpcomingSchedule = () => {
                       <div className="space-y-1">
                         <p className="text-sm text-gray-500">Ngày hẹn</p>
                         <p className="font-medium text-gray-900">
-                          {dayjs(appointment.appointment_date).format("DD/MM/YYYY")}
+                          {dayjs(appointment.appointment_date).format(
+                            "DD/MM/YYYY"
+                          )}
                         </p>
                       </div>
                       <div className="space-y-1">
@@ -393,13 +406,21 @@ const UpcomingSchedule = () => {
               <Calendar />
               <p className="text-gray-600 font-medium">
                 {selectedPatientId
-                  ? "Không có lịch hẹn nào trong ngày đã chọn"
+                  ? "Không có lịch hẹn nào đã đặt"
                   : "Vui lòng chọn bệnh nhân để xem lịch hẹn"}
               </p>
             </div>
           )}
         </div>
       </div>
+      {selectedScheduleId && (
+        <AppointmentModal
+          isOpen={isOpen}
+          onOpenChange={onOpenChange}
+          selectedScheduleId={selectedScheduleId}
+          role="customer"
+        />
+      )}
     </div>
   );
 };

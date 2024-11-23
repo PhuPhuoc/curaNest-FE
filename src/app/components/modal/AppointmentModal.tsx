@@ -55,6 +55,7 @@ const AppointmentModal = ({
   role,
 }: any) => {
   const [detailList, setDetailList] = useState<DetailSchedule>();
+  console.log("🚀 ~ detailList:", detailList)
 
   async function fetchDetailSchedule(id: string) {
     try {
@@ -71,7 +72,7 @@ const AppointmentModal = ({
     if (selectedScheduleId) {
       fetchDetailSchedule(selectedScheduleId);
     }
-  }, []);
+  }, [selectedScheduleId]);
 
   async function handleConfirmOrCancel(confirm: string) {
     try {
@@ -89,7 +90,9 @@ const AppointmentModal = ({
   }
   function handleClose(close: () => void) {
     close();
-    onCloseModal();
+    if (role === "nurse") {
+      onCloseModal();
+    }
   }
 
   return (
