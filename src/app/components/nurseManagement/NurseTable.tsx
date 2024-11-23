@@ -74,7 +74,7 @@ const inputStyles = {
 
 interface FormErrors extends Record<keyof CreateNurseData, string> {}
 
-const uploadImageToFirebase = async (uri: string) => {
+export const uploadImageToFirebase = async (uri: string) => {
   try {
     const response = await fetch(uri);
     const blob = await response.blob();
