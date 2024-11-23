@@ -96,11 +96,11 @@ export const generateColor = (id: string) => {
   return `hsl(${hue}, 70%, 60%)`;
 };
 
-// Function to format date as dd-mm-yyyy
+// Function to format date as dd/mm/yyyy
 export const formatDateVN = (date: string): string => {
   const dateObj = new Date(date);
   const day = String(dateObj.getDate()).padStart(2, "0");
   const month = String(dateObj.getMonth() + 1).padStart(2, "0");
   const year = dateObj.getFullYear();
-  return `${day}-${month}-${year}`;
+  return `${day}/${month}/${year}`;
 };

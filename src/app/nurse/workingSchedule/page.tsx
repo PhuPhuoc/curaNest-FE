@@ -2,6 +2,7 @@
 
 import nurseApiRequest from "@/apiRequests/nurse/nurse";
 import { useAppContext } from "@/app/app-provider";
+import Timetable from "@/app/components/findingNurse/TimeTable";
 import { CreateScheduleData } from "@/types/nurse";
 import { Button } from "@nextui-org/react";
 import { useEffect, useState } from "react";
@@ -185,6 +186,8 @@ const WorkingSchedule = () => {
 
   return (
     <div className="p-6 w-full mx-auto bg-white rounded-lg shadow-md">
+      {/* <Timetable id={user?.id}/> */}
+
       <h3 className="text-3xl font-bold mb-6 text-center text-gray-800">
         Đăng ký lịch làm việc theo tuần
       </h3>
