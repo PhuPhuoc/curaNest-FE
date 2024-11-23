@@ -1,12 +1,12 @@
 "use client";
 import React, { useEffect, useState } from "react";
-import Timetable from "@/app/components/findingNurse/TimeTable";
 import Review from "@/app/components/findingNurse/Review";
 import Profile from "@/app/components/findingNurse/Profile";
 import nurseApiRequest from "@/apiRequests/nurse/nurse";
 import { DetailNurse } from "@/types/nurse";
 import { useAppContext } from "@/app/app-provider";
 import { Spinner } from "@nextui-org/react";
+import TimeTableCustomer from "@/app/components/findingNurse/TimeTableCustomer";
 
 interface Profile {
   name: string;
@@ -79,7 +79,7 @@ const DetailNurseFinding = (props: any) => {
             </div>
           </div>
           
-          <Timetable id={id} />
+          <TimeTableCustomer id={id} />
 
           {/* PatientProfile Component */}
           {user?.role !== "user" && <Profile id={id}/>}

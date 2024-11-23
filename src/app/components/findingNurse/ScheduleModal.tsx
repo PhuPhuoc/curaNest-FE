@@ -8,6 +8,7 @@ import { Technique } from "@/types/technique";
 import { formatDateVN, formatTime, generateColor } from "@/lib/utils";
 import { CreateAppointmentData } from "@/types/appointment";
 import authApi from "@/apiRequests/customer/customer";
+import { useRouter } from "next/navigation";
 
 interface ScheduleModalProps {
   id: string;
@@ -31,6 +32,7 @@ const ScheduleModal: React.FC<ScheduleModalProps> = ({
   profileServices,
   selectedProfile
 }) => {
+  const router = useRouter();
   const [weekDays, setWeekDays] = useState<string[]>([]);
   const [selectedChips, setSelectedChips] = useState<string[]>([]);
   const [techniques, setTechniques] = useState<Technique[]>([]);
@@ -200,10 +202,21 @@ const ScheduleModal: React.FC<ScheduleModalProps> = ({
         total_fee: totalPrice,
       };
 
-      const response = await authApi.createAppointment(body);
-      toast.success("Đặt lịch thành công!");
+      // const response = await authApi.createAppointment(body);
 
-      console.log("Appointment created: ", response.payload.data);
+      const response = fetch("https://api.curanest.com.vn/api/v1/appointments", {
+        mode: "no-cors",
+        method: "post",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(body),
+      });
+
+      toast.success("Đặt lịch thành công!");
+      router.push("/user/upcomingSchedule");
+
+      console.log("Appointment created: ", response);
 
       // Reset and close modal
       resetStates();

@@ -2,8 +2,7 @@
 
 import nurseApiRequest from "@/apiRequests/nurse/nurse";
 import { useAppContext } from "@/app/app-provider";
-import Timetable from "@/app/components/findingNurse/TimeTable";
-import { CreateScheduleData } from "@/types/nurse";
+import TimeTableNurse from "@/app/components/findingNurse/TimeTableNurse";
 import { Button } from "@nextui-org/react";
 import { useEffect, useState } from "react";
 import { toast } from "react-toastify";
@@ -16,7 +15,7 @@ const getMonday = (date: Date) => {
 
 const formatDate = (date: Date) => {
   const options = {
-    weekday: "short",
+    weekday: "long",
     day: "2-digit",
     month: "2-digit",
   } as const;
@@ -34,6 +33,8 @@ const WorkingSchedule = () => {
   const [currentWeekStart, setCurrentWeekStart] = useState<Date>(
     getMonday(new Date())
   );
+
+  const [timeTableKey, setTimeTableKey] = useState(0);
 
   const times = [
     "08:00 - 09:00",
@@ -78,19 +79,15 @@ const WorkingSchedule = () => {
     }));
   };
 
-  const fetchDetailNurse = async (from: string, to: string) => {
-    if (!user?.id) {
-      toast.error("User ID is missing.");
-      return;
-    }
-
-    try {
-      const response = await nurseApiRequest.scheduleWork(user.id, from, to);
-      console.log(response);
-    } catch (error) {
-      console.error("Error fetching nurse details:", error);
-      toast.error("Failed to fetch nurse details.");
-    }
+  const resetSchedule = () => {
+    const initialSchedule: Schedule = {};
+    times.forEach((time) => {
+      initialSchedule[time] = {};
+      daysOfWeek.forEach((day) => {
+        initialSchedule[time][day] = false;
+      });
+    });
+    setSchedule(initialSchedule);
   };
 
   // Handle form submission
@@ -136,18 +133,15 @@ const WorkingSchedule = () => {
             new Date(currentWeekStart.getTime() + 6 * 24 * 60 * 60 * 1000)
           ),
         };
+        setTimeTableKey((prev) => prev + 1);
 
         if (user?.id) {
           await nurseApiRequest.createScheduleWork(user.id, scheduleData);
           toast.success("Đăng ký lịch làm việc thành công!");
 
-          localStorage.setItem("schedule", JSON.stringify(schedule));
+          setTimeTableKey((prev) => prev + 1);
+          resetSchedule();
 
-          const from = formatDate(currentWeekStart);
-          const to = formatDate(
-            new Date(currentWeekStart.getTime() + 6 * 24 * 60 * 60 * 1000)
-          );
-          fetchDetailNurse(from, to);
         }
       } else {
         console.log("No dates selected.");
@@ -158,13 +152,6 @@ const WorkingSchedule = () => {
       toast.error("Đăng ký lịch làm việc thất bại. Vui lòng thử lại.");
     }
   };
-
-  useEffect(() => {
-    const savedSchedule = localStorage.getItem("schedule");
-    if (savedSchedule) {
-      setSchedule(JSON.parse(savedSchedule));
-    }
-  }, []);
 
   // Move to the next week
   const goToNextWeek = () => {
@@ -186,7 +173,7 @@ const WorkingSchedule = () => {
 
   return (
     <div className="p-6 w-full mx-auto bg-white rounded-lg shadow-md">
-      {/* <Timetable id={user?.id}/> */}
+      <TimeTableNurse key={timeTableKey} id={user?.id || ""} />
 
       <h3 className="text-3xl font-bold mb-6 text-center text-gray-800">
         Đăng ký lịch làm việc theo tuần
@@ -236,7 +223,7 @@ const WorkingSchedule = () => {
             {times.map((time) => (
               <tr key={time}>
                 {/* Hiển thị khung giờ */}
-                <td className="border border-gray-300 p-2 font-semibold text-gray-600 text-center">
+                <td className="border border-gray-300 font-semibold text-gray-600 text-center">
                   {time}
                 </td>
 

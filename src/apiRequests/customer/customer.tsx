@@ -35,6 +35,7 @@ const authApi = {
 
   createAppointment: (body: CreateAppointmentData) =>
     http.post<CreateAppointmentDataRes>(`/appointments`, body),
+  
 };
 
 export default authApi;

@@ -19,13 +19,6 @@ import { useAppContext } from "@/app/app-provider";
 import Image from "next/image";
 import { generateColor } from "@/lib/utils";
 
-const colors = [
-  "text-white bg-blue-500",
-  "text-white bg-green-500",
-  "text-white bg-red-500",
-  "text-white bg-yellow-500",
-];
-
 const CreatePatientProfile: React.FC = () => {
   const router = useRouter();
   const { user } = useAppContext();

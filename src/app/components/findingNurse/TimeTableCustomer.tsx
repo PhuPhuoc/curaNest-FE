@@ -8,7 +8,7 @@ interface TimetableProps {
   id: string;
 }
 
-const Timetable = ({ id }: TimetableProps) => {
+const TimeTableCustomer = ({ id }: TimetableProps) => {
   const [weekDays, setWeekDays] = useState<string[]>([]);
   const [workList, setWorkList] = useState<WorkSchedule[]>([]);
   const [weekRange, setWeekRange] = useState<{
@@ -201,4 +201,4 @@ const Timetable = ({ id }: TimetableProps) => {
   );
 };
 
-export default Timetable;
+export default TimeTableCustomer;
