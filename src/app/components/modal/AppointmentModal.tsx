@@ -230,7 +230,7 @@ const AppointmentModal = ({
                           Lịch hẹn ngày:
                         </label>
                         <p className="font-medium text-lg ml-2">
-                          {dayjs(detailList?.patient_infomation.dob).format(
+                          {dayjs(detailList?.appointment_information.appointment_date).format(
                             "DD/MM/YYYY"
                           )}
                         </p>

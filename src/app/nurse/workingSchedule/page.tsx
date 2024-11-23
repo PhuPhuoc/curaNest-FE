@@ -7,6 +7,7 @@ import {
   formatShiftDate,
   formatTime,
   getEndTime,
+  getStartTime,
 } from "@/lib/utils";
 import { CreateScheduleData, WorkSchedule } from "@/types/nurse";
 import { Button } from "@nextui-org/react";
@@ -78,19 +79,32 @@ const WorkingSchedule = () => {
     "21:00 - 22:00",
   ];
 
-  const handleToggle = (time: string, day: string) => {
-    setSchedule((prevSchedule: Schedule) => {
-      const updatedSchedule = { ...prevSchedule };
+  const findWorkListItem = (day: string, time: string) => {
+    return workList.find(({ shift_date, shift_from, shift_to }) => {
+      const formattedDay = day;
+      const isSameDay = shift_date === formattedDay;
+      const [start, end] = time.split(" - ").map((t) => t.trim());
+      const isSameStart = shift_from.slice(0, 5) === start;
+      const isSameEnd = shift_to.slice(0, 5) === end;
+      return isSameDay && isSameStart && isSameEnd;
+    });
+  };
 
+  const handleToggle = (time: string, day: string) => {
+    const workItem = findWorkListItem(day, time);
+    if (workItem?.status && workItem.status !== 'available') {
+      return;
+    }
+
+    setSchedule((prevSchedule) => {
+      const updatedSchedule = JSON.parse(JSON.stringify(prevSchedule));
+      
       if (!updatedSchedule[time]) {
         updatedSchedule[time] = {};
       }
-      if (!updatedSchedule[time][day]) {
-        updatedSchedule[time][day] = false;
-      }
-      // Toggle the state
+      
       updatedSchedule[time][day] = !updatedSchedule[time][day];
-
+      
       return updatedSchedule;
     });
   };
@@ -115,6 +129,7 @@ const WorkingSchedule = () => {
         previousWeekDays.push(formatDate(currentDay));
       }
       setWeekDays(previousWeekDays);
+      setSchedule({}); // Reset schedule when changing week
     }
   };
 
@@ -138,13 +153,12 @@ const WorkingSchedule = () => {
         nextWeekDays.push(formatDate(currentDay));
       }
       setWeekDays(nextWeekDays);
+      setSchedule({}); // Reset schedule when changing week
     }
   };
 
   useEffect(() => {
     if (user?.id && weekRange) {
-      console.log("User ID:", user.id);
-      console.log("Week Range:", weekRange);
       (async () => {
         try {
           const response = await nurseApiRequest.scheduleWork(
@@ -157,6 +171,20 @@ const WorkingSchedule = () => {
             shift_date: formatShiftDate(work.shift_date),
           }));
           setWorkList(formattedWorkList);
+
+          // Khởi tạo schedule state từ workList - chỉ với các status available
+          const initialSchedule: Schedule = {};
+          formattedWorkList.forEach((work) => {
+            // Chỉ thêm vào schedule nếu status là available
+            if (!work.status || work.status === 'available') {
+              const time = `${work.shift_from.slice(0, 5)} - ${work.shift_to.slice(0, 5)}`;
+              if (!initialSchedule[time]) {
+                initialSchedule[time] = {};
+              }
+              initialSchedule[time][work.shift_date] = true;
+            }
+          });
+          setSchedule(initialSchedule);
         } catch (error) {
           console.error("Error fetching schedule:", error);
         }
@@ -164,7 +192,6 @@ const WorkingSchedule = () => {
     }
   }, [user?.id, weekRange]);
 
-  // Handle form submission
   const handleSubmit = async () => {
     try {
       const getDateObjectFromDay = (day: string): Date => {
@@ -179,7 +206,7 @@ const WorkingSchedule = () => {
           .filter(([day, selected]) => selected)
           .map(([day]) => ({
             shift_date: formatDate(getDateObjectFromDay(day)),
-            shift_from: formatTime(time),
+            shift_from: getStartTime(time),
             shift_to: getEndTime(time),
           }))
       );
@@ -190,17 +217,13 @@ const WorkingSchedule = () => {
           week_from: weekRange?.from || "",
           week_to: weekRange?.to || "",
         };
-
-        console.log("scheduleData: ", scheduleData);
+        console.log("🚀 ~ handleSubmit ~ scheduleData:", scheduleData)
 
         if (user?.id) {
           await nurseApiRequest.createScheduleWork(user.id, scheduleData);
           toast.success("Đăng ký lịch làm việc thành công!");
-
-          // localStorage.setItem("schedule", JSON.stringify(schedule));
         }
       } else {
-        console.log("No dates selected.");
         toast.warn("Vui lòng đăng ký lịch làm việc.");
       }
     } catch (error) {
@@ -215,7 +238,6 @@ const WorkingSchedule = () => {
         Đăng ký lịch làm việc theo tuần
       </h3>
 
-      {/* Header for year and week navigation */}
       <div className="flex items-center justify-between mb-4">
         <div className="w-[120px]"></div>
         <div className="flex items-center space-x-4">
@@ -226,16 +248,14 @@ const WorkingSchedule = () => {
           <Button onClick={goToNextWeek}>{">>"}</Button>
         </div>
 
-        {/* Nút Đăng ký */}
         <Button
           onClick={handleSubmit}
-          className="  text-xl p-6 bg-blue-500 text-white shadow hover:bg-blue-600 transition"
+          className="text-xl p-6 bg-blue-500 text-white shadow hover:bg-blue-600 transition"
         >
           Đăng ký
         </Button>
       </div>
 
-      {/* Weekly schedule table */}
       <div className="overflow-x-auto bg-gray-50 p-4 rounded-lg shadow-md">
         <table className="table-auto w-full border-collapse border border-gray-300">
           <thead>
@@ -255,47 +275,27 @@ const WorkingSchedule = () => {
           <tbody>
             {times.map((time) => (
               <tr key={time}>
-                {/* Hiển thị khung giờ */}
                 <td className="border border-gray-300 p-2 font-semibold text-gray-600 text-center">
                   {time}
                 </td>
 
-                {/* Hiển thị trạng thái theo ngày */}
                 {weekDays.map((day) => {
-                  const hasWork = workList.find(
-                    ({ shift_date, shift_from, shift_to }) => {
-                      const formattedDay = day;
-                      const isSameDay = shift_date === formattedDay;
-                      const [start, end] = time
-                        .split(" - ")
-                        .map((t) => t.trim());
-
-                      const isSameStart = shift_from.slice(0, 5) === start;
-                      const isSameEnd = shift_to.slice(0, 5) === end;
-
-                      return isSameDay && isSameStart && isSameEnd;
-                    }
-                  );
-
-                  const isAppointment = hasWork?.appointment_id !== null;
+                  const workItem = findWorkListItem(day, time);
+                  const isDisabled = workItem?.status && workItem.status !== 'available';
                   const isSelected = schedule[time]?.[day];
-                  const cellBgColor = hasWork
-                    ? "bg-green-100"
-                    : isSelected
-                    ? "bg-green-200"
-                    : "bg-white";
+                  
+                  let cellBgColor = "bg-white";
+                  if (isDisabled) {
+                    cellBgColor = "bg-gray-200"; // Không thể toggle
+                  } else if (isSelected) {
+                    cellBgColor = "bg-green-200"; // Đã được chọn (cả từ workList available và chọn mới)
+                  }
 
                   return (
                     <td
                       key={`${day}-${time}`}
-                      className={`border border-gray-300 p-1 text-center ${
-                        hasWork
-                          ? isAppointment
-                            ? "bg-yellow-100"
-                            : "bg-green-100"
-                          : "bg-gray-50"
-                      }`}
-                                            onClick={() => handleToggle(time, day)} 
+                      className={`border border-gray-300 p-2 text-center ${isDisabled ? 'cursor-not-allowed' : 'cursor-pointer'} ${cellBgColor}`}
+                      onClick={() => !isDisabled && handleToggle(time, day)}
                       style={{
                         minHeight: "50px",
                         height: "auto",
@@ -303,21 +303,16 @@ const WorkingSchedule = () => {
                     >
                       <div
                         className="flex items-center justify-center p-4 rounded-lg"
-                        onClick={() => handleToggle(time, day)}
                         style={{
                           minWidth: "50px",
                           height: "40px",
                         }}
                       >
-                        {/* Display checkmark if work exists */}
-                        {hasWork && (
-                          <span className="text-green-500 font-bold">
-                            {isAppointment ? "" : "✔"}
-                          </span>
-                        )}
-                        {/* Display another checkmark for user-selected cells */}
-                        {isSelected && !hasWork && (
+                        {isSelected && !isDisabled && (
                           <span className="text-blue-500 font-bold">✔</span>
+                        )}
+                        {isDisabled && (
+                          <span className="text-gray-500 font-bold">✖</span>
                         )}
                       </div>
                     </td>
