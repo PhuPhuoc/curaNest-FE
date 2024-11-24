@@ -1,5 +1,6 @@
 "use client";
 import nurseApiRequest from "@/apiRequests/nurse/nurse";
+import NurseWorkingSchedule from "@/app/components/nurseManagement/NurseWorkingSchedule";
 import { DetailNurse } from "@/types/nurse";
 import {
   Avatar,
@@ -228,84 +229,7 @@ const NurseDetail = ({ id }: { id: string }) => {
         </CardBody>
       </Card>
 
-      <div className="p-6  mx-auto">
-        <h3 className="text-2xl font-bold mb-6 text-center text-gray-800">
-          Lịch làm việc của điều dưỡng
-        </h3>
-
-        <div className="flex items-center justify-between mb-4">
-          <Button>Năm {currentWeekStart.getFullYear()}</Button>
-
-          <div className="flex items-center space-x-4">
-            <Button onClick={goToPreviousWeek}>{"<<"}</Button>
-            <span className="font-semibold">
-              {formatDate(currentWeekStart)} -{" "}
-              {formatDate(
-                new Date(currentWeekStart.getTime() + 6 * 24 * 60 * 60 * 1000)
-              )}
-            </span>
-            <Button onClick={goToNextWeek}>{">>"}</Button>
-          </div>
-
-          <Button onClick={handleSubmit} color="primary">
-            Đăng ký
-          </Button>
-        </div>
-
-        {/* Weekly schedule table */}
-        <div className="overflow-x-auto bg-gray-50 p-4 rounded-lg shadow-md">
-          <table className="table-auto w-full border-collapse border border-gray-300">
-            <thead>
-              <tr>
-                <th className="border border-gray-300 p-2"></th>
-                {daysOfWeek.map((day) => (
-                  <th
-                    key={day}
-                    className="border border-gray-300 p-2 text-center font-semibold text-gray-600"
-                  >
-                    {day}
-                  </th>
-                ))}
-              </tr>
-            </thead>
-
-            <tbody>
-              {times.map((time) => (
-                <tr key={time}>
-                  <td className="border border-gray-300 p-2 font-semibold text-gray-600 text-center">
-                    {time}
-                  </td>
-
-                  {daysOfWeek.map((day) => (
-                    <td
-                      key={day}
-                      className="border border-gray-300 p-2 text-center cursor-pointer"
-                      style={{
-                        minHeight: "50px",
-                        height: "auto",
-                      }}
-                    >
-                      <div
-                        className={`flex items-center justify-center p-4 rounded-lg 
-                      ${schedule[time][day] ? "bg-green-200" : "#d1d5db"}`}
-                        onClick={() => handleToggle(time, day)}
-                        style={{
-                          minWidth: "50px",
-                          height: "40px",
-                        }}
-                      >
-                        {schedule[time][day] && (
-                          <span className="text-green-500 font-bold">✔</span>
-                        )}
-                      </div>
-                    </td>
-                  ))}
-                </tr>
-              ))}
-            </tbody>
-          </table>
-        </div>
-      </div>
+      <NurseWorkingSchedule id={id} />
     </div>
   );
 };
