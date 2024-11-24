@@ -61,26 +61,26 @@ const ScheduleModal: React.FC<ScheduleModalProps> = ({
 
   const getCurrentWeekRange = () => {
     const today = new Date();
-    const dayOfWeek = today.getDay();
 
-    const monday = new Date(today);
-    monday.setDate(today.getDate() - dayOfWeek + (dayOfWeek === 0 ? -6 : 1));
+    const firstDayOfWeek = today.getDate() - today.getDay() + 1; 
+    const monday = new Date(today.setDate(firstDayOfWeek));
 
-    const sunday = new Date(monday);
-    sunday.setDate(monday.getDate() + 6);
+    // Tính ngày Chủ nhật của tuần sau 
+    const nextSunday = new Date(monday);
+    nextSunday.setDate(monday.getDate() + 14); 
 
+    // Lấy tất cả các ngày trong tuần từ thứ Hai đến Chủ nhật tuần sau
     const weekDays = [];
-    for (let i = 0; i < 7; i++) {
+    for (let i = 0; i < 14; i++) {
       const day = new Date(monday);
       day.setDate(monday.getDate() + i);
-      const formattedDate = formatDate(day);
-      weekDays.push(formattedDate);
+      weekDays.push(formatDate(day)); 
     }
 
     return {
-      from: formatDate(monday),
-      to: formatDate(sunday),
-      weekDays,
+      from: formatDate(monday), 
+      to: formatDate(nextSunday), 
+      weekDays, 
     };
   };
 
@@ -109,6 +109,9 @@ const ScheduleModal: React.FC<ScheduleModalProps> = ({
   const fetchAvailableScheduleWork = async () => {
     try {
       const { from, to } = getCurrentWeekRange();
+      // console.log("from: ", from);
+      // console.log("to: ", to);
+
       const totalMinutes = calculateTotalMinutes();
       const response = await nurseApiRequest.availableScheduleWork(
         id,
@@ -359,52 +362,75 @@ const ScheduleModal: React.FC<ScheduleModalProps> = ({
       </div>
 
       <div className="space-y-6">
-        <p className="text-xl font-bold">Khung giờ phù hợp cho dịch vụ trên</p>
+        {selectedChips.length > 0 ? (
+          <div>
+            <p className="text-xl font-bold mb-4">
+              Khung giờ phù hợp cho dịch vụ trên
+            </p>
 
-        {weekDays.map((day, dayIndex) => {
-          const formattedDay = formatDateVN(day);
+            {weekDays.map((day, dayIndex) => {
+              const formattedDay = formatDateVN(day);
+              const dayOfWeek = new Date(day).getDay();
+              const daysOfWeek = [
+                "Chủ nhật",
+                "Thứ hai",
+                "Thứ ba",
+                "Thứ tư",
+                "Thứ năm",
+                "Thứ sáu",
+                "Thứ bảy",
+              ];
+              const matchingTimes = suggestedTimeFrames.filter(
+                (time) => time.appointment_date === day
+              );
 
-          const matchingTimes = suggestedTimeFrames.filter(
-            (time) => time.appointment_date === day
-          );
+              if (matchingTimes.length === 0) {
+                return null;
+              }
 
-          return (
-            <div key={dayIndex} className="mb-4">
-              <p className="text-lg font-semibold mb-2">
-                {dayIndex < 6 ? `Thứ ${dayIndex + 2}` : "Chủ nhật"},
-                <span> {formattedDay}</span>
-              </p>
+              return (
+                <div key={dayIndex} className="mb-4">
+                  <p className="text-lg font-semibold mb-2">
+                    {daysOfWeek[dayOfWeek]}, <span>{formattedDay}</span>
+                  </p>
 
-              <div className="grid grid-cols-2 sm:grid-cols-4 md:grid-cols-6 lg:grid-cols-8 gap-4">
-                {matchingTimes.map((time, index) => {
-                  const formattedTimeFrom = formatTime(time.time_from);
-                  const formattedTimeTo = formatTime(time.time_to);
+                  <div className="grid grid-cols-2 sm:grid-cols-4 md:grid-cols-6 lg:grid-cols-8 gap-4">
+                    {matchingTimes.map((time, index) => {
+                      const formattedTimeFrom = formatTime(time.time_from);
+                      const formattedTimeTo = formatTime(time.time_to);
 
-                  const isSelected =
-                    selectedTime &&
-                    selectedTime.appointment_date === time.appointment_date &&
-                    selectedTime.time_from === time.time_from &&
-                    selectedTime.time_to === time.time_to;
-                  return (
-                    <Button
-                      key={index}
-                      type="button"
-                      size="md"
-                      className={`${
-                        isSelected
-                          ? "bg-blue-500 text-white"
-                          : "bg-gray-200 text-black"
-                      }`}
-                      onClick={() => handleSelectTime(time)}
-                    >
-                      {formattedTimeFrom} - {formattedTimeTo}
-                    </Button>
-                  );
-                })}
-              </div>
-            </div>
-          );
-        })}
+                      const isSelected =
+                        selectedTime &&
+                        selectedTime.appointment_date ===
+                          time.appointment_date &&
+                        selectedTime.time_from === time.time_from &&
+                        selectedTime.time_to === time.time_to;
+                      return (
+                        <Button
+                          key={index}
+                          type="button"
+                          size="md"
+                          className={`${
+                            isSelected
+                              ? "bg-blue-500 text-white"
+                              : "bg-gray-200 text-black"
+                          }`}
+                          onClick={() => handleSelectTime(time)}
+                        >
+                          {formattedTimeFrom} - {formattedTimeTo}
+                        </Button>
+                      );
+                    })}
+                  </div>
+                </div>
+              );
+            })}
+          </div>
+        ) : (
+          <p className="text-lg text-gray-500">
+            Vui lòng chọn dịch vụ để hiển thị khung giờ.
+          </p>
+        )}
       </div>
     </Modal>
   );

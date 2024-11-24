@@ -3,6 +3,8 @@ import React, { useEffect, useState } from "react";
 import nurseApiRequest from "@/apiRequests/nurse/nurse";
 import { WorkSchedule } from "@/types/nurse";
 import { formatShiftDate } from "@/lib/utils";
+import { Button } from "@nextui-org/react";
+import { toast } from "react-toastify";
 
 interface TimetableProps {
   id: string;
@@ -17,26 +19,86 @@ const TimeTableCustomer = ({ id }: TimetableProps) => {
   } | null>(null);
 
   useEffect(() => {
-    const today = new Date();
-    const dayOfWeek = today.getDay();
-    const currentWeekDays = [];
-    const monday = new Date(today);
-    monday.setDate(today.getDate() - dayOfWeek + 1);
-    const sunday = new Date(today);
-    sunday.setDate(today.getDate() - dayOfWeek + 7);
+    const initializeWeek = (baseDate: Date) => {
+      const dayOfWeek = baseDate.getDay();
+      const monday = new Date(baseDate);
+      monday.setDate(baseDate.getDate() - dayOfWeek + 1);
+      const sunday = new Date(baseDate);
+      sunday.setDate(baseDate.getDate() - dayOfWeek + 7);
 
-    for (let i = 1; i <= 7; i++) {
-      const currentDay = new Date(monday);
-      currentDay.setDate(monday.getDate() + i - 1);
-      currentWeekDays.push(currentDay.toLocaleDateString("vi-VN"));
-    }
+      const currentWeekDays = [];
+      for (let i = 0; i < 7; i++) {
+        const currentDay = new Date(monday);
+        currentDay.setDate(monday.getDate() + i);
+        currentWeekDays.push(currentDay.toLocaleDateString("vi-VN"));
+      }
 
-    setWeekDays(currentWeekDays);
-    setWeekRange({
-      from: monday.toLocaleDateString("vi-VN"),
-      to: sunday.toLocaleDateString("vi-VN"),
-    });
+      setWeekDays(currentWeekDays);
+      setWeekRange({
+        from: monday.toLocaleDateString("vi-VN"),
+        to: sunday.toLocaleDateString("vi-VN"),
+      });
+    };
+
+    initializeWeek(new Date());
   }, []);
+
+  const parseDate = (dateString: string): Date => {
+    const [day, month, year] = dateString.split("/").map(Number);
+    return new Date(year, month - 1, day);
+  };
+  
+  const changeWeek = (direction: "prev" | "next") => {
+    if (weekRange) {
+      // Chuyển đổi ngày bắt đầu tuần hiện tại
+      const currentMonday = parseDate(weekRange.from);
+      const today = new Date();
+  
+      // Tính ngày bắt đầu tuần hiện tại
+      const startOfThisWeek = new Date(today);
+      startOfThisWeek.setDate(today.getDate() - today.getDay() + 1);
+  
+      // Tính ngày bắt đầu tuần kế tiếp
+      const startOfNextWeek = new Date(startOfThisWeek);
+      startOfNextWeek.setDate(startOfThisWeek.getDate() + 7);
+  
+      // Xác định khoảng dịch chuyển (7 ngày)
+      const offset = direction === "prev" ? -7 : 7;
+  
+      // Tính tuần mới
+      const newBaseDate = new Date(currentMonday);
+      newBaseDate.setDate(currentMonday.getDate() + offset);
+  
+      // Kiểm tra giới hạn tuần hiện tại và tuần kế tiếp
+      if (direction === "next" && newBaseDate >= startOfNextWeek) {
+        toast.warn("Chỉ xem được tuần hiện tại và tuần sau");
+        return;
+      }
+  
+      // Thiết lập tuần mới
+      const initializeWeek = (baseDate: Date) => {
+        const monday = new Date(baseDate);
+        const sunday = new Date(baseDate);
+        sunday.setDate(baseDate.getDate() + 6);
+  
+        const currentWeekDays = [];
+        for (let i = 0; i < 7; i++) {
+          const currentDay = new Date(monday);
+          currentDay.setDate(monday.getDate() + i);
+          currentWeekDays.push(currentDay.toLocaleDateString("vi-VN"));
+        }
+  
+        setWeekDays(currentWeekDays);
+        setWeekRange({
+          from: monday.toLocaleDateString("vi-VN"),
+          to: sunday.toLocaleDateString("vi-VN"),
+        });
+      };
+  
+      initializeWeek(newBaseDate);
+    }
+  };
+  
 
   const hours = [
     "08:00 - 09:00",
@@ -95,10 +157,31 @@ const TimeTableCustomer = ({ id }: TimetableProps) => {
 
   return (
     <div className="border rounded-lg p-3 shadow-md bg-white mb-10">
-      <div className="relative mb-4">
+      <div className="relative">
         <p className="text-2xl font-bold text-center">Lịch làm việc</p>
       </div>
 
+      <div className="flex justify-between items-center mb-4">
+        <Button
+        color="primary"
+          onClick={() => changeWeek("prev")}
+          className="px-4 py-2 font-bold rounded-lg shadow-md"
+        >
+          Tuần trước
+        </Button>
+        <p className="text-lg font-semibold">
+          {weekRange?.from} - {weekRange?.to}
+        </p>
+        <Button
+                color="primary"
+
+          onClick={() => changeWeek("next")}
+          className="px-4 py-2 font-bold rounded-lg shadow-md"
+        >
+          Tuần kế tiếp
+        </Button>
+      </div>
+      
       <div>
         <table className="table-auto w-full border-collapse">
           <thead>
