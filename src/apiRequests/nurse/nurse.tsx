@@ -43,22 +43,28 @@ const nurseApiRequest = {
 
     return http.get<NurseScheduleCardRes>(url);
   },
-  
+
   detailScheduleWork: (id: string) =>
     http.get<DetailScheduleRes>(`/appointments/${id}`),
   detailNurse: (id: string, role: string) =>
     http.get<DetailNurseRes>(`/nurses/${id}?role=${role}`),
   confirmOrCancelSchedule: (id: string, confirm: string) =>
     http.post<CreateRes>(`/appointments/${id}/confirm?confirm=${confirm}`, {}),
+  confirmFinishSchedule: (id: string) =>
+    http.post<CreateRes>(`/appointments/${id}/completed`, {}),
   createNurse: (body: CreateNurseData) => http.post<CreateRes>(`/nurses`, body),
-
   createScheduleWork: (id: string, body: CreateScheduleData) =>
     http.post<CreateScheduleDataRes>(
       `/nurses/${id}/register-weekly-work-schedule`,
       body
     ),
 
-  availableScheduleWork: (id: string, from: string, to: string, totalMinute: string) =>
+  availableScheduleWork: (
+    id: string,
+    from: string,
+    to: string,
+    totalMinute: string
+  ) =>
     http.get<AvailableScheduleWorkRes>(
       `/nurses/${id}/get-suitable-time-frames?from=${from}&to=${to}&total_minute=${totalMinute}`
     ),

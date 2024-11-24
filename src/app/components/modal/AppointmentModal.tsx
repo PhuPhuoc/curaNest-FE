@@ -55,7 +55,7 @@ const AppointmentModal = ({
   role,
 }: any) => {
   const [detailList, setDetailList] = useState<DetailSchedule>();
-  console.log("🚀 ~ detailList:", detailList)
+  console.log("🚀 ~ detailList:", detailList);
 
   async function fetchDetailSchedule(id: string) {
     try {
@@ -88,6 +88,21 @@ const AppointmentModal = ({
       console.error("Error fetching techniques:", error);
     }
   }
+
+  async function handleConfirmFinish() {
+    try {
+      if (selectedScheduleId) {
+        const response = await nurseApiRequest.confirmFinishSchedule(
+          selectedScheduleId
+        );
+        toast.success(response.payload.message);
+        fetchDetailSchedule(selectedScheduleId);
+      }
+    } catch (error) {
+      console.error("Error fetching techniques:", error);
+    }
+  }
+
   function handleClose(close: () => void) {
     close();
     if (role === "nurse") {
@@ -230,9 +245,9 @@ const AppointmentModal = ({
                           Lịch hẹn ngày:
                         </label>
                         <p className="font-medium text-lg ml-2">
-                          {dayjs(detailList?.appointment_information.appointment_date).format(
-                            "DD/MM/YYYY"
-                          )}
+                          {dayjs(
+                            detailList?.appointment_information.appointment_date
+                          ).format("DD/MM/YYYY")}
                         </p>
                       </div>
                     </div>
@@ -258,6 +273,14 @@ const AppointmentModal = ({
                               <Clock />
                               <span className="text-amber-500">
                                 Chờ xác nhận
+                              </span>
+                            </>
+                          ) : detailList?.appointment_information.status ===
+                            "completed" ? (
+                            <>
+                              <Check />
+                              <span className="text-emerald-500">
+                                Đã hoàn thành lịch hẹn
                               </span>
                             </>
                           ) : (
@@ -312,6 +335,7 @@ const AppointmentModal = ({
             <ModalFooter className="border-t">
               {role === "nurse" &&
                 detailList?.appointment_information.status !== "confirmed" &&
+                detailList?.appointment_information.status !== "completed" &&
                 detailList?.appointment_information.status !== "cancel" && (
                   <>
                     <Button
@@ -338,6 +362,24 @@ const AppointmentModal = ({
                       }
                     >
                       Hủy bỏ lịch hẹn
+                    </Button>
+                  </>
+                )}
+              {role === "nurse" &&
+                detailList?.appointment_information.status === "confirmed" && (
+                  <>
+                    <Button
+                      size="lg"
+                      color="success"
+                      className="text-white"
+                      onClick={() => handleConfirmFinish()}
+                      startContent={
+                        <div className="text-white bg-white rounded-lg">
+                          <Check />
+                        </div>
+                      }
+                    >
+                      Xác nhận hoàn thành
                     </Button>
                   </>
                 )}

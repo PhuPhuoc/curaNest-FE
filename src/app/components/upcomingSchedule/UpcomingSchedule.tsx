@@ -29,6 +29,7 @@ const UpcomingSchedule = () => {
   const [listScheduleCard, setListScheduleCard] = useState<NurseScheduleCard[]>(
     []
   );
+  console.log("🚀 ~ UpcomingSchedule ~ listScheduleCard:", listScheduleCard);
   const [filteredSchedule, setFilteredSchedule] = useState<NurseScheduleCard[]>(
     []
   );
@@ -67,9 +68,9 @@ const UpcomingSchedule = () => {
 
   const getWeekRange = (date: Date) => {
     const start = new Date(date);
-    start.setDate(date.getDate() - date.getDay() + 1); // Start of week (Monday)
+    start.setDate(date.getDate() - date.getDay() + 1);
     const end = new Date(start);
-    end.setDate(start.getDate() + 6); // End of week (Sunday)
+    end.setDate(start.getDate() + 6);
     return { from: formatDateForApi(start), to: formatDateForApi(end) };
   };
 
@@ -149,9 +150,11 @@ const UpcomingSchedule = () => {
   const getStatusColor = (status: string) => {
     switch (status.toLowerCase()) {
       case "confirmed":
-        return "success";
+        return "secondary";
       case "canceled":
         return "danger";
+      case "completed":
+        return "success";
       default:
         return "warning";
     }
@@ -162,6 +165,7 @@ const UpcomingSchedule = () => {
       confirmed: "Đã xác nhận",
       canceled: "Đã hủy",
       pending: "Chờ xác nhận",
+      completed: "Đã hoàn thành",
     };
     return statusMap[status.toLowerCase()] || status;
   };
