@@ -17,8 +17,9 @@ import {
   ModalBody,
   ModalFooter,
   Input,
-  Input as TimeInput,
   Spinner,
+  Select,
+  SelectItem,
 } from "@nextui-org/react";
 import { useEffect, useMemo, useState } from "react";
 import { toast } from "react-toastify";
@@ -30,6 +31,69 @@ const formatNumber = (value: number) => {
 const validateTime = (time: string): boolean => {
   const timeRegex = /^([0-1]?[0-9]|2[0-3]):[0-5][0-9]$/;
   return timeRegex.test(time);
+};
+
+const TimeSelectInput = ({ value, onChange, isInvalid, errorMessage }: any) => {
+  const hours = Array.from({ length: 24 }, (_, i) =>
+    i < 10 ? `0${i}` : i.toString()
+  ).filter((hour) => hour !== "00");
+  const minutes = ["00", "15", "30", "45"];
+
+  const handleHourChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
+    const updatedTime = `${e.target.value}:${value.split(":")[1]}`;
+    onChange(updatedTime);
+  };
+
+  const handleMinuteChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
+    const updatedTime = `${value.split(":")[0]}:${e.target.value}`;
+    onChange(updatedTime);
+  };
+
+  return (
+    <div className="flex flex-col gap-4 mx-2">
+      <div className="text-xl font-bold">Chọn số giờ</div>
+      <div className="flex gap-4 items-center">
+        <div className="flex flex-col w-1/2">
+          <Select
+            variant="underlined"
+            label="Giờ"
+            value={value.split(":")[0]}
+            onChange={handleHourChange}
+            aria-label="Select Hour"
+            defaultSelectedKeys={["01"]}
+            style={{ fontSize: 20 }}
+          >
+            {hours.map((hour) => (
+              <SelectItem key={hour} value={hour}>
+                {hour}
+              </SelectItem>
+            ))}
+          </Select>
+        </div>
+        <span className="text-2xl">:</span>
+        <div className="flex flex-col w-1/2">
+          <Select
+            label="Phút"
+            variant="underlined"
+            value={value.split(":")[1]}
+            onChange={handleMinuteChange}
+            aria-label="Select Minute"
+            defaultSelectedKeys={["00"]}
+            style={{ fontSize: 20 }}
+          >
+            {minutes.map((minute) => (
+              <SelectItem key={minute} value={minute}>
+                {minute}
+              </SelectItem>
+            ))}
+          </Select>
+        </div>
+      </div>
+      {isInvalid && (
+        <div className="text-red-500 text-sm mt-1">{errorMessage}</div>
+      )}
+    </div>
+  );
 };
 
 const ServiceTable = () => {
@@ -45,6 +109,7 @@ const ServiceTable = () => {
     return techniques?.slice(start, end);
   }, [page, techniques]);
 
+  // Fetch techniques from API
   async function fetchTechniques() {
     setLoading(true);
     try {
@@ -61,6 +126,7 @@ const ServiceTable = () => {
     fetchTechniques();
   }, []);
 
+  // Form data and validation states
   const [feeError, setFeeError] = useState(false);
   const [createModalOpen, setCreateModalOpen] = useState(false);
   const [createFormData, setCreateFormData] = useState<FormData>({
@@ -177,7 +243,6 @@ const ServiceTable = () => {
           <TableColumn className="text-lg">Tên dịch vụ</TableColumn>
           <TableColumn className="text-lg">Giá (VND)</TableColumn>
           <TableColumn className="text-lg">Số giờ</TableColumn>
-          <TableColumn className="text-lg">Hành động</TableColumn>
         </TableHeader>
         <TableBody
           emptyContent={"Không có dịch vụ hiện tại"}
@@ -193,15 +258,6 @@ const ServiceTable = () => {
               </TableCell>
               <TableCell className="text-lg">
                 {service.estimated_time}
-              </TableCell>
-              <TableCell className="text-lg">
-                <Button
-                  size="md"
-                  color="warning"
-                  className="text-white font-bold text-lg"
-                >
-                  Sửa thông tin
-                </Button>
               </TableCell>
             </TableRow>
           ))}
@@ -249,24 +305,13 @@ const ServiceTable = () => {
                 style={{ fontSize: 20 }}
                 classNames={{ label: "text-[20px] font-bold mb-2" }}
               />
-              <TimeInput
-                size="lg"
-                type="time"
-                label="Thời gian dự kiến"
-                placeholder="HH:MM"
-                variant="bordered"
+              <TimeSelectInput
                 value={createFormData.estimated_time}
-                onChange={(e) => handleTimeChange(e.target.value)}
+                onChange={handleTimeChange}
                 isInvalid={timeError}
                 errorMessage={
-                  timeError
-                    ? "Vui lòng nhập đúng định dạng thời gian (HH:MM)"
-                    : ""
+                  timeError ? "Vui lòng chọn thời gian đúng định dạng" : ""
                 }
-                style={{ fontSize: 20 }}
-                classNames={{
-                  label: "text-[20px] font-bold mb-4",
-                }}
               />
             </div>
           </ModalBody>
@@ -291,18 +336,6 @@ const ServiceTable = () => {
           </ModalFooter>
         </ModalContent>
       </Modal>
-      <style jsx global>{`
-        input[type="time"]::-webkit-datetime-edit-ampm-field {
-          display: none;
-        }
-
-        input[type="time"] {
-          width: 100%;
-        }
-        input[type="time"]::-webkit-calendar-picker-indicator {
-          background: none;
-        }
-      `}</style>
     </>
   );
 };

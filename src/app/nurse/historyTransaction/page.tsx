@@ -4,7 +4,7 @@ import HistoryTransactionNurse from '@/app/components/historyTransaction/History
 import Review from '@/app/components/findingNurse/Review';
 const NurseProfileTabs = () => {
     return (
-        <div className="max-w-6xl ml-6 p-5">
+        <div className="w-full mx-auto p-5">
             <Tabs aria-label="Nurse Profile Tabs" variant="underlined">
                 <Tab title="Lịch sử">
                     <HistoryTransactionNurse />

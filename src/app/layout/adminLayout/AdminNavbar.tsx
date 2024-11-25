@@ -6,6 +6,7 @@ import { Button } from "@nextui-org/react";
 import MenuIcon from "@/app/Icon/MenuIcon";
 import Dashboard from "@/app/Icon/Dashboard";
 import Management from "@/app/Icon/Management";
+import Payment from "@/app/Icon/Payment";
 const AdminNavbar = () => {
   const pathname = usePathname();
   const [isOpen, setIsOpen] = useState(false);
@@ -18,6 +19,7 @@ const AdminNavbar = () => {
       icon: <Management />,
     },
     { title: "Quản lí dịch vụ", link: "/service-fee", icon: <Management /> },
+    { title: "Quản lí giao dịch", link: "/payment-history", icon: <Payment /> },
   ];
 
   return (
@@ -42,7 +44,9 @@ const AdminNavbar = () => {
                   : "text-slate-800 hover:bg-white hover:border-l-4 hover:border-sky-600 hover:text-sky-400"
               }`}
             >
-              <span className="mr-3 rounded-full bg-sky-300 p-2 text-white">{item.icon}</span>
+              <span className="mr-3 rounded-full bg-sky-300 p-2 text-white">
+                {item.icon}
+              </span>
               {item.title}
             </Link>
           ))}
