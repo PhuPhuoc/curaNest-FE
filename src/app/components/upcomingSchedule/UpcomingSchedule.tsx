@@ -29,7 +29,6 @@ const UpcomingSchedule = () => {
   const [listScheduleCard, setListScheduleCard] = useState<NurseScheduleCard[]>(
     []
   );
-  console.log("🚀 ~ UpcomingSchedule ~ listScheduleCard:", listScheduleCard);
   const [filteredSchedule, setFilteredSchedule] = useState<NurseScheduleCard[]>(
     []
   );
