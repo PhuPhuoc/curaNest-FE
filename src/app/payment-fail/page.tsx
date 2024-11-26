@@ -2,6 +2,7 @@
 import { Divider } from "@nextui-org/react";
 import Image from "next/image";
 import { useRouter, useSearchParams } from "next/navigation";
+import FailImage from "../../../public/cancel.png";
 
 const Page = () => {
   const searchParams = useSearchParams();
@@ -19,7 +20,7 @@ const Page = () => {
     <div className="flex justify-center items-center min-h-screen bg-gray-100">
       <div className="bg-white text-center p-8 rounded-lg shadow-lg w-1/3">
         <Image
-          src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcS2ZHIDTj48-MPJgzYFgx0w7Bn5VbMSfbz-uA&s" 
+          src={FailImage}
           alt="Success Icon"
           width={120}
           height={120}

@@ -2,6 +2,7 @@
 import { Divider } from "@nextui-org/react";
 import Image from "next/image";
 import { useRouter, useSearchParams } from "next/navigation";
+import SucessImage from "../../../public/success.png";
 
 const PaymentResult = () => {
   const searchParams = useSearchParams();
@@ -20,7 +21,7 @@ const PaymentResult = () => {
     <div className="flex justify-center items-center min-h-screen bg-gray-100">
       <div className="bg-white text-center p-8 rounded-lg shadow-lg w-1/3">
         <Image
-          src="https://cdn2.fptshop.com.vn/unsafe/Uploads/images/tin-tuc/148929/Originals/tich_xanh_titktok_2.png" // Dấu tick màu trắng
+          src={SucessImage}
           alt="Success Icon"
           width={120}
           height={120}
