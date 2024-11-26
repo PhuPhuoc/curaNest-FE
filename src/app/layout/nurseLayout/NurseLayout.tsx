@@ -20,8 +20,7 @@ import { useState } from "react";
 import { useAppContext } from "@/app/app-provider";
 import { toast } from "react-toastify";
 import { useRouter } from "next/navigation";
-import paymentApiRequest from "@/apiRequests/payment/payment";
-
+import axios from "axios";
 export interface FormPayment {
   amount: string;
   user_id: string | null;
@@ -69,39 +68,35 @@ export default function NurseLayout({
       setFeeError(true);
       return;
     }
-  
+
     const feeAsNumber = parseInt(feeNumeric, 10);
     const finalData = {
       user_id: user?.id,
       amount: feeAsNumber,
     };
-  
+
     try {
-      const response = await fetch('/api/payment', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify(finalData),
-      });
-  
-      if (response.ok) {
-        const result = await response.json();
-        if (result.status === 200 && result.data?.payment_url) {
-          const paymentUrl = result.data.payment_url;
-          router.push(paymentUrl);
-        } else {
-          toast.error("Không lấy được URL thanh toán.");
+      const response = await axios.get(
+        `https://api.curanest.com.vn/api/v1/payments/vnpay-url?amount=${finalData.amount}&nurse_id=${finalData.user_id}`,
+        {
+          headers: {
+            accept: "application/json",
+            "Content-Type": "application/json",
+          },
         }
+      );
+
+      if (response.status === 200 && response.data?.data?.payment_url) {
+        const paymentUrl = response.data.data.payment_url;
+        router.push(paymentUrl);
       } else {
-        toast.error("Có lỗi xảy ra khi tạo URL thanh toán.");
+        toast.error("Không lấy được URL thanh toán.");
       }
     } catch (error) {
       console.error("Error creating payment URL:", error);
       toast.error("Có lỗi xảy ra trong quá trình xử lý.");
     }
   };
-  
 
   const handleFeeInputChange = (value: string) => {
     const numericValue = value.replace(/[^\d]/g, "");
