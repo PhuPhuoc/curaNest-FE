@@ -1,4 +1,6 @@
 import MainLayout from "@/app/layout/userLayout/MainLayout";
+import LoadingPage from "@/app/loading";
+import { Suspense } from "react";
 
 export default function RootLayout({
   children,
@@ -7,7 +9,9 @@ export default function RootLayout({
 }) {
   return (
     <div>
-      <MainLayout>{children}</MainLayout>
+      <Suspense fallback={<LoadingPage />}>
+        <MainLayout>{children}</MainLayout>
+      </Suspense>
     </div>
   );
 }

@@ -1,10 +1,7 @@
-// components/ProfileDrawer.tsx
 import React, { useEffect, useState } from "react";
-import { Avatar, Col, Divider, Drawer, List, Row } from "antd";
-import Link from "next/link";
-import { Button, Chip } from "@nextui-org/react";
+import { Avatar, Col, Divider, Drawer, Row } from "antd";
+import { Chip } from "@nextui-org/react";
 import { useAppContext } from "@/app/app-provider";
-import { useRouter } from "next/navigation";
 import techniqueApiRequest from "@/apiRequests/technique/technique";
 import { Technique } from "@/types/technique";
 import { DetailNurse } from "@/types/nurse";
@@ -28,32 +25,10 @@ interface ProfileDrawerProps {
   onClose: () => void;
 }
 
-const services = [
-  {
-    name: "Thay băng",
-    color: "bg-blue-500",
-    hoverColor: "hover:bg-blue-600",
-    textColor: "text-white",
-  },
-  {
-    name: "Cho ăn",
-    color: "bg-green-500",
-    hoverColor: "hover:bg-green-600",
-    textColor: "text-white",
-  },
-  {
-    name: "Tiêm thuốc",
-    color: "bg-red-500",
-    hoverColor: "hover:bg-red-600",
-    textColor: "text-white",
-  },
-];
-
 const colors = ["bg-blue-500", "bg-green-500", "bg-red-500", "bg-yellow-500"];
 
 const ProfileNurse: React.FC<ProfileDrawerProps> = ({ open, onClose }) => {
-  const { setUser, setAccount, user } = useAppContext();
-  const router = useRouter();
+  const { user } = useAppContext();
   const [techniques, setTechniques] = useState<Technique[]>([]);
   const [nurseList, setNurseList] = useState<DetailNurse>();
 
@@ -70,7 +45,7 @@ const ProfileNurse: React.FC<ProfileDrawerProps> = ({ open, onClose }) => {
       fetchDetailNurse();
     }
   }, [user]);
-  
+
   useEffect(() => {
     const fetchTechniques = async () => {
       try {
@@ -86,15 +61,6 @@ const ProfileNurse: React.FC<ProfileDrawerProps> = ({ open, onClose }) => {
 
     fetchTechniques();
   }, []);
-
-  function handleLogout() {
-    setUser(null);
-    setAccount(null);
-    localStorage.removeItem("user");
-    document.cookie =
-      "userRole=; path=/; expires=Thu, 01 Jan 1970 00:00:00 GMT";
-    router.push("/login");
-  }
 
   return (
     <>
@@ -215,7 +181,7 @@ const ProfileNurse: React.FC<ProfileDrawerProps> = ({ open, onClose }) => {
           ))}
         </div>
 
-        <div className="flex justify-center mt-5">
+        {/* <div className="flex justify-center mt-5">
           <Button
             onClick={handleLogout}
             color="danger"
@@ -224,7 +190,7 @@ const ProfileNurse: React.FC<ProfileDrawerProps> = ({ open, onClose }) => {
           >
             Đăng xuất
           </Button>
-        </div>
+        </div> */}
       </Drawer>
     </>
   );
