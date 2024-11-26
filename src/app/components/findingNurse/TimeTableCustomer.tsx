@@ -47,64 +47,75 @@ const TimeTableCustomer = ({ id }: TimetableProps) => {
     const [day, month, year] = dateString.split("/").map(Number);
     return new Date(year, month - 1, day);
   };
-  
+
   const changeWeek = (direction: "prev" | "next") => {
     if (weekRange) {
-      // Chuyển đổi ngày bắt đầu tuần hiện tại
       const currentMonday = parseDate(weekRange.from);
       const today = new Date();
-  
-      // Tính ngày bắt đầu tuần hiện tại
+
       const startOfThisWeek = new Date(today);
-      startOfThisWeek.setDate(today.getDate() - today.getDay() + 1);
-  
-      // Tính ngày bắt đầu tuần kế tiếp
+      const todayDay = today.getDay() || 7; 
+      startOfThisWeek.setDate(today.getDate() - todayDay + 1);
+      startOfThisWeek.setHours(0, 0, 0, 0);
+
+
       const startOfNextWeek = new Date(startOfThisWeek);
       startOfNextWeek.setDate(startOfThisWeek.getDate() + 7);
-  
-      // Xác định khoảng dịch chuyển (7 ngày)
+
+      const startOfWeekAfterNext = new Date(startOfNextWeek);
+      startOfWeekAfterNext.setDate(startOfNextWeek.getDate() + 7);
+
       const offset = direction === "prev" ? -7 : 7;
-  
-      // Tính tuần mới
       const newBaseDate = new Date(currentMonday);
       newBaseDate.setDate(currentMonday.getDate() + offset);
-  
-      // Kiểm tra giới hạn tuần hiện tại và tuần kế tiếp
-      if (direction === "next" && newBaseDate >= startOfNextWeek) {
-        toast.warn("Chỉ xem được tuần hiện tại và tuần sau");
-        return;
-      }
-  
-      // Thiết lập tuần mới
-      const initializeWeek = (baseDate: Date) => {
-        const monday = new Date(baseDate);
-        const sunday = new Date(baseDate);
-        sunday.setDate(baseDate.getDate() + 6);
-  
-        const currentWeekDays = [];
-        for (let i = 0; i < 7; i++) {
-          const currentDay = new Date(monday);
-          currentDay.setDate(monday.getDate() + i);
-          currentWeekDays.push(currentDay.toLocaleDateString("vi-VN"));
+      newBaseDate.setHours(0, 0, 0, 0);
+
+      startOfThisWeek.setHours(0, 0, 0, 0);
+      startOfNextWeek.setHours(0, 0, 0, 0);
+      startOfWeekAfterNext.setHours(0, 0, 0, 0);
+
+      if (direction === "prev") {
+        const newTime = newBaseDate.getTime();
+        const thisWeekTime = startOfThisWeek.getTime();
+        if (newTime < thisWeekTime) {
+          toast.warn("Chỉ xem được tuần hiện tại và tuần kế tiếp");
+          return;
         }
-  
-        setWeekDays(currentWeekDays);
-        setWeekRange({
-          from: monday.toLocaleDateString("vi-VN"),
-          to: sunday.toLocaleDateString("vi-VN"),
-        });
-      };
-  
-      initializeWeek(newBaseDate);
+      } else if (direction === "next") {
+        // Không cho phép xem các tuần sau tuần kế tiếp
+        const newTime = newBaseDate.getTime();
+        const afterNextWeekTime = startOfWeekAfterNext.getTime();
+        if (newTime >= afterNextWeekTime) {
+          toast.warn("Chỉ xem được tuần hiện tại và tuần kế tiếp");
+          return;
+        }
+      }
+
+      const newWeekDays = [];
+      const newMonday = new Date(newBaseDate);
+      const newSunday = new Date(newBaseDate);
+      newSunday.setDate(newBaseDate.getDate() + 6);
+
+      for (let i = 0; i < 7; i++) {
+        const currentDay = new Date(newMonday);
+        currentDay.setDate(newMonday.getDate() + i);
+        newWeekDays.push(currentDay.toLocaleDateString("vi-VN"));
+      }
+
+      setWeekDays(newWeekDays);
+      setWeekRange({
+        from: newMonday.toLocaleDateString("vi-VN"),
+        to: newSunday.toLocaleDateString("vi-VN"),
+      });
     }
   };
-  
 
   const hours = [
     "08:00 - 09:00",
     "09:00 - 10:00",
     "10:00 - 11:00",
     "11:00 - 12:00",
+    "12:00 - 13:00",
     "13:00 - 14:00",
     "14:00 - 15:00",
     "15:00 - 16:00",
@@ -163,7 +174,7 @@ const TimeTableCustomer = ({ id }: TimetableProps) => {
 
       <div className="flex justify-between items-center mb-4">
         <Button
-        color="primary"
+          color="primary"
           onClick={() => changeWeek("prev")}
           className="px-4 py-2 font-bold rounded-lg shadow-md"
         >
@@ -173,15 +184,14 @@ const TimeTableCustomer = ({ id }: TimetableProps) => {
           {weekRange?.from} - {weekRange?.to}
         </p>
         <Button
-                color="primary"
-
+          color="primary"
           onClick={() => changeWeek("next")}
           className="px-4 py-2 font-bold rounded-lg shadow-md"
         >
           Tuần kế tiếp
         </Button>
       </div>
-      
+
       <div>
         <table className="table-auto w-full border-collapse">
           <thead>
