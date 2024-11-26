@@ -214,7 +214,7 @@ const AuthPage = () => {
                   />
                   <Input
                     type={isVisible ? "text" : "password"}
-                    label="Mật khảu"
+                    label="Mật khẩu"
                     variant="bordered"
                     placeholder="Nhập mật khẩu"
                     size="lg"
