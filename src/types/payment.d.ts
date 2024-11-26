@@ -1,12 +1,12 @@
 export type createPayment = {
-  value: number;
-  info: string;
+  amount: number;
+  user_id: string | null;
 };
 
 export type createPaymentRes = {
   status: number;
   message: string;
-  data: createPayment;
+  data: {
+    payment_url: string;
+  };
 };
-
-

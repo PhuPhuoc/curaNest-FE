@@ -21,11 +21,10 @@ import { useAppContext } from "@/app/app-provider";
 import { toast } from "react-toastify";
 import { useRouter } from "next/navigation";
 import paymentApiRequest from "@/apiRequests/payment/payment";
-import { createPayment } from "@/types/payment";
 
-interface FormData {
-  value: string;
-  infor: string;
+export interface FormPayment {
+  amount: string;
+  user_id: string | null;
 }
 
 export default function NurseLayout({
@@ -35,6 +34,17 @@ export default function NurseLayout({
 }) {
   const [isDrawerOpen, setIsDrawerOpen] = useState(false);
   const { setUser, user, setAccount } = useAppContext();
+  const showDrawer = () => setIsDrawerOpen(true);
+  const closeDrawer = () => setIsDrawerOpen(false);
+  const [loading, setLoading] = useState(false);
+  const [feeError, setFeeError] = useState(false);
+  const router = useRouter();
+  const [createModalOpen, setCreateModalOpen] = useState(false);
+  const [createFormData, setCreateFormData] = useState<FormPayment>({
+    amount: "",
+    user_id: user && user?.id,
+  });
+
   function handleLogout() {
     setUser(null);
     setAccount(null);
@@ -42,16 +52,6 @@ export default function NurseLayout({
     document.cookie =
       "userRole=; path=/; expires=Thu, 01 Jan 1970 00:00:00 GMT";
   }
-  const showDrawer = () => setIsDrawerOpen(true);
-  const closeDrawer = () => setIsDrawerOpen(false);
-  const [loading, setLoading] = useState(false);
-  const [feeError, setFeeError] = useState(false);
-  const router = useRouter();
-  const [createModalOpen, setCreateModalOpen] = useState(false);
-  const [createFormData, setCreateFormData] = useState<FormData>({
-    value: "",
-    infor: "",
-  });
 
   const handleCreateModalOpen = () => {
     setCreateModalOpen(true);
@@ -59,52 +59,55 @@ export default function NurseLayout({
 
   const handleCreateModalClose = () => {
     setCreateModalOpen(false);
-    setCreateFormData({ infor: "", value: "" });
+    setCreateFormData({ user_id: "", amount: "" });
     setFeeError(false);
   };
 
   const handleCreateSubmit = async () => {
-    const feeNumeric = createFormData.value.replace(/\D/g, "");
+    const feeNumeric = createFormData.amount.replace(/\D/g, "");
     if (feeNumeric.length < 4) {
       setFeeError(true);
       return;
     }
-
+  
     const feeAsNumber = parseInt(feeNumeric, 10);
+  
     const finalData = {
-      ...createFormData,
-      value: feeAsNumber,
+      user_id: user?.id,
+      amount: feeAsNumber,
     };
-
-    const data = {
-      amount: finalData.value,
-      date: "25/11/2024",
-      infor: finalData.infor,
-      "response-code": "02",
-    };
-
-    const queryParams = new URLSearchParams({
-      amount: data.amount.toString(),
-      date: data.date,
-      infor: data.infor,
-      "response-code": data["response-code"],
-    }).toString();
-
-    router.push(`/payment-result-success?${queryParams}`);
+  
     try {
-      if (user) {
-        // const result = await paymentApiRequest.createPayment(
-        //   user?.id,
-        //   finalData
-        // );
-        // toast.success(result.payload.message);
-        handleCreateModalClose();
+      if (user?.id) {
+        const response = await fetch("https://api.curanest.com.vn/api/v1/payments", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify(finalData),
+        });
+  
+        if (response.ok) {
+          const result = await response.json();
+          
+          if (result.status === 200 && result.data?.payment_url) {
+            const paymentUrl = result.data.payment_url;
+            router.push(paymentUrl);
+            handleCreateModalClose();
+          } else {
+            toast.error("Không lấy được URL thanh toán.");
+          }
+        } else {
+          toast.error("Có lỗi xảy ra khi tạo URL thanh toán.");
+        }
       }
     } catch (error: any) {
-      console.log("🚀 ~ handleCreateSubmit ~ error:", error);
+      console.error("Error creating payment URL:", error);
       setLoading(false);
+      toast.error("Có lỗi xảy ra trong quá trình xử lý.");
     }
   };
+  
 
   const handleFeeInputChange = (value: string) => {
     const numericValue = value.replace(/[^\d]/g, "");
@@ -118,7 +121,7 @@ export default function NurseLayout({
 
     setCreateFormData((prev) => ({
       ...prev,
-      value: formattedValue,
+      amount: formattedValue,
     }));
   };
 
@@ -137,7 +140,7 @@ export default function NurseLayout({
                     src: user?.avatar,
                   }}
                   className="transition-transform "
-                  description={"Số dư: 10.000.000VND"}
+                  description={"10.000.000 VND"}
                   name={user?.user_name || "Tên không xác định"}
                 />
               </DropdownTrigger>
@@ -195,7 +198,7 @@ export default function NurseLayout({
                 label="Số tiền chuyển khoản"
                 placeholder="Nhập số tiền"
                 variant="bordered"
-                value={createFormData.value}
+                value={createFormData.amount}
                 onChange={(e) => handleFeeInputChange(e.target.value)}
                 endContent={<div className="text-default-400">VND</div>}
                 isInvalid={feeError}
@@ -204,26 +207,6 @@ export default function NurseLayout({
                 }
                 style={{ fontSize: 20 }}
                 classNames={{ label: "text-[20px] font-bold mb-2" }}
-              />
-              <Textarea
-                size="lg"
-                label="Nội dung chuyển khoản"
-                placeholder="Nhập nội dung chuyển khoản"
-                variant="bordered"
-                value={createFormData.infor}
-                disableAnimation
-                disableAutosize
-                onChange={(e) =>
-                  setCreateFormData((prev) => ({
-                    ...prev,
-                    infor: e.target.value,
-                  }))
-                }
-                style={{ fontSize: 20 }}
-                classNames={{
-                  label: "text-[20px] font-bold mb-2",
-                  input: "resize-y min-h-[40px]",
-                }}
               />
             </div>
           </ModalBody>
