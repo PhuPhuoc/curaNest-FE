@@ -28,8 +28,9 @@ const Page = () => {
         />
 
         <h1 className="text-2xl font-bold mb-4 text-red-400">
-          Thanh toán thất bại! - {responseCode}
+          Thanh toán thất bại!
         </h1>
+
         <h1 className="text-2xl font-bold italic mb-4">
           {amount
             ? `${new Intl.NumberFormat("vi-VN").format(Number(amount))} VND`
@@ -51,6 +52,13 @@ const Page = () => {
             <p className="font-medium text-lg">Nội dung chuyển khoản:</p>
             <p className="max-w-[200px]" style={{ letterSpacing: 1 }}>
               {infor || "Chưa có nội dung chuyển khoản"}
+            </p>
+          </div>
+          <Divider />
+          <div className="flex items-center justify-between">
+            <p className="font-medium text-lg">Mã lỗi phản hồi:</p>
+            <p className="max-w-[200px]" style={{ letterSpacing: 1 }}>
+              {responseCode}
             </p>
           </div>
           <Divider />
