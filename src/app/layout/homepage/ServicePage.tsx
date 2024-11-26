@@ -9,29 +9,30 @@ const TreatmentPage = () => {
   const treatments = [
     {
       id: 1,
-      title: "Đưa đón đi khám bệnh",
-      description: "Người dùng sẽ book điều dưỡng đến nhà để đưa người thân của mình đi khám ở bệnh viện nơi mà điều dưỡng đang làm việc (hoặc bệnh viện khác tùy theo yêu cầu của gia đình bệnh nhân)",
+      title: "Theo dõi huyết áp tại nhà",
+      description: "Người dùng book điều dưỡng đến nhà để đo và theo dõi huyết áp định kỳ, hỗ trợ tư vấn về tình trạng sức khỏe.",
       imageSrc: Image1,
     },
     {
       id: 2,
-      title: "Chăm sóc tại nhà",
-      description:"Người dùng book điều dưỡng về nhà để chăm sóc cho bệnh nhân theo giờ.",
+      title: "Tiêm thuốc tại nhà",
+      description: "Người dùng book điều dưỡng về nhà để tiêm thuốc hoặc thực hiện các thủ thuật y tế cơ bản.",
       imageSrc: Image2,
     },
     {
       id: 3,
-      title: "Chăm sóc tại bệnh viện",
-      description:"Người dùng book điều dưỡng trực tại bệnh viện để chăm sóc hoặc có thể làm bảo mẫu",
+      title: "Chăm sóc bệnh nhân sau phẫu thuật",
+      description: "Người dùng book điều dưỡng để hỗ trợ bệnh nhân sau phẫu thuật, bao gồm thay băng, chăm sóc vết thương, và hỗ trợ phục hồi.",
       imageSrc: Image3,
     },
     {
       id: 4,
-      title: "Hỗ trợ phục hồi chức năng",
-      description: "Người dùng book điều dưỡng để giúp bệnh nhân thực hiện các bài tập phục hồi chức năng tại nhà sau phẫu thuật hoặc chấn thương.",
+      title: "Chăm sóc người già và trẻ nhỏ",
+      description: "Người dùng book điều dưỡng đến nhà để chăm sóc người già hoặc trẻ nhỏ, đảm bảo họ được chăm sóc chu đáo và đúng cách.",
       imageSrc: Image4,
     },
   ];
+  
 
   return (
     <div className="p-10">
