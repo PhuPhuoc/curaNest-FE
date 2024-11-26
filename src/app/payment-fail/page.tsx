@@ -3,32 +3,31 @@ import { Divider } from "@nextui-org/react";
 import Image from "next/image";
 import { useRouter, useSearchParams } from "next/navigation";
 
-const PaymentResult = () => {
+const Page = () => {
   const searchParams = useSearchParams();
   const router = useRouter();
 
   const amount = searchParams.get("amount");
-  const account = searchParams.get("account");
   const date = searchParams.get("date");
   const infor = searchParams.get("infor");
 
   function handleRouteBack() {
-    router.push("/user");
+    router.push("/nurse");
   }
 
   return (
     <div className="flex justify-center items-center min-h-screen bg-gray-100">
       <div className="bg-white text-center p-8 rounded-lg shadow-lg w-1/3">
         <Image
-          src="https://cdn2.fptshop.com.vn/unsafe/Uploads/images/tin-tuc/148929/Originals/tich_xanh_titktok_2.png" // Dấu tick màu trắng
+          src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcS2ZHIDTj48-MPJgzYFgx0w7Bn5VbMSfbz-uA&s" 
           alt="Success Icon"
           width={120}
           height={120}
           className="mx-auto mb-4 rounded-full p-2"
         />
 
-        <h1 className="text-2xl font-bold mb-4 text-cyan-400">
-          Thanh toán thành công!
+        <h1 className="text-2xl font-bold mb-4 text-red-400">
+          Thanh toán thất bại!
         </h1>
         <h1 className="text-2xl font-bold italic mb-4">
           {amount
@@ -37,14 +36,6 @@ const PaymentResult = () => {
         </h1>
 
         <div className="grid gap-4 text-left text-gray-700">
-          <Divider />
-
-          <div className="flex items-center justify-between">
-            <p className="font-medium text-lg">Số tài khoản:</p>
-            <p style={{ letterSpacing: 1 }}>
-              {account || "Chưa có số tài khoản"}
-            </p>
-          </div>
           <Divider />
 
           <div className="flex items-center justify-between">
@@ -75,4 +66,4 @@ const PaymentResult = () => {
   );
 };
 
-export default PaymentResult;
+export default Page;
