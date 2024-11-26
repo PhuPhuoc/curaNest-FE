@@ -71,39 +71,33 @@ export default function NurseLayout({
     }
   
     const feeAsNumber = parseInt(feeNumeric, 10);
-  
     const finalData = {
       user_id: user?.id,
       amount: feeAsNumber,
     };
   
     try {
-      if (user?.id) {
-        const response = await fetch("https://api.curanest.com.vn/api/v1/payments", {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify(finalData),
-        });
+      const response = await fetch('/api/payment', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(finalData),
+      });
   
-        if (response.ok) {
-          const result = await response.json();
-          
-          if (result.status === 200 && result.data?.payment_url) {
-            const paymentUrl = result.data.payment_url;
-            router.push(paymentUrl);
-            handleCreateModalClose();
-          } else {
-            toast.error("Không lấy được URL thanh toán.");
-          }
+      if (response.ok) {
+        const result = await response.json();
+        if (result.status === 200 && result.data?.payment_url) {
+          const paymentUrl = result.data.payment_url;
+          router.push(paymentUrl);
         } else {
-          toast.error("Có lỗi xảy ra khi tạo URL thanh toán.");
+          toast.error("Không lấy được URL thanh toán.");
         }
+      } else {
+        toast.error("Có lỗi xảy ra khi tạo URL thanh toán.");
       }
-    } catch (error: any) {
+    } catch (error) {
       console.error("Error creating payment URL:", error);
-      setLoading(false);
       toast.error("Có lỗi xảy ra trong quá trình xử lý.");
     }
   };
