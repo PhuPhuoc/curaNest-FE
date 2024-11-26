@@ -37,7 +37,7 @@ const HistoryTransactionNurse = () => {
     return (
         <div>
             {transactions.map((transaction) => (
-                <Card key={transaction.id} className="mb-4 w-full">
+                <Card key={transaction.id} className="mb-4">
                     <CardHeader >
                         <div className="flex items-center">
                             <Avatar

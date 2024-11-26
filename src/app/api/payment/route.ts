@@ -1,6 +1,6 @@
 import { NextResponse } from "next/server";
 
-export async function POST(request: any) {
+export async function GET(request: any) {
   const { user_id, amount } = await request.json();
 
   const finalData = {
