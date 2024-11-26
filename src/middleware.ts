@@ -1,8 +1,6 @@
-// middleware.ts
 import { NextResponse } from "next/server";
 import type { NextRequest } from "next/server";
 
-// Define role-based paths
 const roleBasedPaths = {
   admin: ["/admin"],
   user: ["/user"],

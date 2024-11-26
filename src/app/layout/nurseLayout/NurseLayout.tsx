@@ -90,7 +90,7 @@ export default function NurseLayout({
       infor: data.infor,
     }).toString();
 
-    router.push(`/nurse/payment-result?${queryParams}`);
+    router.push(`/payment-result?${queryParams}`);
     try {
       if (user) {
         // const result = await paymentApiRequest.createPayment(
