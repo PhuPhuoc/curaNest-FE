@@ -1,4 +1,3 @@
-import NurseLayout from "@/app/layout/nurseLayout/NurseLayout";
 import LoadingPage from "@/app/loading";
 import { Suspense } from "react";
 
@@ -9,9 +8,7 @@ export default function RootLayout({
 }) {
   return (
     <div>
-      <Suspense fallback={<LoadingPage />}>
-        <NurseLayout>{children}</NurseLayout>
-      </Suspense>
+      <Suspense fallback={<LoadingPage />}>{children}</Suspense>
     </div>
   );
 }

@@ -1,4 +1,6 @@
 import AdminLayout from "@/app/layout/adminLayout/AdminLayout";
+import LoadingPage from "@/app/loading";
+import { Suspense } from "react";
 
 export default function RootLayout({
   children,
@@ -7,7 +9,9 @@ export default function RootLayout({
 }) {
   return (
     <div>
-      <AdminLayout>{children}</AdminLayout>
+      <Suspense fallback={<LoadingPage />}>
+        <AdminLayout>{children}</AdminLayout>
+      </Suspense>
     </div>
   );
 }

@@ -5,6 +5,8 @@ import { Providers } from "./providers";
 import { ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import AppProvider from "@/app/app-provider";
+import { Suspense } from "react";
+import LoadingPage from "@/app/loading";
 const inter = Inter({ subsets: ["latin"] });
 
 export const metadata: Metadata = {
@@ -21,10 +23,11 @@ export default function RootLayout({
     <html lang="en">
       <body className={inter.className}>
         <ToastContainer className="text-base mr-10" position="top-right" />
-
-        <AppProvider>
-          <Providers>{children}</Providers>
-        </AppProvider>
+        <Suspense fallback={<LoadingPage/>}>
+          <AppProvider>
+            <Providers>{children}</Providers>
+          </AppProvider>
+        </Suspense>
       </body>
     </html>
   );
