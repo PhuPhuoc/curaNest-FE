@@ -11,7 +11,7 @@ const Page = () => {
   const amount = searchParams.get("amount");
   const date = searchParams.get("date");
   const infor = searchParams.get("infor");
-
+  const responseCode = searchParams.get("response-code");
   function handleRouteBack() {
     router.push("/nurse");
   }
@@ -28,7 +28,7 @@ const Page = () => {
         />
 
         <h1 className="text-2xl font-bold mb-4 text-red-400">
-          Thanh toán thất bại!
+          Thanh toán thất bại! - {responseCode}
         </h1>
         <h1 className="text-2xl font-bold italic mb-4">
           {amount

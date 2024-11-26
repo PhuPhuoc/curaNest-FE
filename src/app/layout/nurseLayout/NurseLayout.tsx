@@ -80,15 +80,17 @@ export default function NurseLayout({
       amount: finalData.value,
       date: "25/11/2024",
       infor: finalData.infor,
+      "response-code": "02",
     };
 
     const queryParams = new URLSearchParams({
       amount: data.amount.toString(),
       date: data.date,
       infor: data.infor,
+      "response-code": data["response-code"],
     }).toString();
 
-    router.push(`/payment-result?${queryParams}`);
+    router.push(`/payment-result-success?${queryParams}`);
     try {
       if (user) {
         // const result = await paymentApiRequest.createPayment(
