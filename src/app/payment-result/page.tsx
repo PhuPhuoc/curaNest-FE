@@ -9,7 +9,6 @@ const PaymentResult = () => {
   const router = useRouter();
 
   const amount = searchParams.get("amount");
-  const account = searchParams.get("account");
   const date = searchParams.get("date");
   const infor = searchParams.get("infor");
 

@@ -78,14 +78,12 @@ export default function NurseLayout({
 
     const data = {
       amount: finalData.value,
-      account: "058526798456",
       date: "25/11/2024",
       infor: finalData.infor,
     };
 
     const queryParams = new URLSearchParams({
       amount: data.amount.toString(),
-      account: data.account,
       date: data.date,
       infor: data.infor,
     }).toString();
@@ -143,10 +141,18 @@ export default function NurseLayout({
               </DropdownTrigger>
 
               <DropdownMenu aria-label="User Actions" variant="flat">
-                <DropdownItem color="primary" key="information" onClick={showDrawer}>
+                <DropdownItem
+                  color="primary"
+                  key="information"
+                  onClick={showDrawer}
+                >
                   Thông tin cá nhân
                 </DropdownItem>
-                <DropdownItem color="secondary"  key="payment" onClick={handleCreateModalOpen}>
+                <DropdownItem
+                  color="secondary"
+                  key="payment"
+                  onClick={handleCreateModalOpen}
+                >
                   Nạp tiền
                 </DropdownItem>
                 <DropdownItem
