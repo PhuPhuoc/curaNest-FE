@@ -81,6 +81,7 @@ export default function NurseLayout({
       if (user?.id) {
         const response = await fetch("https://api.curanest.com.vn/api/v1/payments", {
           method: "POST",
+          mode:"no-cors",
           headers: {
             "Content-Type": "application/json",
           },
