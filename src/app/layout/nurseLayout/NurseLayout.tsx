@@ -20,8 +20,7 @@ import { useState } from "react";
 import { useAppContext } from "@/app/app-provider";
 import { toast } from "react-toastify";
 import { useRouter } from "next/navigation";
-import paymentApiRequest from "@/apiRequests/payment/payment";
-
+import axios from "axios";
 export interface FormPayment {
   amount: string;
   user_id: string | null;
