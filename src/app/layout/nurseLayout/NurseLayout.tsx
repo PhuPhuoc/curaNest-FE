@@ -69,22 +69,22 @@ export default function NurseLayout({
       setFeeError(true);
       return;
     }
-  
+
     const feeAsNumber = parseInt(feeNumeric, 10);
     const finalData = {
       user_id: user?.id,
       amount: feeAsNumber,
     };
-  
+
     try {
-      const response = await fetch('/api/payment', {
-        method: 'POST',
+      const response = await fetch("/api/payment", {
+        method: "POST",
         headers: {
-          'Content-Type': 'application/json',
+          "Content-Type": "application/json",
         },
         body: JSON.stringify(finalData),
       });
-  
+
       if (response.ok) {
         const result = await response.json();
         if (result.status === 200 && result.data?.payment_url) {
@@ -101,7 +101,6 @@ export default function NurseLayout({
       toast.error("Có lỗi xảy ra trong quá trình xử lý.");
     }
   };
-  
 
   const handleFeeInputChange = (value: string) => {
     const numericValue = value.replace(/[^\d]/g, "");
@@ -123,7 +122,7 @@ export default function NurseLayout({
     <div className="flex min-h-screen">
       <NurseNavbar />
       <div className="flex-1 flex flex-col lg:ml-64 bg-gray-200">
-        <header className="bg-white w-full shadow-sm p-4 fixed items-center  top-0">
+        <header className="bg-white w-full shadow-sm p-4 fixed top-0 z-50 flex justify-end">
           <div className="mr-[300px] float-right">
             <Dropdown placement="bottom-start">
               <DropdownTrigger>
