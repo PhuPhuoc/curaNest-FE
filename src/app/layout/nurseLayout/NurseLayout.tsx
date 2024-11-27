@@ -76,24 +76,21 @@ export default function NurseLayout({
     };
 
     try {
-      const response = await fetch("/api/payment", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify(finalData),
-      });
-
-      if (response.ok) {
-        const result = await response.json();
-        if (result.status === 200 && result.data?.payment_url) {
-          const paymentUrl = result.data.payment_url;
-          router.push(paymentUrl);
-        } else {
-          toast.error("Không lấy được URL thanh toán.");
+      const response = await axios.get(
+        `https://api.curanest.com.vn/api/v1/payments/vnpay-url?amount=${finalData.amount}&nurse_id=${finalData.user_id}`,
+        {
+          headers: {
+            accept: "application/json",
+            "Content-Type": "application/json",
+          },
         }
+      );
+
+      if (response.status === 200 && response.data?.data?.payment_url) {
+        const paymentUrl = response.data.data.payment_url;
+        router.push(paymentUrl);
       } else {
-        toast.error("Có lỗi xảy ra khi tạo URL thanh toán.");
+        toast.error("Không lấy được URL thanh toán.");
       }
     } catch (error) {
       console.error("Error creating payment URL:", error);
@@ -121,7 +118,7 @@ export default function NurseLayout({
     <div className="flex min-h-screen">
       <NurseNavbar />
       <div className="flex-1 flex flex-col lg:ml-64 bg-gray-200">
-        <header className="bg-white w-full shadow-sm p-4 fixed top-0 z-50 flex justify-end">
+        <header className="bg-white w-full shadow-sm p-4 fixed items-center  top-0">
           <div className="mr-[300px] float-right">
             <Dropdown placement="bottom-start">
               <DropdownTrigger>

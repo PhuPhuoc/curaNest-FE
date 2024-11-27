@@ -1,5 +1,8 @@
 "use client";
-import React from "react";
+import reviewApiRequest from "@/apiRequests/review/review";
+import { generateColor } from "@/lib/utils";
+import { Chip, CircularProgress } from "@nextui-org/react";
+import React, { useEffect, useState } from "react";
 
 interface Review {
   id: number;
@@ -7,50 +10,82 @@ interface Review {
   rating: number;
   comment: string;
   date: string;
+  technique: string;
 }
 
-const reviews: Review[] = [
-  {
-    id: 1,
-    user: "Trần Văn B",
-    rating: 5,
-    comment: "Điều dưỡng rất tận tình và chu đáo, tôi rất hài lòng.",
-    date: "01/08/2024",
-  },
-  {
-    id: 2,
-    user: "Nguyễn Thị C",
-    rating: 4,
-    comment: "Dịch vụ rất tốt, điều dưỡng rất thân thiện.",
-    date: "10/07/2024",
-  },
-  {
-    id: 3,
-    user: "Lê Minh D",
-    rating: 3,
-    comment: "Dịch vụ ổn nhưng cần cải thiện thời gian chờ đợi.",
-    date: "15/06/2024",
-  },
-];
+const Review: React.FC<{ nurseId: string | undefined }> = ({ nurseId }) => {
+  const [reviews, setReviews] = useState<Review[]>([]);
+  const [loading, setLoading] = useState<boolean>(true);
 
-const Review: React.FC = () => {
+  useEffect(() => {
+    const fetchReviews = async () => {
+      if (!nurseId) {
+        setLoading(false);
+        return;
+      }
+
+      try {
+        setLoading(true);
+        const response = await reviewApiRequest.getReview(nurseId);
+        const apiData = response.payload.data.map((review: any) => ({
+          id: review.id,
+          user: review.patient_name,
+          rating: review.rate,
+          comment: review.content,
+          date: new Date(review.created_at).toLocaleString("vi-VN", {
+            day: "2-digit",
+            month: "2-digit",
+            year: "numeric",
+            hour: "2-digit",
+            minute: "2-digit",
+          }),
+          technique: review.techniques,
+        }));
+        setReviews(apiData);
+      } catch (err: any) {
+        console.log("Lỗi xảy ra khi fetch review: ", err);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchReviews();
+  }, [nurseId]);
+
   return (
     <div>
       <p className="text-2xl font-bold mt-5 mb-5">Đánh giá về điều dưỡng</p>
 
-      <div className=" p-6 border rounded-lg shadow-md bg-white">
-        {reviews.length > 0 ? (
+      <div className="p-6 border rounded-lg shadow-md bg-white">
+        {loading ? (
+          <div className="flex justify-center">
+            <CircularProgress size="lg" color="primary" />
+          </div>
+        ) : reviews.length > 0 ? (
           reviews.map((review) => (
             <div key={review.id} className="mb-4">
               <div className="flex justify-between items-center">
-                <p className="font-semibold">{review.user}</p>
-                <p className="text-sm text-gray-500">{review.date}</p>
+                <p className="font-semibold text-2xl">{review.user}</p>
+                <p className="text-gray-500">{review.date}</p>
               </div>
-              <p className="text-yellow-500">
+              <p className="text-yellow-500 text-lg">
                 {"★".repeat(review.rating)}
                 {"☆".repeat(5 - review.rating)}
               </p>
-              <p className="mt-2">{review.comment}</p>
+              <p className="text-lg">{review.comment}</p>
+
+              <div className="mt-4">
+                <p className="mb-2 font-bold text-xl">Dịch vụ: </p>
+                <Chip
+                  className="text-white px-4 py-2"
+                  size="md"
+                  style={{
+                    backgroundColor: generateColor(review.id.toString()),
+                  }}
+                >
+                  {review.technique}
+                </Chip>
+              </div>
             </div>
           ))
         ) : (
