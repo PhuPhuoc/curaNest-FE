@@ -1,124 +1,145 @@
 "use client";
-import paymentApiRequest from "@/apiRequests/payment/payment";
-import { WalletTransaction } from "@/types/payment";
-import { Card, CardBody, CircularProgress } from "@nextui-org/react";
+import nurseApiRequest from "@/apiRequests/nurse/nurse";
+import { formatDateVN, generateColor } from "@/lib/utils";
+import {
+  Card,
+  CardHeader,
+  CardBody,
+  Chip,
+  Avatar,
+  CircularProgress,
+} from "@nextui-org/react";
+import dayjs from "dayjs";
 import { useEffect, useState } from "react";
 
 const HistoryTransactionNurse: React.FC<{ nurseId: string | undefined }> = ({
   nurseId,
 }) => {
-  const [transactions, setTransactions] = useState<WalletTransaction[]>([]);
+  const [transactions, setTransactions] = useState<any[]>([]);
   const [loading, setLoading] = useState<boolean>(false);
 
   useEffect(() => {
-    const fetchTransactions = async () => {
-      if (!nurseId) {
-        return;
-      }
+    const fetchScheduleData = async () => {
+      if (!nurseId) return;
 
       setLoading(true);
 
+      const from = dayjs().startOf("month").format("YYYY-MM-DD");
+      const to = dayjs().endOf("month").format("YYYY-MM-DD");
+
       try {
-        const response = await paymentApiRequest.getWalletTransaction(nurseId);
-        setTransactions(response.payload.data);
+        const response = await nurseApiRequest.nurseScheduleCard(
+          nurseId,
+          "nurse",
+          from,
+          to
+        );
+        console.log("API Response:", response);
+        console.log("Payload Data:", response?.payload?.data);
+
+        setTransactions(response.payload.data); 
       } catch (error) {
-        console.error("Error fetching wallet transactions:", error);
+        console.error("Error fetching schedule data:", error); 
       } finally {
         setLoading(false);
       }
     };
 
-    fetchTransactions();
+    fetchScheduleData();
   }, [nurseId]);
 
-  const filterTransactions = (type: "deposit" | "deduction") => {
-    return transactions.filter((transaction) => transaction.type === type);
+
+  const getChipColor = (status: string) => {
+    switch (status) {
+      case "completed":
+        return "success";
+      case "cancel":
+        return "warning";
+      case "Thất bại":
+        return "danger";
+      default:
+        return "default";
+    }
   };
+
+  if (loading) {
+    return (
+      <div className="flex justify-center items-center h-40">
+        <CircularProgress size="lg" color="primary" />
+      </div>
+    );
+  }
 
   return (
     <div>
-      {/* Section for Deposits */}
-      <div className="mb-8">
-        <h3 className="text-xl font-semibold mb-2">Lịch sử Nạp Tiền</h3>
-        {loading ? (
-          <div className="flex justify-center">
-            <CircularProgress size="lg" color="primary" />
-          </div>
-        ) : (
-          filterTransactions("deposit").map((transaction) => (
-            <Card key={transaction.id} className="mb-4">
-              <CardBody>
-                <div className="mt-2">
-                  <p className="mb-4">
-                    <strong>Thời gian giao dịch: </strong>
-                    {new Date(transaction.created_at).toLocaleString("vi-VN", {
-                      day: "2-digit",
-                      month: "2-digit",
-                      year: "numeric",
-                      hour: "2-digit",
-                      minute: "2-digit",
-                    })}
-                  </p>
-                  <p className="mb-4">
-                    <strong>Chi tiết:</strong> {transaction.detail}
-                  </p>
-                  <p className="mb-2">
-                    <strong>Số tiền nạp vào:</strong>{" "}
+      {transactions.length > 0 ? (
+        transactions.map((transaction) => (
+          <Card key={transaction.id} className="mb-4 w-full">
+            <CardHeader>
+              <div className="flex items-center">
+                <Avatar
+                  src={transaction.avatar}
+                  style={{ width: "80px", height: "80px", marginRight: "10px" }}
+                />
+                <div>
+                  <h4 className="text-lg font-semibold">
+                    {transaction.patient_name}
+                  </h4>
+                </div>
+              </div>
+            </CardHeader>
+
+            <CardBody>
+              <div className="flex flex-wrap gap-6 mb-4">
+                <p>
+                  <strong>Ngày đặt:</strong>{" "}
+                  {formatDateVN(transaction.appointment_date)}
+                </p>
+                <p>
+                  <strong>Thời gian:</strong> {transaction.time_from_to}
+                </p>
+                <p>
+                  <strong>Số điện thoại:</strong> {transaction.patient_phone}
+                </p>
+              </div>
+
+              <p className="mb-4">
+                <strong>Loại dịch vụ: </strong>
+                <Chip
+                  key={transaction.id}
+                  className="text-white font-bold py-2"
+                  size="md"
+                  style={{ backgroundColor: generateColor(transaction.id) }}
+                >
+                  {transaction.techniques}
+                </Chip>
+              </p>
+
+              <p className="mb-4">
+                    <strong>Tổng chi phí: </strong>
                     <span className="font-bold text-red-500">
                       {new Intl.NumberFormat("vi-VN", {
                         style: "currency",
                         currency: "VND",
-                      }).format(transaction.amount)}
+                      }).format(transaction.total_fee)}
                     </span>
                   </p>
-                </div>
-              </CardBody>
-            </Card>
-          ))
-        )}
-      </div>
 
-      {/* Section for Deductions */}
-      <div>
-        <h3 className="text-xl font-semibold mb-2">Lịch sử Trừ Tiền</h3>
-        {loading ? (
-          <div className="flex justify-center">
-            <CircularProgress size="lg" color="primary" />
-          </div>
-        ) : (
-          filterTransactions("deduction").map((transaction) => (
-            <Card key={transaction.id} className="mb-4">
-              <CardBody>
-                <div className="mt-2">
-                  <p className="mb-4">
-                    <strong>Thời gian giao dịch: </strong>
-                    {new Date(transaction.created_at).toLocaleString("vi-VN", {
-                      day: "2-digit",
-                      month: "2-digit",
-                      year: "numeric",
-                      hour: "2-digit",
-                      minute: "2-digit",
-                    })}
-                  </p>
-                  <p className="mb-4">
-                    <strong>Chi tiết:</strong> {transaction.detail}
-                  </p>
-
-                  <p className="mb-2">
-                    <strong>Số tiền bị trừ đi:</strong>{" "}
-                    <span className="font-bold text-red-500">
-                      {new Intl.NumberFormat("vi-VN", {
-                        style: "currency",
-                        currency: "VND",
-                      }).format(transaction.amount)}
-                    </span>
-                  </p>
-                </div>
-              </CardBody>
-            </Card>
-          ))
-        )}
-      </div>
+              <p>
+                <strong>Trạng thái giao dịch: </strong>
+                <Chip
+                  className="text-white"
+                  color={getChipColor(transaction.status)}
+                >
+                  {transaction.status}
+                </Chip>
+              </p>
+            </CardBody>
+          </Card>
+        ))
+      ) : (
+        <p className="text-center mt-4">Không có giao dịch nào.</p>
+      )}
     </div>
   );
 };

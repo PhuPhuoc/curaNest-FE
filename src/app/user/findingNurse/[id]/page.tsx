@@ -85,7 +85,7 @@ const DetailNurseFinding = (props: any) => {
           {user?.role !== "user" && <Profile id={id}/>}
 
           {/* Review Component */}
-          <Review />
+          <Review nurseId={id}/>
         </>
       )}
     </div>
