@@ -55,7 +55,6 @@ const AppointmentModal = ({
   role,
 }: any) => {
   const [detailList, setDetailList] = useState<DetailSchedule>();
-  console.log("🚀 ~ detailList:", detailList);
 
   async function fetchDetailSchedule(id: string) {
     try {
