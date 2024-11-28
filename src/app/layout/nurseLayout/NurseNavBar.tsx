@@ -54,7 +54,6 @@ const NurseNavbar = () => {
         </nav>
       </div>
 
-      {/* Mobile Navbar */}
       <div className="lg:hidden flex items-center justify-between bg-gray-800 text-white p-4 fixed w-full z-50">
         <Link href="/user/patientProfile">
           <p className="font-bold text-inherit text-2xl hover:text-sky-400">
