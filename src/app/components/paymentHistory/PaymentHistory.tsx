@@ -1,5 +1,5 @@
 "use client";
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import {
   Table,
   Pagination,
@@ -8,107 +8,124 @@ import {
   TableBody,
   TableRow,
   TableCell,
-  Chip, // Import the Chip component
+  Chip,
+  ChipProps,
 } from "@nextui-org/react";
-
-interface PaymentData {
-  id: number;
-  transactionName: string;
-  content: string;
-  status: string;
-}
+import { walletHistoryTransaction } from "@/types/payment";
+import paymentApiRequest from "@/apiRequests/payment/payment";
 
 const PaymentHistory = () => {
-  const data: PaymentData[] = [
-    {
-      id: 1,
-      transactionName: "Giao dịch 1",
-      content: "Nội dung 1",
-      status: "Hoàn thành",
-    },
-    {
-      id: 2,
-      transactionName: "Giao dịch 2",
-      content: "Nội dung 2",
-      status: "Đang xử lý",
-    },
-    {
-      id: 3,
-      transactionName: "Giao dịch 3",
-      content: "Nội dung 3",
-      status: "Hủy",
-    },
-    {
-      id: 4,
-      transactionName: "Giao dịch 4",
-      content: "Nội dung 4",
-      status: "Hoàn thành",
-    },
-  ];
+  const [loading, setLoading] = useState(false);
+  const [historyList, setHistoryList] = useState<walletHistoryTransaction[]>(
+    []
+  );
+
+  async function fetchHistoryTransactionList() {
+    setLoading(true);
+    try {
+      const response = await paymentApiRequest.getAddlWalletTransaction();
+      setHistoryList(response.payload.data);
+      setLoading(false);
+    } catch (error) {
+      console.error("Error fetching transactions:", error);
+      setLoading(false);
+    }
+  }
+
+  useEffect(() => {
+    fetchHistoryTransactionList();
+  }, []);
 
   const [currentPage, setCurrentPage] = useState(1);
   const rowsPerPage = 14;
 
-  const currentData = data.slice(
+  const currentData = historyList.slice(
     (currentPage - 1) * rowsPerPage,
     currentPage * rowsPerPage
   );
 
-  const getStatusColor = (status: string) => {
-    switch (status) {
-      case "Hoàn thành":
-        return "success";
-      case "Đang xử lý":
-        return "warning";
-      case "Hủy":
-        return "danger"; // Use "danger" instead of "error"
+  const getStatusLabel = (
+    type: string
+  ): { label: string; color: ChipProps["color"] } => {
+    switch (type) {
+      case "deposit":
+        return { label: "Nạp tiền", color: "success" };
+      case "deduction":
+        return { label: "Phí giao dịch", color: "warning" };
       default:
-        return "default";
+        return { label: "Không xác định", color: "default" };
     }
+  };
+
+  const formatDate = (dateString: string): string => {
+    const date = new Date(dateString);
+    return date.toLocaleString("vi-VN", {
+      day: "2-digit",
+      month: "2-digit",
+      year: "numeric",
+      hour: "2-digit",
+      minute: "2-digit",
+      second: "2-digit",
+    });
   };
 
   return (
     <div>
-      <Table
-        aria-label="Payment History Table"
-        bottomContent={
-          <div className="flex w-full justify-center">
-            <Pagination
-              isCompact
-              showControls
-              showShadow
-              size="lg"
-              color="secondary"
-              total={data.length}
-              page={currentPage}
-              onChange={(page) => setCurrentPage(page)}
-            />
-          </div>
-        }
-      >
-        <TableHeader>
-          <TableColumn className="text-lg">STT</TableColumn>
-          <TableColumn className="text-lg">Tên giao dịch</TableColumn>
-          <TableColumn className="text-lg max-w-[50%]">Nội dung</TableColumn>
-          <TableColumn className="text-lg w-[20%]">Trạng thái</TableColumn> 
-        </TableHeader>
-        <TableBody emptyContent={"Không có giao dịch hiện tại"}>
-          {currentData.map((item, index) => (
-            <TableRow key={item.id}>
-              <TableCell className="text-lg">
-                {(currentPage - 1) * rowsPerPage + index + 1}
-              </TableCell>
-              <TableCell className="text-lg">{item.transactionName}</TableCell>
-              <TableCell className="text-lg w-[30%]">{item.content}</TableCell>
-              <TableCell className="text-lg w-[10%]">
-                <Chip color={getStatusColor(item.status)} className="text-white" size="lg">
-                  {item.status}
-                </Chip>
-              </TableCell>
-            </TableRow>
-          ))}
-        </TableBody>
-      </Table>
+      {loading ? (
+        <div>Đang tải...</div>
+      ) : (
+        <Table
+          aria-label="Payment History Table"
+          bottomContent={
+            <div className="flex w-full justify-center">
+              <Pagination
+                isCompact
+                showControls
+                showShadow
+                size="lg"
+                color="secondary"
+                total={Math.ceil(historyList.length / rowsPerPage)}
+                page={currentPage}
+                onChange={(page) => setCurrentPage(page)}
+              />
+            </div>
+          }
+        >
+          <TableHeader>
+            <TableColumn className="text-lg">STT</TableColumn>
+            <TableColumn className="text-lg">Loại giao dịch</TableColumn>
+            <TableColumn className="text-lg max-w-[50%]">Nội dung</TableColumn>
+            <TableColumn className="text-lg">Số tiền (VND)</TableColumn>
+            <TableColumn className="text-lg w-[20%]">Thời gian</TableColumn>
+            <TableColumn className="text-lg w-[20%]">Trạng thái</TableColumn>
+          </TableHeader>
+          <TableBody emptyContent={"Không có giao dịch hiện tại"}>
+            {currentData.map((item, index) => {
+              const status = getStatusLabel(item.type);
+              return (
+                <TableRow key={item.id}>
+                  <TableCell className="text-lg">
+                    {(currentPage - 1) * rowsPerPage + index + 1}
+                  </TableCell>
+                  <TableCell className="text-lg">{status.label}</TableCell>
+                  <TableCell className="text-lg">{item.detail}</TableCell>
+                  <TableCell className="text-lg">
+                    {item.amount.toLocaleString("vi-VN")}
+                  </TableCell>
+                  <TableCell className="text-lg">
+                    {formatDate(item.created_at)}
+                  </TableCell>
+                  <TableCell className="text-lg w-[10%]">
+                    <Chip color={status.color} className="text-white" size="lg">
+                      {status.label}
+                    </Chip>
+                  </TableCell>
+                </TableRow>
+              );
+            })}
+          </TableBody>
+        </Table>
+      )}
     </div>
   );
 };

@@ -1,81 +1,147 @@
-'use client';
-import { Card, CardHeader, CardBody, Chip, Avatar } from '@nextui-org/react';
+"use client";
+import nurseApiRequest from "@/apiRequests/nurse/nurse";
+import { formatDateVN, generateColor } from "@/lib/utils";
+import {
+  Card,
+  CardHeader,
+  CardBody,
+  Chip,
+  Avatar,
+  CircularProgress,
+} from "@nextui-org/react";
+import dayjs from "dayjs";
+import { useEffect, useState } from "react";
 
-const HistoryTransactionNurse = () => {
-    const transactions = [
-        { id: 1, customer: 'Nguyen Van A', status: 'Thành công', date: '01/09/2024', address: '123 Le Van Viet', phone: '0123456789', serviceType: 'Consultation', avatarUrl: 'https://via.placeholder.com/50' },
-        { id: 2, customer: 'Le Thi B', status: 'Thất bại', date: '15/08/2024', address: '456 Elm St', phone: '0987654321', serviceType: 'Checkup', avatarUrl: 'https://via.placeholder.com/50' },
-        { id: 3, customer: 'Tran Van C', status: 'Hủy giao dịch', date: '28/07/2024', address: '789 Oak St', phone: '1234567890', serviceType: 'Emergency', avatarUrl: 'https://via.placeholder.com/50' },
-    ];
+const HistoryTransactionNurse: React.FC<{ nurseId: string | undefined }> = ({
+  nurseId,
+}) => {
+  const [transactions, setTransactions] = useState<any[]>([]);
+  const [loading, setLoading] = useState<boolean>(false);
 
-    const serviceColors = (serviceType: string) => {
-        switch (serviceType) {
-            case 'Consultation':
-                return '#f9a8d4';
-            case 'Checkup':
-                return '#f472b6';
-            case 'Emergency':
-                return '#ec4899';
-            default:
-                return '#697177';
-        }
+  useEffect(() => {
+    const fetchScheduleData = async () => {
+      if (!nurseId) return;
+
+      setLoading(true);
+
+      const from = dayjs().startOf("month").format("YYYY-MM-DD");
+      const to = dayjs().endOf("month").format("YYYY-MM-DD");
+
+      try {
+        const response = await nurseApiRequest.nurseScheduleCard(
+          nurseId,
+          "nurse",
+          from,
+          to
+        );
+        console.log("API Response:", response);
+        console.log("Payload Data:", response?.payload?.data);
+
+        setTransactions(response.payload.data); 
+      } catch (error) {
+        console.error("Error fetching schedule data:", error); 
+      } finally {
+        setLoading(false);
+      }
     };
 
-    const getChipColor = (status: string) => {
-        switch (status) {
-            case 'Thành công':
-                return 'success';
-            case 'Hủy giao dịch':
-                return 'warning';
-            case 'Thất bại':
-                return 'danger';
-            default:
-                return 'default';
-        }
-    };
+    fetchScheduleData();
+  }, [nurseId]);
 
+
+  const getChipColor = (status: string) => {
+    switch (status) {
+      case "completed":
+        return "success";
+      case "cancel":
+        return "warning";
+      case "Thất bại":
+        return "danger";
+      default:
+        return "default";
+    }
+  };
+
+  if (loading) {
     return (
-        <div>
-            {transactions.map((transaction) => (
-                <Card key={transaction.id} className="mb-4">
-                    <CardHeader >
-                        <div className="flex items-center">
-                            <Avatar
-                                src={transaction.avatarUrl}
-                                style={{ width: '80px', height: '80px', marginRight: "10px" }}
-                            />
-                            <div>
-                                <h4 className="text-lg font-semibold">{transaction.customer}</h4>
-                            </div>
-                        </div>
-                    </CardHeader>
-
-                    <CardBody>
-                        <div className="flex flex-wrap gap-6 mb-4">
-                            <p><strong>Ngày đặt:</strong> {transaction.date}</p>
-                            <p><strong>Địa chỉ:</strong> {transaction.address}</p>
-                            <p><strong>Số điện thoại:</strong> {transaction.phone}</p>
-                        </div>
-
-                        <p className='mb-4'>
-                            <strong>Loại dịch vụ: </strong>
-                            <Chip
-                                className="text-white"
-                                style={{ backgroundColor: serviceColors(transaction.serviceType) }}
-
-                            >
-                                {transaction.serviceType}
-                            </Chip>
-                        </p>
-                        <p>
-                            <strong>Trạng thái giao dịch: </strong>
-                            <Chip className='text-white' color={getChipColor(transaction.status)}>{transaction.status}</Chip>
-                        </p>
-                    </CardBody>
-                </Card>
-            ))}
-        </div>
+      <div className="flex justify-center items-center h-40">
+        <CircularProgress size="lg" color="primary" />
+      </div>
     );
+  }
+
+  return (
+    <div>
+      {transactions.length > 0 ? (
+        transactions.map((transaction) => (
+          <Card key={transaction.id} className="mb-4 w-full">
+            <CardHeader>
+              <div className="flex items-center">
+                <Avatar
+                  src={transaction.avatar}
+                  style={{ width: "80px", height: "80px", marginRight: "10px" }}
+                />
+                <div>
+                  <h4 className="text-lg font-semibold">
+                    {transaction.patient_name}
+                  </h4>
+                </div>
+              </div>
+            </CardHeader>
+
+            <CardBody>
+              <div className="flex flex-wrap gap-6 mb-4">
+                <p>
+                  <strong>Ngày đặt:</strong>{" "}
+                  {formatDateVN(transaction.appointment_date)}
+                </p>
+                <p>
+                  <strong>Thời gian:</strong> {transaction.time_from_to}
+                </p>
+                <p>
+                  <strong>Số điện thoại:</strong> {transaction.patient_phone}
+                </p>
+              </div>
+
+              <p className="mb-4">
+                <strong>Loại dịch vụ: </strong>
+                <Chip
+                  key={transaction.id}
+                  className="text-white font-bold py-2"
+                  size="md"
+                  style={{ backgroundColor: generateColor(transaction.id) }}
+                >
+                  {transaction.techniques}
+                </Chip>
+              </p>
+
+              <p className="mb-4">
+                    <strong>Tổng chi phí: </strong>
+                    <span className="font-bold text-red-500">
+                      {new Intl.NumberFormat("vi-VN", {
+                        style: "currency",
+                        currency: "VND",
+                      }).format(transaction.total_fee)}
+                    </span>
+                  </p>
+
+              <p>
+                <strong>Trạng thái giao dịch: </strong>
+                <Chip
+                  className="text-white"
+                  color={getChipColor(transaction.status)}
+                >
+                  {transaction.status}
+                </Chip>
+              </p>
+            </CardBody>
+          </Card>
+        ))
+      ) : (
+        <p className="text-center mt-4">Không có giao dịch nào.</p>
+      )}
+    </div>
+  );
 };
 
 export default HistoryTransactionNurse;

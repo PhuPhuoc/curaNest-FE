@@ -21,6 +21,7 @@ import { useAppContext } from "@/app/app-provider";
 import { toast } from "react-toastify";
 import { useRouter } from "next/navigation";
 import axios from "axios";
+import paymentApiRequest from "@/apiRequests/payment/payment";
 export interface FormPayment {
   amount: string;
   user_id: string | null;
@@ -44,6 +45,21 @@ export default function NurseLayout({
     user_id: user && user?.id,
   });
 
+  const [amount, setAmount] = useState<number>(0);
+  async function fetchCurrentAmount() {
+    setLoading(true);
+    try {
+      if (user) {
+        const response = await paymentApiRequest.getWallet(user.id);
+        setAmount(response.payload.data.wallet_amount);
+        setLoading(false);
+      }
+    } catch (error) {
+      console.error("Error fetching techniques:", error);
+      setLoading(false);
+    }
+  }
+
   function handleLogout() {
     setUser(null);
     setAccount(null);
@@ -54,6 +70,7 @@ export default function NurseLayout({
 
   const handleCreateModalOpen = () => {
     setCreateModalOpen(true);
+    fetchCurrentAmount();
   };
 
   const handleCreateModalClose = () => {
@@ -129,7 +146,7 @@ export default function NurseLayout({
                     src: user?.avatar,
                   }}
                   className="transition-transform "
-                  description={"10.000.000 VND"}
+                  description={user?.email}
                   name={user?.user_name || "Tên không xác định"}
                 />
               </DropdownTrigger>
@@ -147,7 +164,7 @@ export default function NurseLayout({
                   key="payment"
                   onClick={handleCreateModalOpen}
                 >
-                  Nạp tiền
+                  Số dư của ví
                 </DropdownItem>
                 <DropdownItem
                   href="/login"
@@ -177,46 +194,71 @@ export default function NurseLayout({
         size="2xl"
       >
         <ModalContent>
-          <ModalHeader className="flex flex-col gap-1 text-xl">
-            Nạp tiền vào tài khoản
+          <ModalHeader className="flex flex-col gap-2 text-center">
+            <h2 className="text-2xl font-bold text-gray-800">
+              Nạp tiền vào tài khoản
+            </h2>
+            <p className="text-sm text-gray-500">
+              Nhập số tiền cần nạp hoặc kiểm tra số dư hiện tại của bạn.
+            </p>
           </ModalHeader>
+
           <ModalBody>
-            <div className="flex flex-col gap-4">
-              <Input
-                size="lg"
-                label="Số tiền chuyển khoản"
-                placeholder="Nhập số tiền"
-                variant="bordered"
-                value={createFormData.amount}
-                onChange={(e) => handleFeeInputChange(e.target.value)}
-                endContent={<div className="text-default-400">VND</div>}
-                isInvalid={feeError}
-                errorMessage={
-                  feeError ? "Giá tiền phải ít nhất 4 kí tự bao gồm số 0" : ""
-                }
-                style={{ fontSize: 20 }}
-                classNames={{ label: "text-[20px] font-bold mb-2" }}
-              />
+            <div className="flex flex-col gap-6">
+              <div className="flex items-center justify-between bg-gray-100 p-4 rounded-lg shadow-sm">
+                <span className="text-lg font-semibold text-gray-600">
+                  Số dư hiện tại:
+                </span>
+                <span className="text-2xl font-bold text-cyan-500">
+                  {new Intl.NumberFormat("vi-VN").format(amount || 0)} VND
+                </span>
+              </div>
+
+              <div className="flex flex-col gap-2">
+                <label
+                  htmlFor="amount"
+                  className="text-lg font-medium text-gray-700"
+                >
+                  Số tiền nạp
+                </label>
+                <Input
+                  id="amount"
+                  size="lg"
+                  placeholder="Nhập số tiền"
+                  variant="bordered"
+                  value={createFormData.amount}
+                  onChange={(e) => handleFeeInputChange(e.target.value)}
+                  endContent={<div className="text-default-400">VND</div>}
+                  isInvalid={feeError}
+                  errorMessage={
+                    feeError ? "Số tiền phải lớn hơn hoặc bằng 1,000 VND" : ""
+                  }
+                  className="text-xl font-medium"
+                />
+              </div>
             </div>
           </ModalBody>
-          <ModalFooter>
-            <Button
-              size="lg"
-              color="danger"
-              variant="light"
-              onPress={handleCreateModalClose}
-              className="text-lg font-bold"
-            >
-              Hủy
-            </Button>
-            <Button
-              isLoading={loading}
-              size="lg"
-              className="bg-indigo-700 text-white text-lg font-bold"
-              onPress={handleCreateSubmit}
-            >
-              Xác nhận chuyển khoản
-            </Button>
+
+          <ModalFooter className="flex justify-end">
+            <div className="flex gap-4">
+              <Button
+                size="lg"
+                color="danger"
+                variant="light"
+                onPress={handleCreateModalClose}
+                className="text-lg font-bold"
+              >
+                Hủy
+              </Button>
+              <Button
+                isLoading={loading}
+                size="lg"
+                className="bg-cyan-400 text-white text-lg font-bold hover:bg-cyan-500"
+                onPress={handleCreateSubmit}
+              >
+                Xác nhận
+              </Button>
+            </div>
           </ModalFooter>
         </ModalContent>
       </Modal>
