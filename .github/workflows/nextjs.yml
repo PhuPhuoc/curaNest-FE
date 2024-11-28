@@ -41,7 +41,7 @@ jobs:
           port: 22
           script: |
             RETRY_COUNT=0
-            MAX_RETRIES=7
+            MAX_RETRIES=10
             until [ $RETRY_COUNT -ge $MAX_RETRIES ]
             do
               if timeout 60 docker pull pardes29/curanest-exe-fe:v1; then
